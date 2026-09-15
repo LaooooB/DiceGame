@@ -261,10 +261,12 @@ public partial class CampaignUi : Control
         _title.Text = "配置骰子 · " + Catalog.Regions[State.SelectedRegion].Name;
         Label(_content, "必须携带 6 种不同骰子。首位是主骰，决定通关记录归属；召唤和合成从六种骰子中等概率随机。", 20, Muted);
         var grid = Add(Scroll(_content), new GridContainer { Columns = 3, SizeFlagsHorizontal = SizeFlags.ExpandFill });
-        foreach (var die in App.Data.Dice)
+        foreach (var die in App.Data.Dice.OrderBy(d => Array.IndexOf(DiceContent.Rarities,d.Rarity)))
         {
             bool unlocked = State.UnlockedDice.Contains(die.Id), selected = App.EditingDeck.Contains(die.Id);
             var box = Card(grid, die.Name + (unlocked ? selected ? " · 已携带" : "" : " · 未解锁"), die.Description); box.CustomMinimumSize = new Vector2(420, 0);
+            Label(box, DiceContent.RarityName(die.Rarity) + " · " + die.Tag, 20, DiceContent.RarityColor(die.Rarity));
+            Button(box, "查看 A/B/C/D 强化", () => ShowDiceCatalog(die.Id));
             var art = Dice(box, _root.Art, die.Id, 1, 112); art.Modulate = unlocked ? Colors.White : new Color(.4f, .4f, .4f);
             if (!unlocked)
             {
@@ -326,14 +328,16 @@ public partial class CampaignUi : Control
     {
         if (App.Sim is null || App.SelectedSlot < 0 || App.Sim.State.Board[App.SelectedSlot] is not { } die) { App.Scene = "play"; Invalidate(); return; }
         var definition = App.Data.Types[die.Type]; var stats = App.Sim.Stats(die); var box = Card(_content, definition.Name + $" · {die.Pips} 点", definition.Description);
+        Label(box,DiceContent.RarityName(definition.Rarity),22,DiceContent.RarityColor(definition.Rarity));
         Dice(box, _root.Art, die.Type, die.Pips, 180);
+        string contentStatus=App.Sim.ContentStatus(die);if(contentStatus!="")Label(box,contentStatus,22,Mint);
         Label(box, $"齐射伤害 {Palette.Compact(stats.Volley)} · 装填 {stats.Reload:0.00} 秒 · 每轮 {stats.Count} 颗弹丸", 25, Mint);
         Label(box, die.Pips < 6 ? "同种同点才能合成。合成会减少当前攻击席位，并生成卡组内随机种类的更高点数骰子。" : "已到六点上限。保留火力，或回收腾出空位。", 21);
         Label(box, App.Sim.SkillDescription(die), 21, Gold);
         if (die.Pips is 3 or 4) Label(box, "下一次合成会继承落点骰子的 A/B 分支编号，但技能按随机结果种类切换。", 19, Muted);
         if (die.Pips == 5) Label(box, "合成六级后：按最终种类重新选择 A/B，再选择 C/D。", 21, Mint);
         Button(box, "返回战斗", () => Act("closeDie"));
-        Button(box, "回收此骰子 · +" + App.Data.Game.Levels[die.Pips - 1].Recycle + " 能量", () => Act("recycle:" + App.SelectedSlot));
+        Button(box, "回收此骰子 · +" + App.Sim.RecycleValue(die) + " 能量", () => Act("recycle:" + App.SelectedSlot));
     }
     private void BuildHelp()
     {

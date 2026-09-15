@@ -48,6 +48,7 @@ public sealed partial class GameApp
                             foreach(var (type,value) in level.Reward.Bonuses.DiceDamagePercent)
                                 Campaign.Bonuses.DiceDamagePercent[type]=Campaign.Bonuses.DiceDamagePercent.GetValueOrDefault(type)+value;
             }
+            Campaign.UnlockedDice.UnionWith(Data.Dice.Where(d => d.AvailableFromStart).Select(d => d.Id));
             Catalog.ValidateState(Campaign);
             if (!Progression!.CanUseDeck(Campaign, Deck))
             {

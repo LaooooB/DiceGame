@@ -66,7 +66,7 @@ public static class UiKit
     }
     public static void SetDice(TextureRect rect, NativeArt art, string id, int pips)
     {
-        int row = Array.IndexOf(NativeArt.TypeRows, id); if (row < 0) { rect.Texture = null; return; }
+        int row = Array.IndexOf(NativeArt.TypeRows, id); if (row < 0) { rect.Texture = art.ContentDie(id, pips); return; }
         const int cell = (49 + 16) * 3;
         rect.Texture = new AtlasTexture { Atlas = art.Dice(49), Region = new Rect2((Math.Clamp(pips, 1, 6) - 1) * cell, row * cell, cell, cell), FilterClip = true };
     }

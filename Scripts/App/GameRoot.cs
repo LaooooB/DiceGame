@@ -34,7 +34,7 @@ public partial class GameRoot : Node
             var data = new GameData(Read("game"), Read("dice"), Read("upgrades"), Read("dice_skills"));
             var catalog = new CampaignCatalog(data, Read("campaign"));
             Art = new NativeArt(); Audio = new NativeAudio { Name = "NativeAudio" }; AddChild(Audio);
-            Storage = new DesktopStorage(data); _capture = OS.GetCmdlineUserArgs().Contains("--capture-campaign");
+            Storage = new DesktopStorage(data); _capture = OS.GetCmdlineUserArgs().Any(a => a is "--capture-campaign" or "--capture-content");
             App = new GameApp(data, _capture ? new PreviewStorage() : Storage, Audio, catalog) { NativeUi = true };
             _renderer = new NativeRenderer(App);
             Battlefield = new SubViewport { Name = "Battlefield", Size = new Vector2I(764, 888), Disable3D = true,
@@ -53,7 +53,7 @@ public partial class GameRoot : Node
             _window.CloseRequested += Quit; _window.FocusExited += LoseFocus; _window.MouseExited += CancelInput;
             GetViewport().SizeChanged += CancelInput; _ready = true;
             GD.Print("CAMPAIGN READY | Godot 4.6 Mono | 1920x1080 | native Control UI | 120Hz combat");
-            if (_capture) Callable.From(CaptureCampaign).CallDeferred();
+            if (_capture) { if (OS.GetCmdlineUserArgs().Contains("--capture-content")) Callable.From(CaptureContent).CallDeferred(); else Callable.From(CaptureCampaign).CallDeferred(); }
         }
         catch (Exception ex)
         {

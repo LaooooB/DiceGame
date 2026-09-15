@@ -81,7 +81,7 @@ public partial class CampaignUi
                 _slotKeys[i] = key;
                 if (die is null) { _slotArt[i].Texture = null; _slotNames[i].Text = "+ 空位"; _slotBranches[i].Text = ""; _slots[i].TooltipText = "单击召唤到此位置"; }
                 else { SetDice(_slotArt[i], _root.Art, die.Type, die.Pips); _slotNames[i].Text = App.Data.Types[die.Type].Name + " · " + die.Pips; _slotBranches[i].Text = die.Tier3=="" ? "3/6 强化" : die.Tier6=="" ? die.Tier3+" 分支" : die.Tier3+" + "+die.Tier6;
-                    _slots[i].TooltipText = App.Data.Types[die.Type].Description+"\n"+sim.SkillDescription(die); }
+                    _slots[i].TooltipText = DiceContent.RarityName(App.Data.Types[die.Type].Rarity)+" · "+App.Data.Types[die.Type].Description+"\n"+sim.SkillDescription(die); }
             }
             _reloads[i].Visible = die is not null;
             if (die is not null) _reloads[i].Value = 1 - MathEx.Clamp(die.Cooldown / sim.Stats(die).Reload, 0, 1);

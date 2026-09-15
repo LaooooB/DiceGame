@@ -25,7 +25,7 @@ public sealed partial class Simulation
         if(!data.ValidDeck(selected)) throw new ArgumentException($"卡组必须携带 {data.Game.Rules.MinDeck}～{data.Game.Rules.MaxDeck} 种互不重复的骰子。",nameof(deck));
         Random=new SeededRandom(seed ?? unchecked((uint)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
         State=new RunState { Schema=C.Schema, Deck=selected, Seed=Random.State, Rng=Random.State,
-            Health=R.MaxHealth, Energy=R.StartEnergy+(expedition?.Bonuses.StartEnergy??0), Board=new DieState?[C.Board.Slots], Expedition=expedition is null?null:CampaignCatalog.Copy(expedition) };
+            ContentVersion=R.EnableDiceContent ? DiceContent.Version : 0, Health=R.MaxHealth, Energy=R.StartEnergy+(expedition?.Bonuses.StartEnergy??0), Board=new DieState?[C.Board.Slots], Expedition=expedition is null?null:CampaignCatalog.Copy(expedition) };
         if (R.EnableDiceSkills) S.SkillSets = S.Deck.ToDictionary(id => id, id => CampaignCatalog.Copy(Data.Skills[id]));
         for (int i = 0; i < R.StartingDicePattern.Length; i++) S.Board[i] = MakeDie(S.Deck[Math.Min(S.Deck.Count - 1, R.StartingDicePattern[i])], 1);
         StartWave(1); Grid.Rebuild(S.Enemies);
@@ -47,7 +47,7 @@ public sealed partial class Simulation
         for(int a=0;a<C.Board.Slots;a++) for(int b=a+1;b<C.Board.Slots;b++) if(CanMerge(a,b)) return true;
         return false;
     }
-    public ShotStats Stats(DieState die)
+    private ShotStats BaseStats(DieState die)
     {
         var type=Data.Types[die.Type]; var level=C.Levels[die.Pips-1];
         double multiplier=(1+0.18*UpgradeLevel("power"))*(1+(S.Expedition?.Bonuses.DamagePercent??0));
@@ -57,7 +57,7 @@ public sealed partial class Simulation
         double volley=type.BaseDamage*level.VolleyPower*multiplier;
         var stats = new ShotStats
         {
-            Effect=type.Effect, Damage=volley/die.Pips, Volley=volley, Count=die.Pips,
+            Traits=R.EnableDiceContent ? new(type.Traits, StringComparer.Ordinal) : new(), AttackType=type.Id, Effect=type.Effect, Damage=volley/die.Pips, Volley=volley, Count=die.Pips,
             Reload=type.Reload*level.ReloadFactor*Math.Pow(0.92,UpgradeLevel("reload"))*Math.Max(.25,1-(S.Expedition?.Bonuses.ReloadPercent??0)),
             Bounces=Math.Min(25,R.BaseBounces+2*UpgradeLevel("bounce")), Color=type.Color,
             BlastRadius=type.Radius*(1+0.2*UpgradeLevel("blast")), SplashFactor=type.SplashFactor*(1+0.15*UpgradeLevel("blast")),
@@ -87,9 +87,10 @@ public sealed partial class Simulation
     {
         if(S.Over || S.AwaitingUpgrade || AwaitingDiceSkill) return new(false,"paused");
         if(!CanMerge(a,b)) return new(false,"mismatch");
-        var old=S.Board[b]!; int pips=old.Pips+1;
+        var first=S.Board[a]!; var old=S.Board[b]!; int pips=old.Pips+1;
         if(S.PendingShots.Count+MergeShotReservation(pips)>R.MaxQueuedShots) return new(false,"busy");
         var die=MakeDie(Random.Pick(S.Deck),pips); S.Board[a]=null; S.Board[b]=die; S.Merges++;
+        RefundMergeMaterials(first,old);
         // Existing projectiles and queued snapshots do not reference either material die.
         ResolveMergeSkills(die, old, b);
         Emit(new CombatEvent {Type="merge",A=a,B=b,OldType=old.Type,Die=die.Copy()});
@@ -98,7 +99,7 @@ public sealed partial class Simulation
     public ActionResult Recycle(int index)
     {
         if(S.Over || S.AwaitingUpgrade || AwaitingDiceSkill || index<0 || index>=C.Board.Slots || S.Board[index] is null) return new(false);
-        var die=S.Board[index]!; int amount=C.Levels[die.Pips-1].Recycle;
+        var die=S.Board[index]!; int amount=C.Levels[die.Pips-1].Recycle+ContentRecycleBonus(die);
         S.Energy+=amount; S.Board[index]=null; Emit(new CombatEvent {Type="recycle",Slot=index,Amount=amount});
         return new(true,Amount:amount);
     }
@@ -114,7 +115,7 @@ public sealed partial class Simulation
         S.LastAim=ClampAim(angle);
         var ready=S.Board.Select((d,i)=>(d,i)).Where(x=>x.d is not null && x.d.Cooldown<=1e-5).ToList();
         if(ready.Count==0) return new(false,"reloading");
-        int needed=ready.Sum(x=>Stats(x.d!).Count);
+        int needed=ready.Sum(x=>VolleyReservation(x.d!));
         if(S.PendingShots.Count+needed>R.MaxQueuedShots) return new(false,"busy");
         foreach(var (d,i) in ready)
         {
@@ -126,6 +127,7 @@ public sealed partial class Simulation
     private void SortPending() => S.PendingShots=S.PendingShots.OrderBy(p=>p.Due).ToList(); // Stable, like JS Array.sort.
     public void QueueVolley(DieState die,int slot,double angle,double multiplier,bool surge)
     {
+        if(R.EnableDiceContent) { QueueContentVolley(die,slot,angle,multiplier,surge); return; }
         var stats=Stats(die); var captured=stats.Copy(); captured.Damage*=multiplier;
         var snapshot=new ShotSnapshot {Type=die.Type,Pips=die.Pips,Stats=captured,Source=Data.SlotPosition(slot),Surge=surge};
         for(int k=0;k<stats.Count;k++) S.PendingShots.Add(new PendingShot {Due=S.Time+0.075+k*0.056+slot%C.Board.Columns*0.019,Angle=angle,Snapshot=snapshot});
@@ -134,7 +136,7 @@ public sealed partial class Simulation
     public ProjectileState MakeProjectile(double x,double y,double angle,ShotSnapshot snapshot,bool child=false)
     {
         double speed=R.ProjectileSpeed*(child?1.03:1);
-        return new ProjectileState {Id=S.NextId++,X=x,Y=y,Px=x,Py=y,Vx=Math.Cos(angle)*speed,Vy=Math.Sin(angle)*speed,
+        return new ProjectileState {SourceDieId=snapshot.SourceDieId,Id=S.NextId++,X=x,Y=y,Px=x,Py=y,Vx=Math.Cos(angle)*speed,Vy=Math.Sin(angle)*speed,
             Type=snapshot.Type,Pips=snapshot.Pips,Stats=snapshot.Stats.Copy(),Life=child?Math.Min(15,3.4+snapshot.Stats.ChildLifeBonus):R.ProjectileLife,
             PiercesLeft=child?snapshot.Stats.ChildPierces:snapshot.Stats.Pierces,
             Bounces=snapshot.Stats.Bounces,Child=child,SplitDone=child,WallPower=1,Surge=snapshot.Surge};
@@ -238,7 +240,7 @@ public sealed partial class Simulation
             for(int lane=lo;lane<=hi;lane++) front[lane]=e.Y-e.H/2;
             if(e.Y+e.H/2>=A.Breach)
             {
-                e.Dead=true; int lost=e.Kind=="boss"?3:1; S.Health=Math.Max(0,S.Health-lost); S.Escaped++;
+                e.Dead=true; int lost=e.Kind=="boss"?3:1; S.Health=Math.Max(0,S.Health-lost); S.Escaped++; if(R.EnableDiceContent) S.RageUntil=S.Time+5;
                 Emit(new CombatEvent {Type="breach",X=e.X,Y=A.Breach,Lost=lost});
                 if(S.Expedition is {LegacyRules:false} && e.Kind=="boss")
                 {EndExpedition("defeat","头目突破了防线，未完成区域挑战");break;}
@@ -253,9 +255,12 @@ public sealed partial class Simulation
         if(!MathEx.Finite(dt,0,0.101)) throw new ArgumentOutOfRangeException(nameof(dt));
         S.Time+=dt; S.WaveTime+=dt; S.Energy=Math.Min(999999,S.Energy+(R.PassiveEnergy+(S.Expedition?.Bonuses.PassiveEnergy??0))*dt);
         S.ComboTime=Math.Max(0,S.ComboTime-dt); if(S.ComboTime==0) S.Combo=0;
-        foreach(var die in S.Board) if(die is not null) {die.Cooldown=Math.Max(0,die.Cooldown-dt);die.Flash=Math.Max(0,die.Flash-dt);}
+        double haste=R.EnableDiceContent ? TickDiceContent(dt) : 1;
+        if(AwaitingDiceSkill) return;
+        foreach(var die in S.Board) if(die is not null) {die.Cooldown=Math.Max(0,die.Cooldown-dt*haste);die.Flash=Math.Max(0,die.Flash-dt);}
         AdvanceEnemies(dt); if(S.Over) return;
         Grid.Rebuild(S.Enemies);
+        if(R.EnableDiceContent) TickContentEffects();
         while(S.PendingShots.Count>0 && S.PendingShots[0].Due<=S.Time && S.Projectiles.Count<R.MaxProjectiles)
         {
             var shot=S.PendingShots[0]; S.PendingShots.RemoveAt(0);
@@ -297,6 +302,11 @@ public sealed partial class Simulation
             foreach(var e in candidates)
             {
                 var box=new BoundsD(e.X-e.W/2-r,e.X+e.W/2+r,e.Y-e.H/2-r,e.Y+e.H/2+r);
+                if(R.EnableDiceContent && p.PassingEnemies.Contains(e.Id))
+                {
+                    if(p.X>=box.Left-0.2 && p.X<=box.Right+0.2 && p.Y>=box.Top-0.2 && p.Y<=box.Bottom+0.2) continue;
+                    p.PassingEnemies.Remove(e.Id);
+                }
                 if(e.Id==p.LastEnemy)
                 {
                     if(p.X>=box.Left-0.2 && p.X<=box.Right+0.2 && p.Y>=box.Top-0.2 && p.Y<=box.Bottom+0.2) continue;
@@ -314,21 +324,25 @@ public sealed partial class Simulation
             remaining*=Math.Max(0,1-hit.T); p.Bounces--;
             if(hit.Wall)
             {
+                if(R.EnableDiceContent) p.WallsHit=Math.Min(40,p.WallsHit+1);
                 if(p.Stats.Effect=="bank") p.WallPower=Math.Min(p.Stats.MaxBoost,p.WallPower+p.Stats.WallBoost);
                 Emit(new CombatEvent {Type="wall",X=p.X,Y=p.Y,Color=p.Stats.Color,Boost=p.Stats.Effect=="bank"});
             }
             else
             {
                 p.LastEnemy=hit.Enemy!.Id;
-                if (p.PiercesLeft > 0)
+                bool piercedContact=p.PiercesLeft>0;
+                if (piercedContact)
                 {
                     // Continue through this contact. LastEnemy suppresses duplicate hits while inside its expanded bounds.
+                    if(R.EnableDiceContent) {p.Pierced=Math.Min(64,p.Pierced+1);p.PassingEnemies.Add(hit.Enemy.Id);}
                     p.PiercesLeft--; p.Bounces++; p.Vx=incomingVx; p.Vy=incomingVy;
                     p.X-=hit.Nx*push; p.Y-=hit.Ny*push;
                     double speed=Math.Sqrt(p.Vx*p.Vx+p.Vy*p.Vy);
                     p.X+=p.Vx/speed*.05; p.Y+=p.Vy/speed*.05;
                 }
                 PrimaryHit(hit.Enemy,p); FlushDamage();
+                if(R.EnableDiceContent && piercedContact) {double retention=Math.Clamp(p.Stats.Trait("pierceRetention",1),.1,1);p.Stats.Damage*=retention;p.Stats.Volley*=retention;}
             }
             if(p.Bounces<=0) p.Dead=true;
             if(hit.T<1e-6) remaining=Math.Max(0,remaining-1e-5);
@@ -341,15 +355,15 @@ public sealed partial class Simulation
         double wallExtra=p.WallPower-1;
         double damage=p.Stats.Damage*p.WallPower;
         p.WallPower=1+wallExtra*p.Stats.WallRetention;
-        ApplyDamage(enemy,TargetDamage(enemy,damage,p.Stats),p.Stats.Color);
+        ApplyDamage(enemy,TargetDamage(enemy,R.EnableDiceContent ? ContentHitDamage(enemy,p,damage) : damage,p.Stats),p.Stats.Color,p.SourceDieId);
         switch(p.Stats.Effect)
         {
             case "blast":
-                AreaDamage(enemy.X,enemy.Y,p.Stats.BlastRadius,damage*p.Stats.SplashFactor,p.Stats.Color,enemy.Id);
+                AreaDamage(enemy.X,enemy.Y,p.Stats.BlastRadius,damage*p.Stats.SplashFactor,p.Stats.Color,enemy.Id,p.SourceDieId);
                 Emit(new CombatEvent {Type="explosion",X=enemy.X,Y=enemy.Y,Radius=p.Stats.BlastRadius,Color=p.Stats.Color});
                 if (enemy.Dead && p.Stats.KillExplosionFactor>0)
                 {
-                    AreaDamage(enemy.X,enemy.Y,p.Stats.BlastRadius,damage*p.Stats.KillExplosionFactor,p.Stats.Color,enemy.Id);
+                    AreaDamage(enemy.X,enemy.Y,p.Stats.BlastRadius,damage*p.Stats.KillExplosionFactor,p.Stats.Color,enemy.Id,p.SourceDieId);
                     Emit(new CombatEvent {Type="explosion",X=enemy.X,Y=enemy.Y,Radius=p.Stats.BlastRadius,Color=p.Stats.Color});
                 }
                 break;
@@ -362,11 +376,12 @@ public sealed partial class Simulation
                         .Where(e=>!seen.Contains(e.Id) && MathEx.Dist2(e.X,e.Y,from.X,from.Y)<=range*range)
                         .OrderBy(e=>MathEx.Dist2(e.X,e.Y,from.X,from.Y)).ThenBy(e=>e.Id).FirstOrDefault();
                     if(target is null) break; seen.Add(target.Id);
-                    ApplyDamage(target,TargetDamage(target,damage*p.Stats.ChainFactor*Math.Pow(0.86,n),p.Stats),p.Stats.Color);
+                    ApplyDamage(target,TargetDamage(target,damage*p.Stats.ChainFactor*Math.Pow(0.86,n),p.Stats),p.Stats.Color,p.SourceDieId);
+                    if(R.EnableDiceContent && p.Stats.Trait("chainSlow")>0) ApplySlow(target,p.Stats.Trait("chainSlow"),1.2);
                     Emit(new CombatEvent {Type="arc",X=from.X,Y=from.Y,Tx=target.X,Ty=target.Y,Color=p.Stats.Color}); from=target;
                 }
                 int unused=p.Stats.ChainCount-(seen.Count-1);
-                if (unused>0 && p.Stats.ArcReturnFactor>0) ApplyDamage(enemy,TargetDamage(enemy,damage*unused*p.Stats.ArcReturnFactor,p.Stats),p.Stats.Color);
+                if (unused>0 && p.Stats.ArcReturnFactor>0) ApplyDamage(enemy,TargetDamage(enemy,damage*unused*p.Stats.ArcReturnFactor,p.Stats),p.Stats.Color,p.SourceDieId);
                 break;
             case "frost":
                 if (!R.EnableDiceSkills)
@@ -379,7 +394,7 @@ public sealed partial class Simulation
                             if (target.Id!=enemy.Id && MathEx.Dist2(target.X,target.Y,enemy.X,enemy.Y)<=p.Stats.SlowRadius*p.Stats.SlowRadius) ApplySlow(target,p.Stats);
                     if (wasChilled && p.Stats.ShatterFactor>0)
                     {
-                        AreaDamage(enemy.X,enemy.Y,p.Stats.ShatterRadius,damage*p.Stats.ShatterFactor,p.Stats.Color,enemy.Id);
+                        AreaDamage(enemy.X,enemy.Y,p.Stats.ShatterRadius,damage*p.Stats.ShatterFactor,p.Stats.Color,enemy.Id,p.SourceDieId);
                         Emit(new CombatEvent {Type="explosion",X=enemy.X,Y=enemy.Y,Radius=p.Stats.ShatterRadius,Color=p.Stats.Color});
                     }
                 }
@@ -391,7 +406,8 @@ public sealed partial class Simulation
                 {
                     double angle=Math.Atan2(p.Vy,p.Vx)+(n-(children-1)/2.0)*0.38;
                     var childStats=p.Stats.Copy(); childStats.Damage=p.Stats.Damage*p.Stats.ChildFactor; childStats.Bounces=Math.Min(36,Math.Min(6,p.Bounces)+p.Stats.ChildBounceBonus);
-                    var snapshot=new ShotSnapshot {Type=p.Type,Pips=p.Pips,Stats=childStats};
+                    childStats.Traits["rootFirst"]=0; childStats.Traits["auraSplit"]=0;
+                    var snapshot=new ShotSnapshot {Type=p.Type,Pips=p.Pips,Stats=childStats,SourceDieId=p.SourceDieId};
                     double x=p.X+Math.Cos(angle)*5,y=p.Y+Math.Sin(angle)*5;
                     if(S.Projectiles.Count<R.MaxProjectiles)
                     {
@@ -404,25 +420,35 @@ public sealed partial class Simulation
             case "bank":
                 if (wallExtra>0 && p.Stats.BankShockFactor>0)
                 {
-                    AreaDamage(enemy.X,enemy.Y,p.Stats.BankShockRadius,p.Stats.Damage*wallExtra*p.Stats.BankShockFactor,p.Stats.Color,enemy.Id);
+                    AreaDamage(enemy.X,enemy.Y,p.Stats.BankShockRadius,p.Stats.Damage*wallExtra*p.Stats.BankShockFactor,p.Stats.Color,enemy.Id,p.SourceDieId);
                     Emit(new CombatEvent {Type="explosion",X=enemy.X,Y=enemy.Y,Radius=p.Stats.BankShockRadius,Color=p.Stats.Color});
                 }
                 break;
         }
+        if(R.EnableDiceContent) OnContentHit(enemy,p,damage);
     }
-    public void AreaDamage(double x,double y,double radius,double amount,string color,long exclude=0)
+    public void AreaDamage(double x,double y,double radius,double amount,string color,long exclude=0,long sourceId=0)
     {
         foreach(var e in Grid.Query(x-radius,y-radius,x+radius,y+radius))
             if(e.Id!=exclude && Math.Sqrt(MathEx.Dist2(e.X,e.Y,x,y))<=radius+Math.Min(e.W,e.H)*0.22)
-                S.DamageQueue.Add(new SecondaryDamage {Id=e.Id,Amount=amount,Color=color});
+                S.DamageQueue.Add(new SecondaryDamage {Id=e.Id,Amount=amount,Color=color,SourceId=sourceId});
     }
-    public void ApplyDamage(EnemyState enemy,double amount,string color)
+    public void ApplyDamage(EnemyState enemy,double amount,string color,long sourceId=0)
     {
         if(enemy.Dead || !MathEx.Finite(amount,0) || amount==0) return;
+        if(R.EnableDiceContent)
+        {
+            if(enemy.MarkUntil>S.Time) amount*=enemy.MarkFactor;
+            if(SourceDie(sourceId) is { } owner && Value(ProfileFor(owner),"growthEvery")>0)
+            {
+                foreach(long id in enemy.Contributors.Keys.Where(id=>S.Time-enemy.Contributors[id]>3 || SourceDie(id) is null).ToArray()) enemy.Contributors.Remove(id);
+                if(enemy.Contributors.Count<64 || enemy.Contributors.ContainsKey(sourceId)) enemy.Contributors[sourceId]=S.Time;
+            }
+        }
         double actual=Math.Min(enemy.Hp,amount);enemy.Hp-=amount;enemy.Flash=1;S.TotalDamage+=actual;
         Emit(new CombatEvent {Type="hit",X=enemy.X,Y=enemy.Y,Amount=amount,Color=color,Boss=enemy.Kind=="boss"});
         if(enemy.Hp>0) return;
-        enemy.Dead=true; RecordExpeditionKill(enemy); S.Kills++;S.Combo++;S.ComboTime=2.1;S.BestCombo=Math.Max(S.BestCombo,S.Combo);
+        enemy.Dead=true; if(R.EnableDiceContent) OnContentDeath(enemy,sourceId); RecordExpeditionKill(enemy); S.Kills++;S.Combo++;S.ComboTime=2.1;S.BestCombo=Math.Max(S.BestCombo,S.Combo);
         int reward=C.Waves.KillEnergy+UpgradeLevel("income")+(enemy.Kind=="boss"?16:0);
         S.Energy=Math.Min(999999,S.Energy+reward);
         S.Score+=MathEx.JsRound((10+enemy.Wave*3)*(enemy.Kind=="boss"?12:1)*(1+Math.Min(S.Combo,30)*0.025));
@@ -440,7 +466,7 @@ public sealed partial class Simulation
         {
             var d=S.DamageQueue[0];S.DamageQueue.RemoveAt(0);
             var enemy=S.Enemies.FirstOrDefault(e=>e.Id==d.Id);
-            if(enemy is not null && !enemy.Dead) ApplyDamage(enemy,d.Amount,d.Color);
+            if(enemy is not null && !enemy.Dead) ApplyDamage(enemy,d.Amount,d.Color,d.SourceId);
         }
     }
     public List<TracePoint> TraceAim(double angle,double maxDistance=1050)

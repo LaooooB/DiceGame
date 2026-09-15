@@ -20,6 +20,8 @@ public sealed class DiceSkillDefinition
 }
 public sealed class DiceSkillModifiers
 {
+    public Dictionary<string, double> ContentAdd { get; set; } = new(StringComparer.Ordinal);
+    public Dictionary<string, double> ContentMultiply { get; set; } = new(StringComparer.Ordinal);
     public double DamageMultiplier { get; set; } = 1;
     public double ReloadMultiplier { get; set; } = 1;
     public int ExtraProjectiles { get; set; }
@@ -52,6 +54,7 @@ public sealed class DiceSkillModifiers
 
     public void Apply(ShotStats s)
     {
+        DiceContent.Apply(s.Traits, this);
         s.Volley *= DamageMultiplier; s.Reload *= ReloadMultiplier; s.Count += ExtraProjectiles; s.Bounces += ExtraBounces;
         s.BlastRadius *= BlastRadiusMultiplier; s.SplashFactor *= SplashMultiplier;
         s.ChainCount += ExtraChains; s.ChainRange *= ChainRangeMultiplier; s.ChainFactor *= ChainDamageMultiplier;
@@ -68,6 +71,7 @@ public sealed class DiceSkillModifiers
     }
     public void Validate()
     {
+        DiceContent.CheckModifiers(ContentAdd, true); DiceContent.CheckModifiers(ContentMultiply);
         foreach (double v in new[] { DamageMultiplier, ReloadMultiplier, BlastRadiusMultiplier, SplashMultiplier,
             ChainRangeMultiplier, ChainDamageMultiplier, SlowDurationMultiplier, ChildDamageMultiplier, WallBoostMultiplier,
             BossDamageMultiplier, ChilledDamageMultiplier })

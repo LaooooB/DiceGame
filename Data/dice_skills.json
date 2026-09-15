@@ -257,5 +257,793 @@
         }
       }
     ]
+  },
+  {
+    "type": "cannon",
+    "level3": [
+      {
+        "key": "A",
+        "name": "重装火药",
+        "description": "直接齐射伤害提高35%，装填时间增加20%。",
+        "modifiers": {
+          "damageMultiplier": 1.35,
+          "reloadMultiplier": 1.2
+        }
+      },
+      {
+        "key": "B",
+        "name": "散爆弹头",
+        "description": "爆炸半径提高80%，溅射伤害翻倍；直接伤害降低15%。",
+        "modifiers": {
+          "damageMultiplier": 0.85,
+          "blastRadiusMultiplier": 1.8,
+          "splashMultiplier": 2
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "破甲炮",
+        "description": "直接命中装甲敌人额外造成80%伤害，命中首领额外造成40%伤害。",
+        "modifiers": {
+          "contentAdd": {
+            "armorBonus": 0.8,
+            "bossBonus": 0.4
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "延时重爆",
+        "description": "每颗炮弹首次命中后0.25秒，在命中点再次爆炸，造成65%单发基础伤害。后震不再触发后震。",
+        "modifiers": {
+          "contentAdd": {
+            "aftershock": 0.65
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "pierce",
+    "level3": [
+      {
+        "key": "A",
+        "name": "贯穿稳定",
+        "description": "穿透不再衰减伤害。",
+        "modifiers": {
+          "contentAdd": {
+            "pierceRetention": 0.16
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "长枪阵",
+        "description": "额外穿透2次，最多8次；直接伤害降低10%。",
+        "modifiers": {
+          "damageMultiplier": 0.9,
+          "contentAdd": {
+            "pierce": 2
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "贯通回能",
+        "description": "每颗弹丸穿过第三个敌人时获得0.5能量，每颗弹丸最多触发一次。",
+        "modifiers": {
+          "contentAdd": {
+            "pierceEnergy": 0.5
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "越战越锐",
+        "description": "每已完成一次穿透，本次直接命中额外增伤12%，最多计8次。",
+        "modifiers": {
+          "contentAdd": {
+            "pierceGain": 0.12
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "hunt",
+    "level3": [
+      {
+        "key": "A",
+        "name": "巨兽猎手",
+        "description": "对首领造成的直接和技能连锁伤害提高50%。",
+        "modifiers": {
+          "bossDamageMultiplier": 1.5
+        }
+      },
+      {
+        "key": "B",
+        "name": "鹰眼校准",
+        "description": "校准范围扩为左右26°，直接伤害降低10%。瞄准操作不变。",
+        "modifiers": {
+          "damageMultiplier": 0.9,
+          "contentAdd": {
+            "seekCone": 0.174532925
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "终结猎物",
+        "description": "直接命中生命不高于15%的普通敌人时伤害翻倍；对首领改为提高40%。",
+        "modifiers": {
+          "contentAdd": {
+            "finisher": 1
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "猎手标记",
+        "description": "命中标记目标2秒，使其承受的伤害提高15%。同属性标记取最高，不叠加。",
+        "modifiers": {
+          "contentAdd": {
+            "mark": 0.15
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "storm",
+    "level3": [
+      {
+        "key": "A",
+        "name": "强风积蓄",
+        "description": "连续命中上限由12层提高到20层。",
+        "modifiers": {
+          "contentAdd": {
+            "rampMax": 8
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "雷暴重压",
+        "description": "每层另加2.5%直接伤害，但每层装填加速由4%降为2%。",
+        "modifiers": {
+          "contentAdd": {
+            "rampDamage": 0.025
+          },
+          "contentMultiply": {
+            "rampHaste": 0.5
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "转移风势",
+        "description": "更换目标时保留原有50%的连击层数，再增加本次命中的1层。",
+        "modifiers": {
+          "contentAdd": {
+            "rampKeep": 0.5
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "风暴核心",
+        "description": "达到连击上限时，命中产生小范围冲击，造成45%单发基础伤害。每颗弹丸最多一次。",
+        "modifiers": {
+          "contentAdd": {
+            "rampBurst": 0.45
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "poison",
+    "level3": [
+      {
+        "key": "A",
+        "name": "浓缩毒液",
+        "description": "每层毒液伤害提高45%，直接伤害降低10%。",
+        "modifiers": {
+          "damageMultiplier": 0.9,
+          "contentMultiply": {
+            "poison": 1.45
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "快速侵染",
+        "description": "每次命中附加2层，毒层上限16；每层毒伤降低30%。",
+        "modifiers": {
+          "contentAdd": {
+            "poisonStacks": 1,
+            "poisonCap": 6
+          },
+          "contentMultiply": {
+            "poison": 0.7
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "瘟疫扩散",
+        "description": "带毒目标死亡时，最强的3层可向80范围内最多3个目标扩散，伤害减半、至多3秒。扩散毒不会再扩散。",
+        "modifiers": {
+          "contentAdd": {
+            "poisonSpread": 1
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "毒素爆发",
+        "description": "命中后达到10层时，按当前全部毒层的2秒伤害引爆目标，并消耗最早的5层。",
+        "modifiers": {
+          "contentAdd": {
+            "poisonDetonate": 2
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "echo",
+    "level3": [
+      {
+        "key": "A",
+        "name": "清晰回声",
+        "description": "回响概率提高到45%，但回响伤害降为70%。",
+        "modifiers": {
+          "contentAdd": {
+            "echoChance": 0.25
+          },
+          "contentMultiply": {
+            "echoFactor": 0.7
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "重叠共振",
+        "description": "回响概率降到15%，回响伤害提高到180%。",
+        "modifiers": {
+          "contentAdd": {
+            "echoChance": -0.05
+          },
+          "contentMultiply": {
+            "echoFactor": 1.8
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "三重回响",
+        "description": "触发回响时，额外复制两轮而非一轮，两轮分别延后0.15和0.30秒。",
+        "modifiers": {
+          "contentAdd": {
+            "echoCopies": 1
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "邻位回声",
+        "description": "四向相邻骰子获得12%额外回响概率；原本没有回响的骰子，其复制伤害为65%。同属性光环取最高。",
+        "modifiers": {
+          "contentAdd": {
+            "auraEcho": 0.12
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "sacrifice",
+    "level3": [
+      {
+        "key": "A",
+        "name": "丰厚供奉",
+        "description": "合成与基础献祭回收返能提高50%，合成单材料仍受召唤价80%上限限制。",
+        "modifiers": {
+          "contentMultiply": {
+            "mergeRefund": 1.5
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "战前祝福",
+        "description": "四向相邻骰子的直接齐射伤害提高10%；同属性光环取最高。",
+        "modifiers": {
+          "contentAdd": {
+            "auraDamage": 0.1
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "战斗供奉",
+        "description": "每轮第一颗主弹首次命中时获得3能量；回响、子弹和额外弹射不能重复领取。",
+        "modifiers": {
+          "contentAdd": {
+            "energyFirst": 3
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "终极献礼",
+        "description": "回收这颗六点骰子时额外获得24能量。六点不能合成，此强化直接作用于回收。",
+        "modifiers": {
+          "contentAdd": {
+            "recycleBonus": 24
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "charge",
+    "level3": [
+      {
+        "key": "A",
+        "name": "大型电容",
+        "description": "充能上限由3秒提高至6秒。",
+        "modifiers": {
+          "contentMultiply": {
+            "chargeMax": 2
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "快速充电",
+        "description": "每秒充能增伤由45%提高到80%，但上限缩短至2秒。",
+        "modifiers": {
+          "contentAdd": {
+            "chargeRate": 0.35,
+            "chargeMax": -1
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "过载贯穿",
+        "description": "发射时充能达到2秒，整轮弹丸额外获得3次穿透。",
+        "modifiers": {
+          "contentAdd": {
+            "chargePierce": 3
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "保留电荷",
+        "description": "发射后保留45%的当前充能；不复制已消耗的攻击。",
+        "modifiers": {
+          "contentAdd": {
+            "chargeKeep": 0.45
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "resonance",
+    "level3": [
+      {
+        "key": "A",
+        "name": "宽频共振",
+        "description": "点数相差1的邻骰也可共鸣，但每个邻骰增伤降为10%。",
+        "modifiers": {
+          "contentAdd": {
+            "resonanceLoose": 1,
+            "resonance": -0.05
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "同步节拍",
+        "description": "每个满足条件的邻骰另使装填加快6%，自身直接伤害降低10%。",
+        "modifiers": {
+          "damageMultiplier": 0.9,
+          "contentAdd": {
+            "resonanceHaste": 0.06
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "双向共鸣",
+        "description": "四向相邻的同点骰也获得18%直接伤害光环；同属性光环取最高。",
+        "modifiers": {
+          "contentAdd": {
+            "resonanceAura": 0.18
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "孤独频率",
+        "description": "没有任何满足自身共鸣条件的邻骰时，自身直接伤害提高75%。",
+        "modifiers": {
+          "contentAdd": {
+            "aloneBonus": 0.75
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "rage",
+    "level3": [
+      {
+        "key": "A",
+        "name": "背水一战",
+        "description": "额外按当前失去的防线生命比例增伤，全部失去时对应50%；不会主动扣血。",
+        "modifiers": {
+          "contentAdd": {
+            "woundedGain": 0.5
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "近线处决",
+        "description": "推进位置增伤上限从150%提高到220%；敌人尚未推进到70%时，直接伤害再降低25%。",
+        "modifiers": {
+          "contentAdd": {
+            "dangerGain": 0.7,
+            "safeDamage": -0.25,
+            "dangerThreshold": 0.7
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "复仇窗口",
+        "description": "发生敌人突破后5秒内，直接伤害再翻倍。多次突破刷新时长，不叠加倍率。",
+        "modifiers": {
+          "contentAdd": {
+            "breachBoost": 1
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "绝境拦截",
+        "description": "命中推进超过75%的敌人可击退3距离，首领为0.6；同一敌人每1.5秒最多一次。每轮第一主弹命中此区额外返2能量。",
+        "modifiers": {
+          "contentAdd": {
+            "knockback": 3,
+            "dangerEnergy": 2
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "prism",
+    "level3": [
+      {
+        "key": "A",
+        "name": "锐利折射",
+        "description": "相邻弹丸额外穿透由1次提高到2次；自身直接伤害降低20%。",
+        "modifiers": {
+          "damageMultiplier": 0.8,
+          "contentAdd": {
+            "auraPierce": 1
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "分光投影",
+        "description": "相邻骰子的主弹首次命中再生成一颗25%伤害的弱子弹，子弹不能再次分光。",
+        "modifiers": {
+          "contentAdd": {
+            "auraSplit": 1
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "单点聚焦",
+        "description": "仅有一个四向邻位被占用时，为该邻骰提供18%直接伤害光环。",
+        "modifiers": {
+          "contentAdd": {
+            "focusedAura": 0.18
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "横向光带",
+        "description": "光环作用范围从四向相邻改为同一整行的其他骰子；自身直接伤害降低30%。",
+        "modifiers": {
+          "damageMultiplier": 0.7,
+          "contentAdd": {
+            "auraRow": 1
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "parasite",
+    "level3": [
+      {
+        "key": "A",
+        "name": "快速寄生",
+        "description": "每10次击破获得一层成长，而不是20次。",
+        "modifiers": {
+          "contentMultiply": {
+            "growthEvery": 0.5
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "深层共生",
+        "description": "成长上限变为20层，但每层增伤改为4%。",
+        "modifiers": {
+          "contentAdd": {
+            "growthMax": 10,
+            "growthStep": -0.01
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "协同捕食",
+        "description": "自己在最近3秒伤害过的敌人被其他来源击破，也计入成长；每个敌人最多计一次。",
+        "modifiers": {
+          "contentAdd": {
+            "assistGrowth": 1
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "成熟群落",
+        "description": "达到当前成长层数上限后，四向相邻骰子获得18%直接伤害光环；同属性取最高。",
+        "modifiers": {
+          "contentAdd": {
+            "matureAura": 0.18
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "gamble",
+    "level3": [
+      {
+        "key": "A",
+        "name": "稳健下注",
+        "description": "半伤结果改为正常伤害，但所有直接伤害统一降低10%。",
+        "modifiers": {
+          "damageMultiplier": 0.9,
+          "contentAdd": {
+            "noWeak": 1
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "高额押注",
+        "description": "头奖概率增至6%，半伤概率增至50%；全部直接伤害降低13%。双倍概率仍为18%。",
+        "modifiers": {
+          "damageMultiplier": 0.87,
+          "contentAdd": {
+            "jackpotChance": 0.04,
+            "weakChance": 0.2
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "连续保底",
+        "description": "连续23轮未中头奖时，第24轮必定头奖；中奖后重新计数。",
+        "modifiers": {
+          "contentAdd": {
+            "pity": 24
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "豪赌回报",
+        "description": "头奖倍率由8倍提高至12倍，且中奖轮的第一颗主弹首次命中时额外获得8能量。",
+        "modifiers": {
+          "contentAdd": {
+            "jackpotFactor": 4,
+            "jackpotEnergy": 8
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "mirror",
+    "level3": [
+      {
+        "key": "A",
+        "name": "清晰映照",
+        "description": "复制伤害比例由70%提高到90%，装填时间增加15%。",
+        "modifiers": {
+          "reloadMultiplier": 1.15,
+          "contentAdd": {
+            "mirrorFactor": 0.2
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "长廊反射",
+        "description": "可模仿同一整行的攻击骰，但复制伤害比例降为60%。",
+        "modifiers": {
+          "contentAdd": {
+            "mirrorRow": 1,
+            "mirrorFactor": -0.1
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "记忆棱面",
+        "description": "额外复制目标当前的A/B分支效果，仍不复制C/D、经济收益或实例成长。",
+        "modifiers": {
+          "contentAdd": {
+            "mirrorBranch": 1
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "第二倒影",
+        "description": "每轮必定在0.15秒后复制一轮35%伤害的倒影；倒影不再产生倒影。",
+        "modifiers": {
+          "contentAdd": {
+            "mirrorEcho": 0.35
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "time",
+    "level3": [
+      {
+        "key": "A",
+        "name": "短周期",
+        "description": "脉冲间隔缩短为6秒，持续时间缩短为1.5秒。",
+        "modifiers": {
+          "contentAdd": {
+            "timePeriod": -2,
+            "timeDuration": -0.5
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "长时窗口",
+        "description": "脉冲间隔改为10秒，持续时间延长至3秒。",
+        "modifiers": {
+          "contentAdd": {
+            "timePeriod": 2,
+            "timeDuration": 1
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "启动校时",
+        "description": "脉冲启动时立即减少全场0.35秒剩余装填。多个时间骰共享至少2秒的校时间隔。",
+        "modifiers": {
+          "contentAdd": {
+            "timeKick": 0.35
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "极限加速",
+        "description": "脉冲期间的装填加快由40%提高到70%。不会叠加成无限攻速。",
+        "modifiers": {
+          "contentAdd": {
+            "timeHaste": 0.3
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "evolution",
+    "level3": [
+      {
+        "key": "A",
+        "name": "快速蜕变",
+        "description": "每次自动进化所需时间缩短25%，直接伤害降低10%。",
+        "modifiers": {
+          "damageMultiplier": 0.9,
+          "contentMultiply": {
+            "evolutionPeriod": 0.75
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "厚积生长",
+        "description": "每比一点多一点，直接伤害额外提高8%；自动进化时间延长20%。",
+        "modifiers": {
+          "contentAdd": {
+            "evolutionDamage": 0.08
+          },
+          "contentMultiply": {
+            "evolutionPeriod": 1.2
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "进化馈赠",
+        "description": "六点时每积累40秒，为随机一颗四向相邻、未满六点的骰子升一点；仍触发3/6点选择。全场馈赠最短间隔15秒。",
+        "modifiers": {
+          "contentAdd": {
+            "evolutionGift": 40
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "最终形态",
+        "description": "六点时直接伤害提高90%，装填时间缩短20%。",
+        "modifiers": {
+          "contentAdd": {
+            "finalDamage": 0.9,
+            "finalReload": -0.2
+          }
+        }
+      }
+    ]
   }
 ]
