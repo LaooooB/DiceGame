@@ -1,0 +1,35 @@
+name: Dice content verification tools
+on:
+  push:
+    branches: [work/dice-content-20260915]
+    paths: [.github/workflows/dice-content-tools.yml]
+permissions:
+  contents: read
+jobs:
+  tools:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Build pinned baseline
+        run: dotnet build DiceGame.csproj --configuration Debug
+      - name: Package public verification tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/verify-tools/dotnet /tmp/verify-tools/nuget
+          curl --fail --location --retry 3 https://dot.net/v1/dotnet-install.sh -o /tmp/install.sh
+          bash /tmp/install.sh --channel 8.0 --install-dir /tmp/verify-tools/dotnet --no-path
+          cp -a "$HOME/.nuget/packages" /tmp/verify-tools/nuget/
+          curl --fail --location --retry 3 https://github.com/godotengine/godot-builds/releases/download/4.6-stable/Godot_v4.6-stable_mono_linux_x86_64.zip -o /tmp/godot.zip
+          unzip -q /tmp/godot.zip -d /tmp/verify-tools/godot
+          tar -C /tmp/verify-tools -czf verification-tools.tar.gz .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dice-verification-tools
+          path: verification-tools.tar.gz
+          retention-days: 1
+          compression-level: 0
