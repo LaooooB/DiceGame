@@ -1,0 +1,100 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/AnimatedButton.cs" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="Normal"]
+bg_color = Color(0.0647, 0.1176, 0.1686, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2392, 0.349, 0.4314, 1)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
+shadow_color = Color(0, 0, 0, 0.34)
+shadow_size = 5
+
+[sub_resource type="StyleBoxFlat" id="Hover"]
+bg_color = Color(0.0941, 0.1882, 0.2431, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.4471, 0.9176, 0.7843, 1)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
+shadow_color = Color(0, 0, 0, 0.38)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="Pressed"]
+bg_color = Color(0.0471, 0.0941, 0.1373, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.4471, 0.9176, 0.7843, 1)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxFlat" id="Disabled"]
+bg_color = Color(0.0392, 0.0706, 0.102, 0.78)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.1333, 0.1961, 0.2431, 0.8)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxFlat" id="Focus"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.9725, 0.8706, 0.5294, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="GameButton" type="Button"]
+custom_minimum_size = Vector2(0, 54)
+size_flags_horizontal = 3
+focus_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.898, 0.9451, 0.9608, 1)
+theme_override_colors/font_hover_color = Color(0.898, 0.9451, 0.9608, 1)
+theme_override_colors/font_pressed_color = Color(0.898, 0.9451, 0.9608, 1)
+theme_override_colors/font_disabled_color = Color(0.4118, 0.4902, 0.549, 1)
+theme_override_font_sizes/font_size = 19
+theme_override_styles/normal = SubResource("Normal")
+theme_override_styles/hover = SubResource("Hover")
+theme_override_styles/pressed = SubResource("Pressed")
+theme_override_styles/disabled = SubResource("Disabled")
+theme_override_styles/focus = SubResource("Focus")
+script = ExtResource("1")
