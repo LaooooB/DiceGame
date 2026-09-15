@@ -63,6 +63,13 @@ jobs:
           new="game['waves']['killEnergy']==0"
           assert old in s, 'static economy check changed'
           p.write_text(s.replace(old,new,1),encoding='utf-8')
+
+          p=Path('Tests/Skills/Program.cs')
+          s=p.read_text(encoding='utf-8')
+          old='Test("economy: six distinct opening dice preserve former three-die direct DPS",()=>{var old=new Simulation(Legacy,Data.DefaultDeck,5);var now=Sim();Eq(now.Count,6);Check(now.State.Board.Take(6).Select(d=>d!.Type).SequenceEqual(Data.DefaultDeck));Near(now.State.Board.Where(d=>d!=null).Sum(d=>now.Stats(d!).Volley/now.Stats(d!).Reload),old.State.Board.Where(d=>d!=null).Sum(d=>old.Stats(d!).Volley/old.Stats(d!).Reload));Near(now.SummonCost,10);});'
+          new='Test("economy: six distinct opening dice create early growth headroom",()=>{var old=new Simulation(Legacy,Data.DefaultDeck,5);var now=Sim();Eq(now.Count,6);Check(now.State.Board.Take(6).Select(d=>d!.Type).SequenceEqual(Data.DefaultDeck));double oldDps=old.State.Board.Where(d=>d!=null).Sum(d=>old.Stats(d!).Volley/old.Stats(d!).Reload),nowDps=now.State.Board.Where(d=>d!=null).Sum(d=>now.Stats(d!).Volley/now.Stats(d!).Reload);Check(nowDps/oldDps>.80&&nowDps/oldDps<.86);Near(now.SummonCost,10);});'
+          assert old in s, 'opening economy test changed'
+          p.write_text(s.replace(old,new,1),encoding='utf-8')
           PY
       - name: Package checks
         run: python3 Tools/static_check.py
@@ -83,7 +90,7 @@ jobs:
         run: |
           git config user.name 'DiceGame Refactor Gate'
           git config user.email 'actions@users.noreply.github.com'
-          git add Data/game.json Scripts/Core/Simulation.Skills.cs Scripts/Core/Simulation.cs Scripts/App/GameApp.cs Tools/static_check.py
+          git add Data/game.json Scripts/Core/Simulation.Skills.cs Scripts/Core/Simulation.cs Scripts/App/GameApp.cs Tools/static_check.py Tests/Skills/Program.cs
           git commit -m 'Tune combat pacing and restore regression compatibility'
           git push origin HEAD:main
-# trigger legacy-isolation gate
+# trigger growth-headroom gate
