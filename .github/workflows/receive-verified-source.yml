@@ -82,23 +82,35 @@ jobs:
           if parsed.scheme != 'https' or not (parsed.hostname or '').endswith('.oaiusercontent.com'):
               raise SystemExit('Unexpected transfer host')
           archive_path = root / 'source.zip'
-          digest = hashlib.sha256()
-          total = 0
-          try:
-              with urllib.request.urlopen(location, timeout=90) as response, archive_path.open('wb') as output:
-                  while True:
-                      chunk = response.read(1024 * 1024)
-                      if not chunk:
-                          break
-                      total += len(chunk)
-                      if total > 100 * 1024 * 1024:
-                          raise ValueError('size')
-                      digest.update(chunk)
-                      output.write(chunk)
-          except Exception:
-              raise SystemExit('Source download failed or expired; no source was executed') from None
-          finally:
-              (root / 'source-private.pem').unlink(missing_ok=True)
+          downloaded = False
+          for attempt in range(3):
+              digest = hashlib.sha256()
+              total = 0
+              try:
+                  request = urllib.request.Request(location, headers={'User-Agent': 'Mozilla/5.0', 'Accept': 'application/zip,application/octet-stream,*/*', 'Referer': 'https://chatgpt.com/'})
+                  with urllib.request.urlopen(request, timeout=45) as response, archive_path.open('wb') as output:
+                      while True:
+                          chunk = response.read(1024 * 1024)
+                          if not chunk:
+                              break
+                          total += len(chunk)
+                          if total > 100 * 1024 * 1024:
+                              raise ValueError('size')
+                          digest.update(chunk)
+                          output.write(chunk)
+                  downloaded = True
+                  break
+              except urllib.error.HTTPError as error:
+                  import re
+                  body = error.read(2048).decode('utf-8', errors='replace')
+                  code = re.search(r'<Code>([A-Za-z0-9_]+)</Code>', body)
+                  print('Transfer HTTP status:', error.code, 'storage code:', code.group(1) if code else 'none', flush=True)
+              except Exception as error:
+                  print('Transfer error class:', type(error).__name__, 'reason class:', type(getattr(error, 'reason', None)).__name__, flush=True)
+              time.sleep(3)
+          (root / 'source-private.pem').unlink(missing_ok=True)
+          if not downloaded:
+              raise SystemExit('Source download failed; no source was executed')
           if digest.hexdigest() != os.environ['ARCHIVE_SHA256']:
               raise SystemExit('Source archive checksum mismatch')
           destination = root / 'expanded-source'
@@ -155,8 +167,6 @@ jobs:
         run: |
           set -euo pipefail
           cd "$RUNNER_TEMP/candidate"
-          # The connector applies workflow-file changes in the final reviewed tree.
-          # The Actions token publishes only source; main is not changed by this job.
           rm -rf .github
           git restore --source="$EXPECTED_BASE" -- .github
           git config core.autocrlf false
