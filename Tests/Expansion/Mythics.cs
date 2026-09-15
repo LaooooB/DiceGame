@@ -45,7 +45,7 @@ internal static partial class Program
             var s=Sim("void");var d=Die(s,"void",3,"B","");var ally=Die(s,"pulse",1,slot:1);Near(s.Stats(d).Volley,Base(d)*2.68);Near(s.Stats(ally).Volley,Base(ally));
         });
         Test("void C: eight actual empty slots grant penetration, seven do not",()=>{
-            var s=Sim("void");Die(s,"void",6,"A","C",0);var ally=Die(s,"pulse",1,slot:1);for(int i=2;i<16;i++)Die(s,"pulse",1,slot:i);Eq(s.Stats(ally).Pierces,1);Die(s,"pulse",1,slot:16);Eq(s.Stats(ally).Pierces,0);
+            var s=Sim("void");Die(s,"void",6,"A","C",0);var ally=Die(s,"pulse",1,slot:1);for(int i=2;i<8;i++)Die(s,"pulse",1,slot:i);Eq(s.Stats(ally).Pierces,1);Die(s,"pulse",1,slot:8);Eq(s.Stats(ally).Pierces,0);
         });
         Test("void D: eight seconds charges annihilation but never fires automatically",()=>{
             var s=Sim("void");var d=Die(s,"void",6,"B","D");var e=Enemy(s);Clock(s,8.1);Eq(s.State.Shots,0L);Near(d.VoidClock,8);var shots=Volley(s,d);Check(shots[0].Stats.VoidCharged);Near(d.VoidClock,0);var p=Pellet(s,shots[0]);Near(Hit(s,e,p,true),p.Stats.Damage+p.Stats.Volley*1.8);Check(!Volley(s,d)[0].Stats.VoidCharged);

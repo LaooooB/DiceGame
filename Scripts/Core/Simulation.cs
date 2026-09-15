@@ -37,7 +37,7 @@ public sealed partial class Simulation
     public int ReadyCount => S.Board.Count(d=>d is not null && d.Cooldown<=1e-5);
     // Summoning gets progressively more expensive once the board grows past eight dice.
     // Merging immediately lowers this cost again, making board compression the natural economy valve.
-    public double SummonCost => R.SummonCost + Math.Max(0, Count - 7) * 2;
+    public double SummonCost => R.SummonCost + Math.Min(4, Math.Max(0, Count - 7)) * 2;
     public int UpgradeLevel(string id) => S.Upgrades.GetValueOrDefault(id);
     public bool CanMerge(int a,int b)
     {
@@ -283,8 +283,8 @@ public sealed partial class Simulation
         FlushDamage(); S.Projectiles.RemoveAll(p=>p.Dead); S.Enemies.RemoveAll(e=>e.Dead);
         if(S.Enemies.Count==0 && !S.ClearRewarded && S.WaveTime>=2)
         {
-            S.ClearRewarded=true; S.NextWaveIn=2.8;
-            int reward=C.Waves.ClearEnergy+Math.Min(12,(int)Math.Floor(S.Wave*.5))+2*UpgradeLevel("income");
+            S.ClearRewarded=true; S.NextWaveIn=R.EnableDiceSkills?2.8:1.35;
+            int reward=R.EnableDiceSkills ? C.Waves.ClearEnergy+Math.Min(12,(int)Math.Floor(S.Wave*.5))+2*UpgradeLevel("income") : C.Waves.ClearEnergy+Math.Min(25,S.Wave);
             S.Energy+=reward; S.Score+=S.Wave*35; Emit(new CombatEvent {Type="clear",Reward=reward,Wave=S.Wave});
             if(S.Expedition is { } expedition && expedition.RewardedWaves.Add(S.Wave)) expedition.Gain("wood",expedition.Region.WoodPerWave);
         }
@@ -468,7 +468,7 @@ public sealed partial class Simulation
         Emit(new CombatEvent {Type="hit",X=enemy.X,Y=enemy.Y,Amount=amount,Color=color,Boss=enemy.Kind=="boss"});
         if(enemy.Hp>0) return;
         enemy.Dead=true; if(R.EnableDiceContent) { ExpansionDeath(enemy,sourceId); OnContentDeath(enemy,sourceId); } RecordExpeditionKill(enemy); S.Kills++;S.Combo++;S.ComboTime=2.1;S.BestCombo=Math.Max(S.BestCombo,S.Combo);
-        int reward=C.Waves.KillEnergy+(enemy.Kind=="boss"?6:0);
+        int reward=R.EnableDiceSkills ? C.Waves.KillEnergy+(enemy.Kind=="boss"?6:0) : C.Waves.KillEnergy+UpgradeLevel("income")+(enemy.Kind=="boss"?16:0);
         S.Energy=Math.Min(999999,S.Energy+reward);
         S.Score+=MathEx.JsRound((10+enemy.Wave*3)*(enemy.Kind=="boss"?12:1)*(1+Math.Min(S.Combo,30)*0.025));
         Emit(new CombatEvent {Type="kill",X=enemy.X,Y=enemy.Y,W=enemy.W,Color=enemy.Kind=="volatile"?"#FFAD76":color,Reward=reward,Combo=S.Combo,Kind=enemy.Kind});

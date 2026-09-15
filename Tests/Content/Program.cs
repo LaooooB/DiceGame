@@ -9,6 +9,11 @@ internal static class Program
     static readonly GameData Data = GameData.FromDirectory(Path.Combine(AppContext.BaseDirectory, "Data"));
     static readonly List<object> Results = [];
     static int Passed, Failed;
+    static int Center => Data.Game.Board.Columns + 1;
+    static int Left => Center - 1;
+    static int Right => Center + 1;
+    static int RowEnd => (Center / Data.Game.Board.Columns + 1) * Data.Game.Board.Columns - 1;
+    static int NextRow => RowEnd + 1;
     static void MainTest(string name, Action action)
     {
         try { action(); Passed++; Results.Add(new { name, passed = true }); Console.WriteLine("PASS " + name); }
@@ -48,8 +53,8 @@ internal static class Program
             {
                 foreach (string a in new[] { "A", "B" }) foreach (string b in new[] { "C", "D" })
                 {
-                    var s = Sim(id); var d = Die(s, id, 6, a, b, 7); d.Charge = 3; d.Streak = 12; d.GrowthKills = 400; d.BadRolls = 23;
-                    Die(s, "pulse", 6, "A", "C", 6); Die(s, "pulse", 6, "B", "D", 8);
+                    var s = Sim(id); var d = Die(s, id, 6, a, b, Center); d.Charge = 3; d.Streak = 12; d.GrowthKills = 400; d.BadRolls = 23;
+                    Die(s, "pulse", 6, "A", "C", Left); Die(s, "pulse", 6, "B", "D", Right);
                     Enemy(s, 216, 220); Enemy(s, 216, 270, "boss"); Enemy(s, 240, 230, "armored");
                     var q = s.Stats(d); Check(double.IsFinite(q.Volley) && q.Volley > 0 && q.Reload >= .06);
                     Near(q.Damage * q.Count, q.Volley); Check(q.Count <= 18 && q.Pierces <= 8 && q.ChildCount <= 10);
@@ -90,9 +95,9 @@ internal static class Program
         MainTest("echo A/B: effective probability and copy damage differ", () =>
         {var s=Sim("echo");var d=Die(s,"echo",3,"A");Near(s.Stats(d).Trait("echoChance"),.45);Near(s.Stats(d).Trait("echoFactor"),.7);d.Tier3="B";Near(s.Stats(d).Trait("echoChance"),.15);Near(s.Stats(d).Trait("echoFactor"),1.8);});
         MainTest("echo C/D: only two snapshots, and neighbors receive the aura", () =>
-        {var s=Sim("echo");var d=Die(s,"echo",6,"A","C",7);ForceRoll(s,.1);s.QueueVolley(d,7,-1.5,1,false);Eq(s.State.PendingShots.Count,18);Check(s.State.PendingShots.Count(x=>x.Snapshot.Stats.Trait("rootFirst")>0)==1);d.Tier6="D";var ally=Die(s,"pulse",1,"","",8);Near(s.Stats(ally).Trait("echoChance"),.12);});
+        {var s=Sim("echo");var d=Die(s,"echo",6,"A","C",Center);ForceRoll(s,.1);s.QueueVolley(d,Center,-1.5,1,false);Eq(s.State.PendingShots.Count,18);Check(s.State.PendingShots.Count(x=>x.Snapshot.Stats.Trait("rootFirst")>0)==1);d.Tier6="D";var ally=Die(s,"pulse",1,"","",Right);Near(s.Stats(ally).Trait("echoChance"),.12);});
         MainTest("sacrifice A/B: each input refund and adjacent damage are applied", () =>
-        {var s=Sim("sacrifice");var a=Die(s,"sacrifice",3,"A","",0);Die(s,"sacrifice",3,"A","",1);double energy=s.State.Energy;Check(s.Merge(0,1).Ok);Near(s.State.Energy-energy,12.8);s=Sim("sacrifice");var support=Die(s,"sacrifice",3,"B","",0);var ally=Die(s,"pulse",1,"","",1);double boosted=s.Stats(ally).Volley;s.State.Board[0]=null;Near(boosted,s.Stats(ally).Volley*1.1);});
+        {var s=Sim("sacrifice");var a=Die(s,"sacrifice",3,"A","",0);Die(s,"sacrifice",3,"A","",1);double energy=s.State.Energy;double refund=2*Math.Min(s.SummonCost*.8,4*1.5*(1+.12*2));Check(s.Merge(0,1).Ok);Near(s.State.Energy-energy,refund);s=Sim("sacrifice");var support=Die(s,"sacrifice",3,"B","",0);var ally=Die(s,"pulse",1,"","",1);double boosted=s.Stats(ally).Volley;s.State.Board[0]=null;Near(boosted,s.Stats(ally).Volley*1.1);});
         MainTest("sacrifice C/D: no six-pip merge requirement, no repeated income per bounce", () =>
         {var s=Sim("sacrifice");var d=Die(s,"sacrifice",6,"A","C");var e=Enemy(s,216,220);s.QueueVolley(d,0,-1.5,1,false);var p=s.MakeProjectile(216,300,-1.5,s.State.PendingShots[0].Snapshot);double energy=s.State.Energy;for(int i=0;i<5;i++)s.PrimaryHit(e,p);Near(s.State.Energy-energy,3);d.Tier6="D";int expected=Data.Game.Levels[5].Recycle+24+(int)Math.Floor(6*.5*1.6);Eq(s.RecycleValue(d),expected);Eq(s.Recycle(0).Amount,expected);});
         MainTest("charge A/B: capacity and rate; waiting is not automatic firing", () =>
@@ -100,21 +105,21 @@ internal static class Program
         MainTest("charge C/D: captured pierces and retained charge", () =>
         {var s=Sim("charge");var d=Die(s,"charge",6,"A","C");d.Charge=3;s.Fire(-1.5);Eq(s.State.PendingShots[0].Snapshot.Stats.Pierces,3);Near(d.Charge,0);d.Tier6="D";d.Cooldown=0;d.Charge=4;s.Fire(-1.5);Near(d.Charge,1.8);});
         MainTest("resonance A/B: one-pip tolerance and haste need actual neighbors", () =>
-        {var s=Sim("resonance");var d=Die(s,"resonance",3,"A","",7);var ally=Die(s,"pulse",2,"","",8);double v=s.Stats(d).Volley;s.State.Board[8]=null;Near(v,s.Stats(d).Volley*1.1);s.State.Board[8]=ally;ally.Pips=3;ally.Tier3="A";d.Tier3="B";double reload=s.Stats(d).Reload;s.State.Board[8]=null;Near(reload,s.Stats(d).Reload/1.06);});
+        {var s=Sim("resonance");var d=Die(s,"resonance",3,"A","",Center);var ally=Die(s,"pulse",2,"","",Right);double v=s.Stats(d).Volley;s.State.Board[Right]=null;Near(v,s.Stats(d).Volley*1.1);s.State.Board[Right]=ally;ally.Pips=3;ally.Tier3="A";d.Tier3="B";double reload=s.Stats(d).Reload;s.State.Board[Right]=null;Near(reload,s.Stats(d).Reload/1.06);});
         MainTest("resonance C/D: outbound same-pip aura and isolated bonus", () =>
-        {var s=Sim("resonance");var d=Die(s,"resonance",6,"A","C",7);var ally=Die(s,"pulse",6,"A","C",8);double v=s.Stats(ally).Volley;s.State.Board[7]=null;Near(v,s.Stats(ally).Volley*1.18);s.State.Board[7]=d;s.State.Board[8]=null;d.Tier6="D";v=s.Stats(d).Volley;d.Tier6="";Near(v,s.Stats(d).Volley*1.75);});
+        {var s=Sim("resonance");var d=Die(s,"resonance",6,"A","C",Center);var ally=Die(s,"pulse",6,"A","C",Right);double v=s.Stats(ally).Volley;s.State.Board[Center]=null;Near(v,s.Stats(ally).Volley*1.18);s.State.Board[Center]=d;s.State.Board[Right]=null;d.Tier6="D";v=s.Stats(d).Volley;d.Tier6="";Near(v,s.Stats(d).Volley*1.75);});
         MainTest("rage A/B: health and enemy position, not board position", () =>
         {var s=Sim("rage");var d=Die(s,"rage",3,"A");s.State.Health=6;var e=Enemy(s,216,300);var p=Shot(s,d);double hp=e.Hp;s.PrimaryHit(e,p);Near(hp-e.Hp,p.Stats.Damage*(1+1.5*(300-136)/376)*1.25);d.Tier3="B";p=Shot(s,d);hp=e.Hp;s.PrimaryHit(e,p);Near(hp-e.Hp,p.Stats.Damage*(1+2.2*(300-136)/376)*.75);});
         MainTest("rage C/D: breach window and shared knockback gate", () =>
         {var s=Sim("rage");var d=Die(s,"rage",6,"A","C");var e=Enemy(s,216,470);s.State.RageUntil=5;var p=Shot(s,d);double hp=e.Hp;s.PrimaryHit(e,p);Near(hp-e.Hp,p.Stats.Damage*(1+1.5*(470-136)/376)*2);d.Tier6="D";p=Shot(s,d);double y=e.Y;s.PrimaryHit(e,p);s.PrimaryHit(e,p);Near(e.Y,y-3);});
         MainTest("prism A/B: real extra pierce and nonrecursive weak child", () =>
-        {var s=Sim("prism");var d=Die(s,"prism",3,"A","",7);var ally=Die(s,"pulse",1,"","",8);Eq(s.Stats(ally).Pierces,2);d.Tier3="B";var e=Enemy(s,216,220);var p=Shot(s,ally);s.PrimaryHit(e,p);Eq(s.State.Projectiles.Count,1);var child=s.State.Projectiles[0];Near(child.Stats.Damage,p.Stats.Damage*.25);s.PrimaryHit(e,child);Eq(s.State.Projectiles.Count,1);});
+        {var s=Sim("prism");var d=Die(s,"prism",3,"A","",Center);var ally=Die(s,"pulse",1,"","",Right);Eq(s.Stats(ally).Pierces,2);d.Tier3="B";var e=Enemy(s,216,220);var p=Shot(s,ally);s.PrimaryHit(e,p);Eq(s.State.Projectiles.Count,1);var child=s.State.Projectiles[0];Near(child.Stats.Damage,p.Stats.Damage*.25);s.PrimaryHit(e,child);Eq(s.State.Projectiles.Count,1);});
         MainTest("prism C/D: focused neighbor and same-row boundaries", () =>
-        {var s=Sim("prism");var d=Die(s,"prism",6,"A","C",7);var ally=Die(s,"pulse",1,"","",8);double v=s.Stats(ally).Volley;s.State.Board[7]=null;Near(v,s.Stats(ally).Volley*1.18);s.State.Board[7]=d;d.Tier6="D";s.State.Board[8]=null;s.State.Board[11]=ally;Eq(s.Stats(ally).Pierces,2);s.State.Board[11]=null;s.State.Board[12]=ally;Eq(s.Stats(ally).Pierces,0);});
+        {var s=Sim("prism");var d=Die(s,"prism",6,"A","C",Center);var ally=Die(s,"pulse",1,"","",Right);double v=s.Stats(ally).Volley;s.State.Board[Center]=null;Near(v,s.Stats(ally).Volley*1.18);s.State.Board[Center]=d;d.Tier6="D";s.State.Board[Right]=null;s.State.Board[RowEnd]=ally;Eq(s.Stats(ally).Pierces,2);s.State.Board[RowEnd]=null;s.State.Board[NextRow]=ally;Eq(s.Stats(ally).Pierces,0);});
         MainTest("parasite A/B: instance kills reach different growth curves", () =>
         {var s=Sim("parasite");var d=Die(s,"parasite",3,"A");double v=s.Stats(d).Volley;for(int i=0;i<10;i++)s.ApplyDamage(Enemy(s,216,220),1e8,"#FFFFFF",d.Id);Near(s.Stats(d).Volley,v*1.05);d.Tier3="B";d.GrowthKills=400;v=s.Stats(d).Volley;d.GrowthKills=0;Near(v,s.Stats(d).Volley*1.8);});
         MainTest("parasite C/D: assists counted once and mature aura", () =>
-        {var s=Sim("parasite");var d=Die(s,"parasite",6,"A","C",7);var e=Enemy(s,216,220);s.PrimaryHit(e,Shot(s,d));s.ApplyDamage(e,1e8,"#FFFFFF");s.ApplyDamage(e,1e8,"#FFFFFF",d.Id);Eq(d.GrowthKills,1L);d.Tier6="D";d.GrowthKills=100;var ally=Die(s,"pulse",1,"","",8);double v=s.Stats(ally).Volley;s.State.Board[7]=null;Near(v,s.Stats(ally).Volley*1.18);});
+        {var s=Sim("parasite");var d=Die(s,"parasite",6,"A","C",Center);var e=Enemy(s,216,220);s.PrimaryHit(e,Shot(s,d));s.ApplyDamage(e,1e8,"#FFFFFF");s.ApplyDamage(e,1e8,"#FFFFFF",d.Id);Eq(d.GrowthKills,1L);d.Tier6="D";d.GrowthKills=100;var ally=Die(s,"pulse",1,"","",Right);double v=s.Stats(ally).Volley;s.State.Board[Center]=null;Near(v,s.Stats(ally).Volley*1.18);});
         MainTest("source identity: old shots and DOT cannot donate growth to replacement die", () =>
         {var s=Sim("parasite");var d=Die(s,"parasite",6,"A","C");var p=Shot(s,d);s.Recycle(0);var replacement=Die(s,"parasite",6,"A","C");var e=Enemy(s,216,220);e.Hp=1;s.PrimaryHit(e,p);Eq(replacement.GrowthKills,0L);});
         MainTest("gamble A/B: weak result is normal, and high-stakes probability is genuine", () =>
@@ -122,11 +127,11 @@ internal static class Program
         MainTest("gamble C/D: pity is saved, jackpot income only once", () =>
         {var s=Sim("gamble");var d=Die(s,"gamble",6,"A","C");d.BadRolls=23;ForceRoll(s,.8);double v=s.Stats(d).Damage;s.QueueVolley(d,0,-1.5,1,false);Near(s.State.PendingShots[0].Snapshot.Stats.Damage,v*8);Eq(d.BadRolls,0);s.State.PendingShots.Clear();d.Tier6="D";ForceRoll(s,.005);v=s.Stats(d).Damage;s.QueueVolley(d,0,-1.5,1,false);var pending=s.State.PendingShots[0];Near(pending.Snapshot.Stats.Damage,v*12);var e=Enemy(s,216,220);var p=s.MakeProjectile(216,300,-1.5,pending.Snapshot);double energy=s.State.Energy;s.PrimaryHit(e,p);s.PrimaryHit(e,p);Near(s.State.Energy-energy,8);});
         MainTest("mirror A/B: own pip scaling, no recursive support or mirror selection", () =>
-        {var s=Sim("mirror","poison","time");var d=Die(s,"mirror",3,"A","",7);var target=Die(s,"poison",1,"","",8);var q=s.Stats(d);Eq(q.Effect,"pulse");Eq(q.AttackType,"poison");Near(q.Volley,6*Data.Game.Levels[2].VolleyPower/3*.9);s.State.Board[8]=null;target=Die(s,"time",6,"A","D",8);Eq(s.Stats(d).AttackType,"mirror");d.Tier3="B";s.State.Board[8]=null;Die(s,"poison",1,"","",11);Eq(s.Stats(d).AttackType,"poison");});
+        {var s=Sim("mirror","poison","time");var d=Die(s,"mirror",3,"A","",Center);var target=Die(s,"poison",1,"","",Right);var q=s.Stats(d);Eq(q.Effect,"pulse");Eq(q.AttackType,"poison");Near(q.Volley,Data.Types["poison"].BaseDamage*Data.Game.Levels[2].VolleyPower*Data.Game.Rules.DamageScale*.9);s.State.Board[Right]=null;target=Die(s,"time",6,"A","D",Right);Eq(s.Stats(d).AttackType,"mirror");d.Tier3="B";s.State.Board[Right]=null;Die(s,"poison",1,"","",RowEnd);Eq(s.Stats(d).AttackType,"poison");});
         MainTest("mirror C/D: only A/B copied and one bounded shadow volley", () =>
-        {var s=Sim("mirror","poison");var d=Die(s,"mirror",6,"A","C",7);Die(s,"poison",6,"B","D",8);var q=s.Stats(d);Near(q.Trait("poisonStacks"),2);Near(q.Trait("poisonDetonate"),0);d.Tier6="D";s.QueueVolley(d,7,-1.5,1,false);Eq(s.State.PendingShots.Count,12);double baseDamage=s.State.PendingShots[0].Snapshot.Stats.Damage;Eq(s.State.PendingShots.Count(x=>Math.Abs(x.Snapshot.Stats.Damage-baseDamage)<1e-9),6);Eq(s.State.PendingShots.Count(x=>Math.Abs(x.Snapshot.Stats.Damage-baseDamage*.35)<1e-9),6);Check(s.State.PendingShots.Zip(s.State.PendingShots.Skip(1)).All(x=>x.First.Due<=x.Second.Due));});
+        {var s=Sim("mirror","poison");var d=Die(s,"mirror",6,"A","C",Center);Die(s,"poison",6,"B","D",Right);var q=s.Stats(d);Near(q.Trait("poisonStacks"),2);Near(q.Trait("poisonDetonate"),0);d.Tier6="D";s.QueueVolley(d,Center,-1.5,1,false);Eq(s.State.PendingShots.Count,12);double baseDamage=s.State.PendingShots[0].Snapshot.Stats.Damage;Eq(s.State.PendingShots.Count(x=>Math.Abs(x.Snapshot.Stats.Damage-baseDamage)<1e-9),6);Eq(s.State.PendingShots.Count(x=>Math.Abs(x.Snapshot.Stats.Damage-baseDamage*.35)<1e-9),6);Check(s.State.PendingShots.Zip(s.State.PendingShots.Skip(1)).All(x=>x.First.Due<=x.Second.Due));});
         MainTest("mirror can actually charge when copying a charging attack", () =>
-        {var s=Sim("mirror","charge");var d=Die(s,"mirror",3,"A","",7);Die(s,"charge",3,"A","",8);Clock(s,2.2);Check(d.Charge>=2);});
+        {var s=Sim("mirror","charge");var d=Die(s,"mirror",3,"A","",Center);Die(s,"charge",3,"A","",Right);Clock(s,2.2);Check(d.Charge>=2);});
         MainTest("time A/B: periodic windows, strongest source only, no automatic attacks", () =>
         {var s=Sim("time");var d=Die(s,"time",3,"A");var ally=Die(s,"pulse",1,"","",1);Clock(s,5.9);Near(d.PulseUntil,0);ally.Cooldown=10;Clock(s,.2);Check(d.PulseUntil>s.State.Time);Check(ally.Cooldown<9.8);Eq(s.State.Shots,0L);d.Tier3="B";d.AbilityClock=9.9;d.PulseUntil=0;Clock(s,.2);Check(d.PulseUntil-s.State.Time>2.8);});
         MainTest("time C/D: startup reduction gate and 70% acceleration", () =>
@@ -136,7 +141,7 @@ internal static class Program
         MainTest("evolution milestones: reselect A/B then C/D, without free merge salvo", () =>
         {var s=Sim("evolution");var d=Die(s,"evolution",2);d.Age=29.99;s.Step(.02);Eq(s.CurrentSkillChoice!.Tier,3);Choose(s,"B");Eq(s.State.PendingShots.Count,0);d.Pips=5;d.Age=71.99;s.Step(.02);Eq(d.Pips,6);Eq(d.Tier3,"");Eq(s.State.PendingSkills.Count,2);Choose(s,"A");Choose(s,"D");Eq(s.State.PendingShots.Count,0);});
         MainTest("evolution C/D: adjacent upgrade triggers proper choices and final form works", () =>
-        {var s=Sim("evolution");var d=Die(s,"evolution",6,"A","C",7);var ally=Die(s,"pulse",2,"","",8);d.Age=39.99;s.Step(.02);Eq(ally.Pips,3);Eq(s.CurrentSkillChoice!.DieId,ally.Id);Choose(s,"A");d.Tier6="D";double v=s.Stats(d).Volley;double reload=s.Stats(d).Reload;d.Tier6="";Near(v,s.Stats(d).Volley*1.9);Near(reload,s.Stats(d).Reload*.8);});
+        {var s=Sim("evolution");var d=Die(s,"evolution",6,"A","C",Center);var ally=Die(s,"pulse",2,"","",Right);d.Age=39.99;s.Step(.02);Eq(ally.Pips,3);Eq(s.CurrentSkillChoice!.DieId,ally.Id);Choose(s,"A");d.Tier6="D";double v=s.Stats(d).Volley;double reload=s.Stats(d).Reload;d.Tier6="";Near(v,s.Stats(d).Volley*1.9);Near(reload,s.Stats(d).Reload*.8);});
         MainTest("saved corruption: nonfinite traits, unbounded DOT and bad clock rejected", () =>
         {var s=Sim("poison");var d=Die(s,"poison",6,"A","C");s.Fire(-1.5);var saved=s.ExportSave();saved.PendingShots[0].Snapshot.Stats.Traits["poison"]=double.NaN;Throws(()=>Simulation.Restore(Data,saved));saved=s.ExportSave();saved.Board[0]!.Age=double.PositiveInfinity;Throws(()=>Simulation.Restore(Data,saved));var e=Enemy(s,216,220);saved=s.ExportSave();saved.Enemies[0].Poison=Enumerable.Range(0,21).Select(_=>new PoisonStack()).ToList();Throws(()=>Simulation.Restore(Data,saved));});
         MainTest("busy firing and merging do not consume gamble RNG, charge, pity, money or material", () =>

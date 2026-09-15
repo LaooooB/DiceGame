@@ -31,7 +31,7 @@ def main():
     check('16-slot 4-column board',game['board']['slots']==16 and game['board']['columns']==4)
     check('Exactly six distinct deck entries required',game['rules']['minDeck']==6 and game['rules']['maxDeck']==6 and len(set(game['rules']['starterDeck']))==6)
     check('Direct damage budget matches sixteen-slot capacity',abs(game['rules']['damageScale']-.5)<1e-12)
-    check('Opening six-die identity and paced economy',game['rules']['startingDicePattern']==[0,1,2,3,4,5] and game['rules']['startEnergy']==16 and game['rules']['summonCost']==10 and game['rules']['passiveEnergy']<=.25 and game['waves']['killEnergy']==1)
+    check('Opening six-die identity and paced economy',game['rules']['startingDicePattern']==[0,1,2,3,4,5] and game['rules']['startEnergy']==16 and game['rules']['summonCost']==10 and game['rules']['passiveEnergy']<=.25 and game['waves']['killEnergy']==0)
     check('Every die has A/B and C/D',{s['type'] for s in skills}=={d['id'] for d in json.loads((ROOT/'Data/dice.json').read_text(encoding='utf-8'))} and all([x['key'] for x in s['level3']]==['A','B'] and [x['key'] for x in s['level6']]==['C','D'] for s in skills))
     check('Skill regression project and capacity analysis present',all((ROOT/p).is_file() for p in ['Tests/Skills/Skills.Tests.csproj','Tools/analyze_board_capacity.py']))
     check('Frozen original balance copied for honest reference tests',all((ROOT/'Tests/LegacyBalanceData'/p).is_file() for p in ['game.json','dice.json','upgrades.json','campaign.json']))

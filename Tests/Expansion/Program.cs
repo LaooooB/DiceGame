@@ -9,6 +9,13 @@ internal static partial class Program
     static readonly GameData Data=GameData.FromDirectory(Path.Combine(AppContext.BaseDirectory,"Data"));
     static readonly List<object> Results=[];
     static int Passed,Failed;
+    static int Center => Data.Game.Board.Columns + 1;
+    static int Left => Center - 1;
+    static int Right => Center + 1;
+    static int Up => Center - Data.Game.Board.Columns;
+    static int Down => Center + Data.Game.Board.Columns;
+    static int UpLeft => Up - 1;
+    static int DownRight => Down + 1;
     static void Test(string name,Action run)
     {
         try {run();Passed++;Results.Add(new{name,passed=true});Console.WriteLine("PASS "+name);}
@@ -184,16 +191,16 @@ internal static partial class Program
             var s=Sim("spree");var d=Die(s,"spree",6,"A","D");var p=Pellet(s,Volley(s,d)[0]);Hit(s,Enemy(s,hp:1,kind:"armored"),p);Eq(s.State.Expansion.Volleys[p.Stats.VolleyId].Kills,3);var boss=Enemy(s,hp:1000,kind:"boss");s.ApplyDamage(boss,260,"#FFFFFF",d.Id,DamageFlags.Direct,p.Stats.VolleyId);Eq(s.State.Expansion.Volleys[p.Stats.VolleyId].Kills,5);Eq(boss.BossMilestones,1);
         });
         Test("formation A: diagonal kinds count without crossing board rows",()=>{
-            var s=Sim("formation","cannon");var d=Die(s,"formation",3,"A","",7);Die(s,"pulse",1,slot:0);Die(s,"blast",1,slot:14);Near(s.Stats(d).Volley,Base(d)*1.16);s.State.Board[14]=null;Die(s,"cannon",1,slot:5);Near(s.Stats(d).Volley,Base(d)*1.08);
+            var s=Sim("formation","cannon");var d=Die(s,"formation",3,"A","",Center);Die(s,"pulse",1,slot:UpLeft);Die(s,"blast",1,slot:DownRight);Near(s.Stats(d).Volley,Base(d)*1.16);s.State.Board[DownRight]=null;Die(s,"cannon",1,slot:3);Near(s.Stats(d).Volley,Base(d)*1.08);
         });
         Test("formation B: orthogonal distinct kinds give larger individual gains",()=>{
-            var s=Sim("formation");var d=Die(s,"formation",3,"B","",7);Die(s,"pulse",1,slot:6);Die(s,"pulse",1,slot:8);Die(s,"blast",1,slot:1);Near(s.Stats(d).Volley,Base(d)*1.4);
+            var s=Sim("formation");var d=Die(s,"formation",3,"B","",Center);Die(s,"pulse",1,slot:Left);Die(s,"pulse",1,slot:Right);Die(s,"blast",1,slot:Up);Near(s.Stats(d).Volley,Base(d)*1.4);
         });
         Test("formation C: ally receives one support aura, not one per supporting die",()=>{
-            var s=Sim("formation");Die(s,"formation",6,"A","C",7);Die(s,"formation",6,"A","C",9);var ally=Die(s,"pulse",1,slot:8);Near(s.Stats(ally).Volley,Base(ally)*1.08);
+            var s=Sim("formation");Die(s,"formation",6,"A","C",Center);Die(s,"formation",6,"A","C",Center+2);var ally=Die(s,"pulse",1,slot:Right);Near(s.Stats(ally).Volley,Base(ally)*1.08);
         });
         Test("formation D: four different orthogonal allies empower every third release",()=>{
-            var s=Sim("formation");var d=Die(s,"formation",6,"B","D",7);Die(s,"pulse",1,slot:6);Die(s,"blast",1,slot:8);Die(s,"arc",1,slot:1);Die(s,"frost",1,slot:13);double normal=Volley(s,d)[0].Stats.Volley;Volley(s,d);Near(Volley(s,d)[0].Stats.Volley,normal*1.8);
+            var s=Sim("formation");var d=Die(s,"formation",6,"B","D",Center);Die(s,"pulse",1,slot:Left);Die(s,"blast",1,slot:Right);Die(s,"arc",1,slot:Up);Die(s,"frost",1,slot:Down);double normal=Volley(s,d)[0].Stats.Volley;Volley(s,d);Near(Volley(s,d)[0].Stats.Volley,normal*1.8);
         });
     }
 }

@@ -204,7 +204,7 @@ public sealed partial class GameApp
             }
         }
         else if(p.Mode=="diepress" && Scene=="play" && Sim?.State.Board[p.Slot] is not null)
-        { Audio.Play("tap"); }
+        { if(!NativeUi){SelectedSlot=p.Slot;Scene="die";Save();} Audio.Play("tap"); }
         else if(p.Mode=="drag" && Scene=="play" && Sim is not null)
         {
             int target=SlotAt(x,y);

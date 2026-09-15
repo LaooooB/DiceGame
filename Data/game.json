@@ -113,7 +113,7 @@
     "countPerWave": 0.8,
     "maxCount": 25,
     "clearEnergy": 4,
-    "killEnergy": 1,
+    "killEnergy": 0,
     "bossHpFactor": 7.8
   },
   "limits": {

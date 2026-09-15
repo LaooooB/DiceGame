@@ -6,15 +6,15 @@ internal static partial class Program
     static void Epic()
     {
         Test("reactor A: five neighbor releases fill the cheaper core",()=>{
-            var s=Sim("reactor");var d=Die(s,"reactor",3,"A","",7);var ally=Die(s,"pulse",1,slot:8);
+            var s=Sim("reactor");var d=Die(s,"reactor",3,"A","",Center);var ally=Die(s,"pulse",1,slot:Right);
             for(int i=0;i<5;i++)Volley(s,ally);Near(d.MechanicEnergy,5);Near(Volley(s,d)[0].Stats.Volley,Base(d)*1.8);Near(d.MechanicEnergy,0);
         });
         Test("reactor B: twelve charges buy the heavier empowered salvo",()=>{
-            var s=Sim("reactor");var d=Die(s,"reactor",3,"B","",7);var ally=Die(s,"pulse",1,slot:8);
+            var s=Sim("reactor");var d=Die(s,"reactor",3,"B","",Center);var ally=Die(s,"pulse",1,slot:Right);
             for(int i=0;i<12;i++)Volley(s,ally);Near(d.MechanicEnergy,12);Near(Volley(s,d)[0].Stats.Volley,Base(d)*3.4);
         });
         Test("reactor C: discharge gives adjacent cooldown reduction after the release",()=>{
-            var s=Sim("reactor");var d=Die(s,"reactor",6,"A","C",7);var ally=Die(s,"pulse",1,slot:8);d.MechanicEnergy=5;Volley(s,d);Near(ally.Cooldown,19.6);
+            var s=Sim("reactor");var d=Die(s,"reactor",6,"A","C",Center);var ally=Die(s,"pulse",1,slot:Right);d.MechanicEnergy=5;Volley(s,d);Near(ally.Cooldown,19.6);
         });
         Test("reactor D: only the first main projectile produces the nuclear blast",()=>{
             var s=Sim("reactor");var d=Die(s,"reactor",6,"A","D");d.MechanicEnergy=5;var shots=Volley(s,d);var e=Enemy(s);var nearby=Enemy(s,245,250);var p=Pellet(s,shots[0]);Hit(s,e,p,true);double after=nearby.Hp;Check(after<nearby.MaxHp);Hit(s,e,p,true);Near(nearby.Hp,after);Hit(s,e,Pellet(s,shots[1]),true);Near(nearby.Hp,after);
@@ -88,15 +88,15 @@ internal static partial class Program
             var s=Sim("blackhole");var d=Die(s,"blackhole",6,"A","D");var e=Enemy(s);Hit(s,e,Shot(s,d));Hit(s,e,Shot(s,d));double hp=e.Hp;s.ApplyDamage(e,100,"#FFFFFF");Near(hp-e.Hp,120);
         });
         Test("forge A: neighboring result slots charge fast forging, not arbitrary merges",()=>{
-            var s=Sim("forge");var d=Die(s,"forge",3,"A","",7);
+            var s=Sim("forge");var d=Die(s,"forge",3,"A","",Center);
             for(int i=0;i<2;i++){Die(s,"pulse",1,slot:0);Die(s,"pulse",1,slot:1);Check(s.Merge(0,1).Ok);}Near(d.MechanicEnergy,2);Near(Volley(s,d)[0].Stats.Volley,Base(d)*2);
         });
         Test("forge B: six charged merges pay the stronger forge salvo",()=>{
-            var s=Sim("forge");var d=Die(s,"forge",3,"B","",7);
+            var s=Sim("forge");var d=Die(s,"forge",3,"B","",Center);
             for(int i=0;i<6;i++){Die(s,"pulse",1,slot:0);Die(s,"pulse",1,slot:1);s.Merge(0,1);}Near(d.MechanicEnergy,6);Near(Volley(s,d)[0].Stats.Volley,Base(d)*4);
         });
         Test("forge C: real timed ally blessing expires and does not multiply duplicate auras",()=>{
-            var s=Sim("forge");var d=Die(s,"forge",6,"A","C",7);var ally=Die(s,"pulse",1,slot:8);d.MechanicEnergy=2;Volley(s,d);Near(s.Stats(ally).Volley,Base(ally)*1.18);Enemy(s);Clock(s,3.1);Near(s.Stats(ally).Volley,Base(ally));
+            var s=Sim("forge");var d=Die(s,"forge",6,"A","C",Center);var ally=Die(s,"pulse",1,slot:Right);d.MechanicEnergy=2;Volley(s,d);Near(s.Stats(ally).Volley,Base(ally)*1.18);Enemy(s);Clock(s,3.1);Near(s.Stats(ally).Volley,Base(ally));
         });
         Test("forge D: empowered shots get six real extra pierces and bounces",()=>{
             var s=Sim("forge");var d=Die(s,"forge",6,"B","D");d.MechanicEnergy=6;var q=Volley(s,d)[0];Eq(q.Stats.Pierces,6);Eq(q.Stats.Bounces,s.Stats(d).Bounces+6);
