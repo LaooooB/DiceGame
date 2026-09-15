@@ -17,9 +17,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          : > /tmp/ui-refactor.patch.gz
-          for f in .github/ui-refactor-*.b64; do base64 -d "$f" >> /tmp/ui-refactor.patch.gz; done
-          gzip -dc /tmp/ui-refactor.patch.gz > /tmp/ui-refactor.patch
+          : > /tmp/ui-refactor.patch.bz2
+          for f in .github/ui-refactor-*.b64; do base64 -d "$f" >> /tmp/ui-refactor.patch.bz2; done
+          bzip2 -dc /tmp/ui-refactor.patch.bz2 > /tmp/ui-refactor.patch
           git apply --check /tmp/ui-refactor.patch
           git apply /tmp/ui-refactor.patch
           rm .github/ui-refactor-*.b64 .github/ui-refactor-ready
