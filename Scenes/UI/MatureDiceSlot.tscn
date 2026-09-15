@@ -1,0 +1,84 @@
+[gd_scene load_steps=4 format=3]
+
+[sub_resource type="StyleBoxFlat" id="SlotPanel"]
+bg_color = Color(0.0392, 0.0784, 0.1137, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2235, 0.3373, 0.4196, 1)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_left = 7
+corner_radius_bottom_right = 7
+content_margin_left = 5.0
+content_margin_top = 4.0
+content_margin_right = 5.0
+content_margin_bottom = 4.0
+shadow_color = Color(0, 0, 0, 0.28)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="ReloadBackground"]
+bg_color = Color(0.102, 0.1647, 0.2118, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_left = 2
+corner_radius_bottom_right = 2
+content_margin_left = 0.0
+content_margin_right = 0.0
+content_margin_top = 0.0
+content_margin_bottom = 0.0
+
+[sub_resource type="StyleBoxFlat" id="ReloadFill"]
+bg_color = Color(0.4471, 0.9176, 0.7843, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_left = 2
+corner_radius_bottom_right = 2
+content_margin_left = 0.0
+content_margin_right = 0.0
+content_margin_top = 0.0
+content_margin_bottom = 0.0
+
+[node name="DiceSlot" type="PanelContainer"]
+custom_minimum_size = Vector2(104, 119)
+mouse_filter = 0
+mouse_default_cursor_shape = 2
+theme_override_styles/panel = SubResource("SlotPanel")
+
+[node name="Layout" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 1
+mouse_filter = 2
+
+[node name="Art" type="TextureRect" parent="Layout"]
+custom_minimum_size = Vector2(78, 68)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="Layout"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 15
+text = "空位"
+
+[node name="Branches" type="Label" parent="Layout"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.6078, 0.6863, 0.7412, 1)
+theme_override_font_sizes/font_size = 11
+text = ""
+
+[node name="Reload" type="ProgressBar" parent="Layout"]
+custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/background = SubResource("ReloadBackground")
+theme_override_styles/fill = SubResource("ReloadFill")
+max_value = 1.0
+show_percentage = false
