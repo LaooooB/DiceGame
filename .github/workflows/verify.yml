@@ -1,4 +1,4 @@
-name: Verify Godot campaign
+name: Verify Godot campaign and dice skills
 on:
   push:
     branches: [main]
@@ -20,6 +20,8 @@ jobs:
         run: dotnet run --project Tests/DiceGame.Tests.csproj --configuration Release
       - name: Campaign regression
         run: dotnet run --project Tests/Campaign/Campaign.Tests.csproj --configuration Release
+      - name: Dice skills and board regression
+        run: dotnet run --project Tests/Skills/Skills.Tests.csproj --configuration Release
       - name: Build native game
         run: dotnet build DiceGame.csproj --configuration Debug
       - name: Import and launch pinned Godot
@@ -42,5 +44,7 @@ jobs:
           path: |
             *test-results.json
             Artifacts/static-check.json
+            Artifacts/skills-test-results.json
+            Artifacts/skills-stress.json
             /tmp/godot-smoke.log
           retention-days: 7
