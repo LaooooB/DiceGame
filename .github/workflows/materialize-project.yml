@@ -1,0 +1,83 @@
+name: Materialize Godot project
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: materialize-dicegame
+  cancel-in-progress: false
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check bootstrap payload
+        id: bootstrap
+        shell: bash
+        run: |
+          if [ -f bootstrap/project-source.tar.gz.b64 ]; then
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+            echo "Project is already materialized."
+          fi
+
+      - name: Expand source project
+        if: steps.bootstrap.outputs.needed == 'true'
+        shell: bash
+        run: |
+          base64 --decode bootstrap/project-source.tar.gz.b64 > /tmp/project-source.tar.gz
+          tar -xzf /tmp/project-source.tar.gz -C .
+          rm -rf bootstrap
+
+      - name: Set up Python
+        if: steps.bootstrap.outputs.needed == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Playwright Chromium
+        if: steps.bootstrap.outputs.needed == 'true'
+        shell: bash
+        run: |
+          python -m pip install --disable-pip-version-check playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Regenerate original reference fixtures and art
+        if: steps.bootstrap.outputs.needed == 'true'
+        shell: bash
+        run: |
+          node Tools/generate_reference_fixtures.cjs Tests/Original
+          python Tools/extract_reference_assets.py Tests/Original
+          python Tools/capture_original.py Tests/Original
+
+      - name: Verify required Godot project files
+        if: steps.bootstrap.outputs.needed == 'true'
+        shell: bash
+        run: |
+          test -f project.godot
+          test -f DiceGame.csproj
+          test -f Scenes/Main.tscn
+          test -f Assets/Reference/background.png
+          test -f Assets/Reference/dice_125.png
+          test -f Tests/Fixtures/audio_reference.f32
+          test -f Tests/ReferenceScreenshots/menu.png
+
+      - name: Commit complete project
+        if: steps.bootstrap.outputs.needed == 'true'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Add complete Godot 4.6 Mono desktop project"
+          git push origin HEAD:main
