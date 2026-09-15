@@ -17,10 +17,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat .github/ui-refactor-*.diff > /tmp/ui-refactor.patch
+          : > /tmp/ui-refactor.patch
+          for f in .github/ui-refactor-*.b64; do base64 -d "$f" >> /tmp/ui-refactor.patch; done
           git apply --check /tmp/ui-refactor.patch
           git apply /tmp/ui-refactor.patch
-          rm .github/ui-refactor-*.diff .github/ui-refactor-ready
+          rm .github/ui-refactor-*.b64 .github/ui-refactor-ready
           git config user.name 'DiceGame UI Refactor'
           git config user.email 'actions@users.noreply.github.com'
           git add -A
