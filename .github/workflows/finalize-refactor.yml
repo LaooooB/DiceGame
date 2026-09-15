@@ -78,3 +78,4 @@ jobs:
           git add Data/game.json Scripts/Core/Simulation.Skills.cs Scripts/Core/Simulation.cs Scripts/App/GameApp.cs Tools/static_check.py
           git commit -m 'Tune combat pacing and restore regression compatibility'
           git push origin HEAD:main
+# trigger contents-api push
