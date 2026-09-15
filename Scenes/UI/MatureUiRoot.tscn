@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="PackedScene" path="res://Scenes/UI/MatureShell.tscn" id="1"]
+[ext_resource type="Script" path="res://Scripts/UI/UxLegacyGuard.cs" id="2"]
 
 [node name="MatureUiRoot" type="Control"]
 z_index = 50
@@ -13,3 +14,7 @@ mouse_filter = 1
 
 [node name="MatureShell" parent="." instance=ExtResource("1")]
 layout_mode = 1
+
+[node name="LegacyGuard" type="Node" parent="."]
+process_priority = 100
+script = ExtResource("2")
