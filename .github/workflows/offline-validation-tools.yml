@@ -1,0 +1,36 @@
+name: Offline validation tools
+on:
+  push:
+    branches: [work/zip-campaign-integration]
+    paths: [.github/workflows/offline-validation-tools.yml]
+permissions:
+  contents: read
+jobs:
+  tools:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Package runtime, compiler and references
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/toolchain/dotnet /tmp/toolchain/compiler /tmp/toolchain/references
+          sdk="$(dotnet --version)"
+          cp "$DOTNET_ROOT/dotnet" /tmp/toolchain/dotnet/
+          cp -a "$DOTNET_ROOT/host" "$DOTNET_ROOT/shared" /tmp/toolchain/dotnet/
+          cp -a "$DOTNET_ROOT/sdk/$sdk/Roslyn/bincore/." /tmp/toolchain/compiler/
+          ref="$(find "$DOTNET_ROOT/packs/Microsoft.NETCore.App.Ref" -type d -path '*/ref/net8.0' | sort -V | tail -1)"
+          cp -a "$ref/." /tmp/toolchain/references/
+          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6-stable/Godot_v4.6-stable_mono_linux_x86_64.zip' -o /tmp/godot.zip
+          unzip -q /tmp/godot.zip -d /tmp/toolchain
+          dotnet --info > /tmp/toolchain/toolchain-info.txt
+          tar -C /tmp/toolchain -cJf /tmp/validation-tools.tar.xz .
+          sha256sum /tmp/validation-tools.tar.xz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: validation-tools
+          path: /tmp/validation-tools.tar.xz
+          compression-level: 0
+          retention-days: 1
