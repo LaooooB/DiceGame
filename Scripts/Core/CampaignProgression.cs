@@ -7,7 +7,7 @@ public sealed class CampaignProgression(CampaignCatalog catalog)
     public CampaignState NewState()
     {
         var d = Catalog.Definition;
-        return new CampaignState { Resources = new(d.InitialResources), UnlockedDice = d.InitialDice.ToHashSet(), UnlockedMechanics = d.InitialMechanics.ToHashSet(), Blueprints = d.InitialBlueprints.ToHashSet(), SelectedRegion = d.Regions[0].Id };
+        return new CampaignState { Resources = new(d.InitialResources), UnlockedDice = d.InitialDice.Concat(Catalog.Game.Dice.Where(x => x.AvailableFromStart).Select(x => x.Id)).ToHashSet(), UnlockedMechanics = d.InitialMechanics.ToHashSet(), Blueprints = d.InitialBlueprints.ToHashSet(), SelectedRegion = d.Regions[0].Id };
     }
     public List<string> MissingRequirements(CampaignState state, IEnumerable<ProgressRequirement> requirements)
     {

@@ -29,6 +29,7 @@ public sealed partial class Simulation
     }
     private int MergeShotReservation(int pips)
     {
+        if (R.EnableDiceContent) return Math.Min(18, pips + 12) * 3;
         if (!R.EnableDiceSkills || pips < 3) return pips;
         int extra=0;
         foreach(var set in S.SkillSets.Values)
@@ -108,6 +109,7 @@ public sealed partial class Simulation
     }
     private void ApplySlow(EnemyState enemy, ShotStats stats)
     {
+        if(R.EnableDiceContent) { ApplySlow(enemy,stats.SlowFactor,stats.SlowSeconds); return; }
         if (enemy.Dead) return;
         bool alreadySlowed = enemy.SlowUntil > S.Time;
         enemy.SlowUntil = Math.Max(enemy.SlowUntil, S.Time + stats.SlowSeconds);

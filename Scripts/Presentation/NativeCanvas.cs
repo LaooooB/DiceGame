@@ -10,7 +10,7 @@ namespace DiceGame.Presentation;
 /// Static dice/icon/glow pixels are exported losslessly from the original renderer.
 /// Gradients are cached native ImageTextures; moving particles, lines and UI are drawn by Godot.
 /// </summary>
-public sealed class NativeArt : IDisposable
+public sealed partial class NativeArt : IDisposable
 {
     private readonly Dictionary<int,Texture2D> _dice=[];
     private readonly Dictionary<string,Texture2D> _glows=[];
@@ -161,7 +161,12 @@ public sealed class NativeCanvas(CanvasItem item,NativeArt art)
     public void Glow(string color,double x,double y,double size)=>Image(art.Glow(color),x-size/2,y-size/2,size,size);
     public void Die(string type,int pips,double x,double y,double size,double angle=0,double alpha=1,int referenceSize=0)
     {
-        int row=Array.IndexOf(NativeArt.TypeRows,type);if(row<0)return;
+        int row=Array.IndexOf(NativeArt.TypeRows,type);
+        if(row<0)
+        {
+            var texture=art.ContentDie(type,pips);if(texture is null)return;
+            Save();Alpha*=alpha;Translate(x,y);Rotate(angle);Image(texture,-size/2,-size/2,size,size);Restore();return;
+        }
         int s=referenceSize>0?referenceSize:NativeArt.Sizes.OrderBy(n=>Math.Abs(n-size)).First();
         double cell=s+16,scale=size/s;
         Save();Alpha*=alpha;Translate(x,y);Rotate(angle);Scale(scale,scale);
@@ -171,7 +176,7 @@ public sealed class NativeCanvas(CanvasItem item,NativeArt art)
     }
     public void Icon(string kind,double x,double y,double size,string color=Palette.Text)
     {
-        int i=Array.IndexOf(NativeArt.IconKinds,kind);if(i<0)return;
+        int i=Array.IndexOf(NativeArt.IconKinds,kind);if(i<0){var glyph=art.ContentGlyph(kind);if(glyph is not null)Image(glyph,x-size/2,y-size/2,size,size,color);return;}
         double cell=32*size/24;
         item.DrawTextureRectRegion(art.Icons,new Rect2(V(x-cell/2,y-cell/2),V(cell,cell)),new Rect2(V(i%5*96,i/5*96),V(96,96)),Tint(color));
     }

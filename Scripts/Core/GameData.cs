@@ -29,6 +29,7 @@ public sealed class GameData
         Types = Dice.ToDictionary(x => x.Id, StringComparer.Ordinal);
         UpgradeTypes = Upgrades.ToDictionary(x => x.Id, StringComparer.Ordinal);
         Validate();
+        DiceContent.Validate(this);
     }
     public static GameData FromDirectory(string path) => new(
         File.ReadAllText(Path.Combine(path, "game.json")),
@@ -98,6 +99,7 @@ public sealed class RulesConfig
     public int MinDeck { get; set; } = 1;
     public double DamageScale { get; set; } = 1;
     public bool EnableDiceSkills { get; set; }
+    public bool EnableDiceContent { get; set; }
     public string[] StarterDeck { get; set; } = [];
     public int[] StartingDicePattern { get; set; } = [0, 0, 1];
     public int MaxDeck { get; set; } public int MaxPips { get; set; } public double StartEnergy { get; set; }
@@ -125,6 +127,11 @@ public sealed class LimitsConfig
 }
 public sealed class DiceDefinition
 {
+    public string Rarity { get; set; } = "common";
+    public bool AvailableFromStart { get; set; }
+    public bool Copyable { get; set; } = true;
+    public string GlyphPath { get; set; } = "";
+    public Dictionary<string, double> Traits { get; set; } = new(StringComparer.Ordinal);
     public string Id { get; set; } = ""; public string Name { get; set; } = ""; public string Tag { get; set; } = "";
     public string Color { get; set; } = "#FFFFFF"; public string Shade { get; set; } = "#FFFFFF";
     public double BaseDamage { get; set; } public double Reload { get; set; } public string Effect { get; set; } = "pulse";

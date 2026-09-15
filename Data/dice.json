@@ -1,7 +1,7 @@
 [
   {
     "id": "pulse",
-    "name": "速射",
+    "name": "连弩",
     "tag": "密集火力",
     "color": "#72EAC8",
     "shade": "#228B7A",
@@ -9,11 +9,12 @@
     "reload": 0.66,
     "effect": "pulse",
     "description": "装填最快。发射稳定的高速弹丸，用数量覆盖敌阵。",
-    "icon": "pulse"
+    "icon": "pulse",
+    "rarity": "common"
   },
   {
     "id": "blast",
-    "name": "爆破",
+    "name": "爆裂",
     "tag": "范围爆炸",
     "color": "#FFAD76",
     "shade": "#AD4F38",
@@ -23,11 +24,12 @@
     "description": "命中时引爆周围方块。爆炸不会重复触发弹丸特效。",
     "icon": "blast",
     "radius": 48,
-    "splashFactor": 0.65
+    "splashFactor": 0.65,
+    "rarity": "common"
   },
   {
     "id": "arc",
-    "name": "雷电",
+    "name": "雷链",
     "tag": "连锁电击",
     "color": "#CBA7FF",
     "shade": "#7250B2",
@@ -37,7 +39,8 @@
     "description": "电弧跳向附近敌人。点数越高，可连锁的目标越多。",
     "icon": "arc",
     "chainRange": 87,
-    "chainFactor": 0.62
+    "chainFactor": 0.62,
+    "rarity": "epic"
   },
   {
     "id": "frost",
@@ -51,7 +54,8 @@
     "description": "伤害并减缓目标推进。减速有下限，不会无限冻结首领。",
     "icon": "frost",
     "slowFactor": 0.48,
-    "slowSeconds": 1.8
+    "slowSeconds": 1.8,
+    "rarity": "rare"
   },
   {
     "id": "split",
@@ -64,7 +68,8 @@
     "effect": "split",
     "description": "首次命中分裂出子弹。子弹可以弹射，但不会再次分裂。",
     "icon": "split",
-    "childFactor": 0.36
+    "childFactor": 0.36,
+    "rarity": "rare"
   },
   {
     "id": "bank",
@@ -78,6 +83,329 @@
     "description": "每次撞墙强化下一次命中，命中后重置。适合侧向弹射。",
     "icon": "bank",
     "wallBoost": 0.3,
-    "maxBoost": 2.8
+    "maxBoost": 2.8,
+    "rarity": "rare"
+  },
+  {
+    "id": "cannon",
+    "name": "重炮",
+    "rarity": "common",
+    "baseDamage": 33,
+    "reload": 1.6,
+    "color": "#F4A285",
+    "shade": "#243A4B",
+    "tag": "慢射重击",
+    "description": "慢速发射高伤害炮弹，并产生小范围爆炸。保留多个席位可减少火力空档。",
+    "effect": "blast",
+    "icon": "cannon",
+    "availableFromStart": true,
+    "copyable": true,
+    "glyphPath": "M4 7H17L21 12L17 17H4Z M8 7V17 M2 10H4 M2 14H4",
+    "traits": {},
+    "radius": 24,
+    "splashFactor": 0.25
+  },
+  {
+    "id": "pierce",
+    "name": "穿刺",
+    "rarity": "common",
+    "baseDamage": 11,
+    "reload": 0.92,
+    "color": "#DAEBEC",
+    "shade": "#243A4B",
+    "tag": "贯穿阵线",
+    "description": "每点提供一次穿透。每次穿透后剩余伤害为84%；穿透用尽后恢复普通弹射。",
+    "effect": "pulse",
+    "icon": "pierce",
+    "availableFromStart": true,
+    "copyable": true,
+    "glyphPath": "M3 12H21 M14 5L21 12L14 19 M7 5V19",
+    "traits": {
+      "pierce": 1,
+      "pipPierce": 1,
+      "pierceRetention": 0.84
+    }
+  },
+  {
+    "id": "hunt",
+    "name": "狩猎",
+    "rarity": "common",
+    "baseDamage": 15,
+    "reload": 1.1,
+    "color": "#F7CF83",
+    "shade": "#243A4B",
+    "tag": "定向猎杀",
+    "description": "松手时在瞄准方向左右16°内，向当前生命最高的敌人校准发射方向；没有目标时沿原方向发射。",
+    "effect": "pulse",
+    "icon": "hunt",
+    "availableFromStart": true,
+    "copyable": true,
+    "glyphPath": "M12 2V7 M12 17V22 M2 12H7 M17 12H22 M6 6L18 18 M18 6L6 18",
+    "traits": {
+      "seekCone": 0.27925268
+    }
+  },
+  {
+    "id": "storm",
+    "name": "风暴",
+    "rarity": "common",
+    "baseDamage": 11,
+    "reload": 0.82,
+    "color": "#80D7C5",
+    "shade": "#243A4B",
+    "tag": "持续压制",
+    "description": "连续命中同一敌人可加快装填，每次提高4%，最多12层；换目标重置，3秒未命中后清空。",
+    "effect": "pulse",
+    "icon": "storm",
+    "availableFromStart": true,
+    "copyable": true,
+    "glyphPath": "M3 7H16Q22 7 20 3 M2 12H20 M4 17H15Q20 17 18 21",
+    "traits": {
+      "rampMax": 12,
+      "rampHaste": 0.04
+    }
+  },
+  {
+    "id": "poison",
+    "name": "毒液",
+    "rarity": "rare",
+    "baseDamage": 6,
+    "reload": 0.78,
+    "color": "#9FE279",
+    "shade": "#243A4B",
+    "tag": "叠毒消耗",
+    "description": "命中附加4秒毒液，每秒伤害为单发基础伤害的25%，最多10层。毒伤会保留发射者归属。",
+    "effect": "pulse",
+    "icon": "poison",
+    "availableFromStart": true,
+    "copyable": true,
+    "glyphPath": "M12 2Q3 12 4 17Q5 22 12 22Q19 22 20 17Q21 12 12 2Z M8 15L10 17 M15 15L13 17",
+    "traits": {
+      "poison": 0.25,
+      "poisonStacks": 1,
+      "poisonCap": 10,
+      "poisonDuration": 4
+    }
+  },
+  {
+    "id": "echo",
+    "name": "回响",
+    "rarity": "rare",
+    "baseDamage": 9,
+    "reload": 0.8,
+    "color": "#B3C5FC",
+    "shade": "#243A4B",
+    "tag": "延迟复射",
+    "description": "每轮攻击有20%概率在0.15秒后复制一次齐射。复制不重新掷概率，也不会无限触发。",
+    "effect": "pulse",
+    "icon": "echo",
+    "availableFromStart": true,
+    "copyable": true,
+    "glyphPath": "M8 5L3 12L8 19 M13 5L8 12L13 19 M18 5L13 12L18 19 M22 8V16",
+    "traits": {
+      "echoChance": 0.2,
+      "echoFactor": 1,
+      "echoCopies": 1
+    }
+  },
+  {
+    "id": "sacrifice",
+    "name": "献祭",
+    "rarity": "rare",
+    "baseDamage": 6,
+    "reload": 0.95,
+    "color": "#DFADCF",
+    "shade": "#243A4B",
+    "tag": "合成经济",
+    "description": "参与合成时，每颗材料返还4×[1+0.12×(点数-1)]能量，上限为召唤价的80%；回收返还约一半。",
+    "effect": "pulse",
+    "icon": "sacrifice",
+    "availableFromStart": true,
+    "copyable": false,
+    "glyphPath": "M5 5L12 2L19 5V12Q19 19 12 22Q5 19 5 12Z M8 10H16 M12 6V17",
+    "traits": {
+      "mergeRefund": 4
+    }
+  },
+  {
+    "id": "charge",
+    "name": "充能",
+    "rarity": "rare",
+    "baseDamage": 12,
+    "reload": 1.15,
+    "color": "#FFE89B",
+    "shade": "#243A4B",
+    "tag": "蓄力爆发",
+    "description": "未发射时积攒最多3秒充能；每秒使下一轮直接伤害提高45%，发射后消耗。手动瞄准期间也可充能。",
+    "effect": "pulse",
+    "icon": "charge",
+    "availableFromStart": true,
+    "copyable": true,
+    "glyphPath": "M9 2H15V7H21L11 22V14H3L9 7Z",
+    "traits": {
+      "chargeMax": 3,
+      "chargeRate": 0.45
+    }
+  },
+  {
+    "id": "resonance",
+    "name": "共鸣",
+    "rarity": "rare",
+    "baseDamage": 10,
+    "reload": 0.88,
+    "color": "#A5C5EF",
+    "shade": "#243A4B",
+    "tag": "同点阵型",
+    "description": "每有一颗四向相邻、点数相同的骰子，自身直接齐射伤害提高15%。种类不限，不跨行首尾计算相邻。",
+    "effect": "pulse",
+    "icon": "resonance",
+    "availableFromStart": true,
+    "copyable": true,
+    "glyphPath": "M12 2L22 12L12 22L2 12Z M12 7L17 12L12 17L7 12Z",
+    "traits": {
+      "resonance": 0.15
+    }
+  },
+  {
+    "id": "rage",
+    "name": "血怒",
+    "rarity": "epic",
+    "baseDamage": 12,
+    "reload": 0.95,
+    "color": "#F18D9B",
+    "shade": "#243A4B",
+    "tag": "防线反击",
+    "description": "直接命中的敌人越接近防线，伤害越高，最多提高150%。取决于敌人推进位置，不是骰子摆放远近。",
+    "effect": "pulse",
+    "icon": "rage",
+    "availableFromStart": true,
+    "copyable": true,
+    "glyphPath": "M12 3L15 8L21 7L18 13L20 19L13 17L8 22L7 15L2 11L8 9Z",
+    "traits": {
+      "dangerGain": 1.5
+    }
+  },
+  {
+    "id": "prism",
+    "name": "棱镜",
+    "rarity": "epic",
+    "baseDamage": 4,
+    "reload": 1.2,
+    "color": "#B2F0E8",
+    "shade": "#243A4B",
+    "tag": "弹丸辅助",
+    "description": "四向相邻骰子的弹丸额外穿透1次；自身攻击弱。相同属性的辅助光环取最高，不叠加。",
+    "effect": "pulse",
+    "icon": "prism",
+    "availableFromStart": true,
+    "copyable": false,
+    "glyphPath": "M12 2L22 20H2Z M12 2V16L22 20 M12 16L2 20",
+    "traits": {
+      "auraPierce": 1
+    }
+  },
+  {
+    "id": "parasite",
+    "name": "寄生",
+    "rarity": "epic",
+    "baseDamage": 9,
+    "reload": 0.9,
+    "color": "#C1D67B",
+    "shade": "#243A4B",
+    "tag": "实例成长",
+    "description": "这颗骰子每取得20次击破，直接伤害提高5%，最多10层。合成或回收会失去这颗实例的成长，旧弹丸不会把成长交给新骰子。",
+    "effect": "pulse",
+    "icon": "parasite",
+    "availableFromStart": true,
+    "copyable": true,
+    "glyphPath": "M12 2Q4 5 5 12Q2 17 6 21 M12 2Q20 5 19 12Q22 17 18 21 M8 10H16 M8 15H16 M12 4V22",
+    "traits": {
+      "growthEvery": 20,
+      "growthStep": 0.05,
+      "growthMax": 10
+    }
+  },
+  {
+    "id": "gamble",
+    "name": "赌博",
+    "rarity": "epic",
+    "baseDamage": 10,
+    "reload": 0.95,
+    "color": "#E9A8DC",
+    "shade": "#243A4B",
+    "tag": "随机倍率",
+    "description": "每轮齐射统一掷一次：30%半伤、50%正常、18%双倍、2%八倍。回响保留原掷点，读档不会重掷。",
+    "effect": "pulse",
+    "icon": "gamble",
+    "availableFromStart": true,
+    "copyable": true,
+    "glyphPath": "M4 4L17 2L22 17L7 22Z M8 8H9 M15 7H16 M11 12H12 M9 17H10 M17 15H18",
+    "traits": {
+      "weakChance": 0.3,
+      "doubleChance": 0.18,
+      "jackpotChance": 0.02,
+      "jackpotFactor": 8
+    }
+  },
+  {
+    "id": "mirror",
+    "name": "镜像",
+    "rarity": "legendary",
+    "baseDamage": 4,
+    "reload": 1.2,
+    "color": "#C4E9F5",
+    "shade": "#243A4B",
+    "tag": "基础攻击复制",
+    "description": "模仿四向邻位中点数最高的可复制攻击骰，按镜像自身点数结算，造成其70%伤害。默认不复制对方强化；不能复制辅助、经济、进化或另一镜像。",
+    "effect": "pulse",
+    "icon": "mirror",
+    "availableFromStart": true,
+    "copyable": false,
+    "glyphPath": "M5 2H19V22H5Z M9 6L15 12 M9 12L15 18 M12 2V22",
+    "traits": {
+      "mirror": 1,
+      "mirrorFactor": 0.7
+    }
+  },
+  {
+    "id": "time",
+    "name": "时间",
+    "rarity": "legendary",
+    "baseDamage": 4,
+    "reload": 1.4,
+    "color": "#D5C1FF",
+    "shade": "#243A4B",
+    "tag": "装填节拍",
+    "description": "每8秒让全场骰子装填加快40%，持续2秒。相同加速取最高，依然需要松手发射，不会自动射击。",
+    "effect": "pulse",
+    "icon": "time",
+    "availableFromStart": true,
+    "copyable": false,
+    "glyphPath": "M5 2H19 M5 22H19 M7 2V6L17 18V22 M17 2V6L7 18V22 M8 17H16",
+    "traits": {
+      "timePeriod": 8,
+      "timeDuration": 2,
+      "timeHaste": 1.4
+    }
+  },
+  {
+    "id": "evolution",
+    "name": "进化",
+    "rarity": "legendary",
+    "baseDamage": 8,
+    "reload": 1.2,
+    "color": "#B8EA9C",
+    "shade": "#243A4B",
+    "tag": "自动升点",
+    "description": "不参与合成时自动升点：1→2需20秒，之后每级增加10秒。合成会重建实例并重置计时；达到3/6点照常暂停选择强化。",
+    "effect": "pulse",
+    "icon": "evolution",
+    "availableFromStart": true,
+    "copyable": false,
+    "glyphPath": "M12 22V5 M6 11L12 5L18 11 M12 16Q3 16 3 8Q12 8 12 16 M12 13Q21 13 21 5Q12 5 12 13",
+    "traits": {
+      "evolutionPeriod": 20,
+      "evolutionScale": 0.5
+    }
   }
 ]

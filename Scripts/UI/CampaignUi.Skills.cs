@@ -12,12 +12,13 @@ public partial class CampaignUi
         var die=sim.State.Board.Single(d=>d?.Id==q.DieId)!;
         var definition=App.Data.Types[q.DiceType];
         _title.Text=$"{definition.Name} · {q.ResultPips} 点 · "+(q.Tier==3?(q.ResultPips==6?"重选三级分支 A / B":"选择三级分支 A / B"):"选择六级分支 C / D");
-        Label(_content,"合成种类已经确定，不会因选择或读档重新随机。技能只作用于这颗骰子；战斗、弹丸和装填计时均已暂停。",20,Muted);
+        Label(_content,"最终骰子种类已经确定，不会因选择或读档重新随机。技能只作用于这颗骰子；战斗、弹丸和装填计时均已暂停。",20,Muted);
+        Label(_content, DiceGame.Core.DiceContent.RarityName(definition.Rarity),20,DiceGame.Core.DiceContent.RarityColor(definition.Rarity));
         var header=Row(_content); Dice(header,_root.Art,q.DiceType,q.ResultPips,126);
         var summary=Column(header);
         Label(summary,$"本次结果：{definition.Name} {q.ResultPips} 点 · 骰子编号 {q.DieId}",25,Mint);
         Label(summary,q.ResultPips==6?(q.Tier==3?"步骤 1 / 2：为最终种类重新选择 A 或 B。":"步骤 2 / 2：保留刚选的 "+die.Tier3+"，再选择 C 或 D。"):
-            "确认后合成齐射才会发出，并使用刚选择的技能。",21,Gold);
+            (q.FinishMerge ? "确认后合成齐射才会发出，并使用刚选择的技能。" : "确认后继续战斗。本次为进化或存档补选，不额外发射合成齐射。"),21,Gold);
         var grid=Add(Scroll(_content),new GridContainer{Columns=2,SizeFlagsHorizontal=SizeFlags.ExpandFill});
         foreach(var option in sim.SkillOptions)
         {

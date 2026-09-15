@@ -103,6 +103,8 @@ public static class SaveCodec
     private static void ValidateStats(ShotStats? s)
     {
         Require(s is not null);var q=s!;
+        DiceContent.CheckModifiers(q.Traits, runtime:true);
+        Require(q.AttackType is not null && q.AttackType.Length<=80);
         Require(new[]{"pulse","blast","arc","frost","split","bank"}.Contains(q.Effect));
         foreach(double v in new[]{q.Damage,q.Count,q.Reload,q.Bounces,q.BlastRadius,q.SplashFactor,q.ChainCount,q.ChainRange,q.ChainFactor,
             q.SlowFactor,q.SlowSeconds,q.ChildCount,q.ChildFactor,q.WallBoost,q.MaxBoost,q.Volley,q.ChildLifeBonus,q.SlowRadius,
@@ -146,13 +148,14 @@ public static class SaveCodec
         foreach(var shot in s.PendingShots!)
         {
             Require(shot is not null);Check(shot.Due,0,1e9);Check(shot.Angle,-Math.PI*2,Math.PI*2);
-            Require(shot.Snapshot is not null && data.Types.ContainsKey(shot.Snapshot.Type));ValidateStats(shot.Snapshot!.Stats);
+            Require(shot.Snapshot is not null && shot.Snapshot.SourceDieId>=0 && data.Types.ContainsKey(shot.Snapshot.Type));ValidateStats(shot.Snapshot!.Stats);
             Require(shot.Snapshot.Pips>=1 && shot.Snapshot.Pips<=r.MaxPips);
             if(shot.Child) {Check(shot.X,-100,1000);Check(shot.Y,-100,1000);Check(shot.LastEnemy);}
         }
         foreach(var d in s.DamageQueue!) {Require(d is not null);Check(d.Id,1);Check(d.Amount,0,1e18);Require(d.Color is not null && d.Color.Length<=32);}
         Require(s.Offers is not null && s.Offers.Count<=3 && s.Offers.All(data.UpgradeTypes.ContainsKey) && (!s.AwaitingUpgrade || (s.Expedition is null?s.Offers.Count==3:s.Offers.Count>0)));
         Check(s.Rng,1,uint.MaxValue);
+        DiceContent.ValidateRuntime(s);
         if(s.Expedition is { } expedition)
         {
             Require(Guid.TryParseExact(expedition.RunId,"N",out _) && expedition.Serial>0 && expedition.Cycle is >=0 and <=999 && s.Deck.Contains(expedition.LeadDice));
