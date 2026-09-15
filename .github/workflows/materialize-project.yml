@@ -3,6 +3,9 @@ name: Materialize Godot project
 on:
   push:
     branches: [main]
+    paths:
+      - 'bootstrap/READY'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -28,7 +31,7 @@ jobs:
             echo "needed=true" >> "$GITHUB_OUTPUT"
           else
             echo "needed=false" >> "$GITHUB_OUTPUT"
-            echo "Bootstrap is incomplete or the project is already materialized."
+            echo "Project is already materialized."
           fi
 
       - name: Expand source project
