@@ -22,6 +22,8 @@ jobs:
         run: dotnet run --project Tests/Campaign/Campaign.Tests.csproj --configuration Release
       - name: Dice skills and board regression
         run: dotnet run --project Tests/Skills/Skills.Tests.csproj --configuration Release
+      - name: Dice roster, rarity and content regression
+        run: dotnet run --project Tests/Content/Content.Tests.csproj --configuration Release
       - name: Build native game
         run: dotnet build DiceGame.csproj --configuration Debug
       - name: Import and launch pinned Godot
@@ -37,6 +39,16 @@ jobs:
           cat /tmp/godot-smoke.log
           grep -q 'CAMPAIGN READY' /tmp/godot-smoke.log
           ! grep -E 'SCRIPT ERROR:|^ERROR:' /tmp/godot-smoke.log
+      - name: Native dice roster and catalogue capture
+        shell: bash
+        run: |
+          set -euo pipefail
+          GODOT=/tmp/godot/Godot_v4.6-stable_mono_linux_x86_64/Godot_v4.6-stable_mono_linux.x86_64
+          export LP_NUM_THREADS=2
+          xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT" --path "$PWD" --audio-driver Dummy --rendering-method gl_compatibility -- --capture-content > /tmp/godot-content.log 2>&1
+          cat /tmp/godot-content.log
+          grep -q 'CONTENT CAPTURE COMPLETE' /tmp/godot-content.log
+          ! grep -E 'SCRIPT ERROR:|^ERROR:' /tmp/godot-content.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -46,5 +58,9 @@ jobs:
             Artifacts/static-check.json
             Artifacts/skills-test-results.json
             Artifacts/skills-stress.json
+            Artifacts/content-test-results.json
+            Artifacts/content-stress.json
             /tmp/godot-smoke.log
+            /tmp/godot-content.log
+            Artifacts/ContentScreenshots/
           retention-days: 7

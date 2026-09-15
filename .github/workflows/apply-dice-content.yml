@@ -1,0 +1,81 @@
+name: Apply and verify dice content
+on:
+  push:
+    branches: [work/dice-content-20260915]
+    paths: [.github/workflows/apply-dice-content.yml]
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Apply byte-verified source patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib,base64,lzma,hashlib,subprocess,json
+          parts=sorted(pathlib.Path('.dice-stage').glob('chunk-*.b64'))
+          assert len(parts)==6
+          raw=lzma.decompress(base64.b64decode(''.join(p.read_text().strip() for p in parts),validate=True))
+          assert len(raw)==177372
+          assert hashlib.sha256(raw).hexdigest()=='083fb1b69c1e9aa61b94d47edd160802069f2af519d70099783dcbcb26b2f29d'
+          patch=pathlib.Path('/tmp/dice-content.patch');patch.write_bytes(raw)
+          subprocess.run(['git','apply','--check',str(patch)],check=True)
+          subprocess.run(['git','apply',str(patch)],check=True)
+          expected=json.loads(pathlib.Path('.dice-stage/expected.json').read_text())
+          for path,sha in expected.items():
+              actual=subprocess.check_output(['git','hash-object',path],text=True).strip()
+              assert actual==sha,(path,actual,sha)
+          print('SOURCE HASHES VERIFIED:',len(expected))
+          PY
+      - name: Package checks
+        run: python3 Tools/static_check.py
+      - name: All combat, campaign and content regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet run --project Tests/DiceGame.Tests.csproj --configuration Release
+          dotnet run --project Tests/Campaign/Campaign.Tests.csproj --configuration Release
+          dotnet run --project Tests/Skills/Skills.Tests.csproj --configuration Release
+          dotnet run --project Tests/Content/Content.Tests.csproj --configuration Release
+      - name: Build native game
+        run: dotnet build DiceGame.csproj --configuration Debug
+      - name: Commit verified source on isolated branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .gitignore README.md Data Docs Scripts Tests Tools
+          git diff --cached --check
+          git commit -m 'Implement expanded dice roster, rarity and all per-instance branches'
+          git push origin HEAD:work/dice-content-20260915
+          python3 - <<'PY'
+          import json,pathlib,subprocess
+          expected=json.loads(pathlib.Path('.dice-stage/expected.json').read_text())
+          for path,sha in expected.items():
+              actual=subprocess.check_output(['git','rev-parse','HEAD:'+path],text=True).strip()
+              assert actual==sha,(path,actual,sha)
+          report={'commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),'verified_files':expected}
+          pathlib.Path('/tmp/dice-content-manifest.json').write_text(json.dumps(report,indent=2))
+          print(json.dumps(report,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dice-content-stage-results
+          path: |
+            /tmp/dice-content-manifest.json
+            *test-results.json
+            Artifacts/static-check.json
+            Artifacts/*test-results.json
+            Artifacts/*stress.json
+          retention-days: 7
