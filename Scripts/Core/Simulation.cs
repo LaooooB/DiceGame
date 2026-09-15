@@ -35,6 +35,9 @@ public sealed partial class Simulation
     public List<CombatEvent> TakeEvents() { var events=Events; Events=[]; return events; }
     public int Count => S.Board.Count(d=>d is not null);
     public int ReadyCount => S.Board.Count(d=>d is not null && d.Cooldown<=1e-5);
+    // Summoning gets progressively more expensive once the board grows past eight dice.
+    // Merging immediately lowers this cost again, making board compression the natural economy valve.
+    public double SummonCost => R.SummonCost + Math.Max(0, Count - 7) * 2;
     public int UpgradeLevel(string id) => S.Upgrades.GetValueOrDefault(id);
     public bool CanMerge(int a,int b)
     {
@@ -73,8 +76,9 @@ public sealed partial class Simulation
     {
         if(S.Over || S.AwaitingUpgrade || AwaitingDiceSkill) return new(false,"paused");
         int slot=Array.IndexOf(S.Board,null); if(slot<0) return new(false,"full");
-        if(S.Energy+1e-6<R.SummonCost) return new(false,"energy");
-        S.Energy-=R.SummonCost; var die=MakeDie(Random.Pick(S.Deck),1); S.Board[slot]=die; EnsureFate();
+        double cost=SummonCost;
+        if(S.Energy+1e-6<cost) return new(false,"energy");
+        S.Energy-=cost; var die=MakeDie(Random.Pick(S.Deck),1); S.Board[slot]=die; EnsureFate();
         Emit(new CombatEvent { Type="summon", Slot=slot, Die=die.Copy() });
         return new(true,Slot:slot,Die:die);
     }
@@ -200,7 +204,7 @@ public sealed partial class Simulation
     {
         if (S.Over || AwaitingDiceSkill || S.AwaitingUpgrade) return;
         var pool=AvailableUpgrades();
-        if(pool.Count==0 && S.Expedition is not null) {S.Energy+=R.SummonCost;StartWave(S.Wave+1);return;}
+        if(pool.Count==0 && S.Expedition is not null) {S.Energy+=SummonCost;StartWave(S.Wave+1);return;}
         if(pool.Count<3 && S.Expedition is null) pool=Data.Upgrades.Where(u=>u.Id is "power" or "income" or "surge").ToList();
         S.Offers=Random.Shuffle(pool).Take(3).Select(u=>u.Id).ToList(); S.AwaitingUpgrade=true;
         Emit(new CombatEvent {Type="upgrade",Offers=S.Offers.ToList()});
@@ -279,7 +283,8 @@ public sealed partial class Simulation
         FlushDamage(); S.Projectiles.RemoveAll(p=>p.Dead); S.Enemies.RemoveAll(e=>e.Dead);
         if(S.Enemies.Count==0 && !S.ClearRewarded && S.WaveTime>=2)
         {
-            S.ClearRewarded=true; S.NextWaveIn=1.35; int reward=C.Waves.ClearEnergy+Math.Min(25,S.Wave);
+            S.ClearRewarded=true; S.NextWaveIn=2.8;
+            int reward=C.Waves.ClearEnergy+Math.Min(12,(int)Math.Floor(S.Wave*.5))+2*UpgradeLevel("income");
             S.Energy+=reward; S.Score+=S.Wave*35; Emit(new CombatEvent {Type="clear",Reward=reward,Wave=S.Wave});
             if(S.Expedition is { } expedition && expedition.RewardedWaves.Add(S.Wave)) expedition.Gain("wood",expedition.Region.WoodPerWave);
         }
@@ -463,7 +468,7 @@ public sealed partial class Simulation
         Emit(new CombatEvent {Type="hit",X=enemy.X,Y=enemy.Y,Amount=amount,Color=color,Boss=enemy.Kind=="boss"});
         if(enemy.Hp>0) return;
         enemy.Dead=true; if(R.EnableDiceContent) { ExpansionDeath(enemy,sourceId); OnContentDeath(enemy,sourceId); } RecordExpeditionKill(enemy); S.Kills++;S.Combo++;S.ComboTime=2.1;S.BestCombo=Math.Max(S.BestCombo,S.Combo);
-        int reward=C.Waves.KillEnergy+UpgradeLevel("income")+(enemy.Kind=="boss"?16:0);
+        int reward=C.Waves.KillEnergy+(enemy.Kind=="boss"?6:0);
         S.Energy=Math.Min(999999,S.Energy+reward);
         S.Score+=MathEx.JsRound((10+enemy.Wave*3)*(enemy.Kind=="boss"?12:1)*(1+Math.Min(S.Combo,30)*0.025));
         Emit(new CombatEvent {Type="kill",X=enemy.X,Y=enemy.Y,W=enemy.W,Color=enemy.Kind=="volatile"?"#FFAD76":color,Reward=reward,Combo=S.Combo,Kind=enemy.Kind});

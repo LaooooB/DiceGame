@@ -6,393 +6,556 @@ using static DiceGame.UI.UiKit;
 
 namespace DiceGame.UI;
 
-/// <summary>Native Control presentation only. All rewards, gates and writes go through GameApp/Progression.</summary>
+/// <summary>
+/// Player-facing UI binder. Every Control, page, card, slot and modal is authored in .tscn scenes.
+/// This class only binds data, signals and state; it never creates UI nodes or style resources.
+/// </summary>
 public partial class CampaignUi : Control
 {
     private GameRoot _root = null!;
     private GameApp App => _root.App;
     private CampaignCatalog Catalog => App.Catalog!;
     private CampaignState State => App.Campaign!;
-    private VBoxContainer _content = null!;
-    private Label _wallet = null!, _title = null!, _crumb = null!, _toast = null!, _fps = null!;
-    private string _builtScene = "";
-    private bool _dirty = true;
-    private string _townPresentationKey = "";
-    private ColorRect? _townAimGuide;
-    private readonly List<Action> _live = [];
-    private TextureRect? _field, _dragArt;
-    private BattleConduits? _conduits;
-    private readonly List<Control> _slots = [];
-    private readonly List<TextureRect> _slotArt = [];
-    private readonly List<Label> _slotNames = [];
-    private readonly List<Label> _slotBranches = [];
-    private readonly List<ProgressBar> _reloads = [];
-    private readonly List<string> _slotKeys = [];
-    private Control? _townBoard;
-    private TextureRect? _townBall;
-    private Label? _townStatus;
+
+    private Control _pages = null!, _townPage = null!, _expeditionPage = null!, _deckPage = null!, _battlePage = null!, _settlementPage = null!, _settingsPage = null!, _helpPage = null!;
+    private Label _pageTitle = null!, _wallet = null!, _toast = null!, _fps = null!;
+    private Control _overlay = null!;
+    private readonly Control[] _overlayPanels = new Control[7];
+
+    private readonly List<Button> _townTiles = [];
+    private Control _townBoard = null!;
+    private TextureRect _townBall = null!;
+    private ColorRect _townAimGuide = null!;
+    private Label _townStatus = null!;
     private bool _townAiming;
     private double _townAngle = -Math.PI / 2;
     private int _selectedTile = -1;
     private string _movingBuilding = "";
-    private readonly List<Button> _townTiles = [];
-    private ConfirmationDialog? _confirm;
+    private string[] _blueprintIds = [];
+    private string _selectedBuilding = "";
+
+    private readonly Dictionary<string, PanelContainer> _regionCards = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, PanelContainer> _diceCards = new(StringComparer.Ordinal);
+    private readonly List<PanelContainer> _deckChips = [];
+    private string _deckReturn = "regions";
+
+    private TextureRect _field = null!, _dragArt = null!;
+    private readonly List<Control> _slots = [];
+    private readonly List<TextureRect> _slotArt = [];
+    private readonly List<Label> _slotBranches = [], _slotReady = [];
+    private readonly List<ProgressBar> _slotReload = [];
+    private readonly List<CanvasItem> _slotHigh = [], _slotReadyFrame = [], _slotSelectedFrame = [];
+    private readonly string[] _slotKeys = new string[16];
+    private BattleConduits _conduits = null!;
+    private int _selectedBoardSlot = -1;
+
     private DesktopPreferences? _settingsDraft;
+    private bool _settingsSync;
     private string _bindingAction = "";
-    private Label? _bindingLabel;
+    private readonly Vector2I[] _resolutions = [new(1280,720), new(1600,900), new(1920,1080), new(2560,1440), new(3840,2160)];
+    private readonly int[] _fpsOptions = [0,30,60,90,120,144,165,240];
+
+    private bool _catalogOpen, _confirmOpen;
+    private Action? _confirmYes, _confirmNo;
+    private string _lastScene = "";
+    private bool _dirty = true;
 
     public void Initialize(GameRoot root)
     {
-        _root = root; SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect); MouseFilter = MouseFilterEnum.Ignore;
-        Add(this, new ColorRect { Color = Color.FromHtml("#091422"), MouseFilter = MouseFilterEnum.Ignore }, "Background").SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        var backdrop = Add(this, new TextureRect { Texture = root.Art.Background, ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.Scale, Modulate = new Color(1, 1, 1, .16f), MouseFilter = MouseFilterEnum.Ignore }, "OriginalAmbientArt");
-        backdrop.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        var shell = GD.Load<PackedScene>("res://Scenes/UI/DesktopShell.tscn").Instantiate<MarginContainer>(); AddChild(shell);
-        _content = shell.GetNode<VBoxContainer>("Layout/Content"); _title = shell.GetNode<Label>("Layout/Header/Title"); _wallet = shell.GetNode<Label>("Layout/Header/Wallet");
-        _crumb = shell.GetNode<Label>("Layout/Breadcrumb"); _toast = shell.GetNode<Label>("Layout/Toast"); _fps = shell.GetNode<Label>("Layout/Fps");
-        _toast.AddThemeColorOverride("font_color", Color.FromHtml(Gold));
-        Refresh();
+        _root = root;
+        GetNode<TextureRect>("Ambient").Texture = root.Art.Background;
+        _pages = GetNode<Control>("Margin/Layout/Pages");
+        _pageTitle = GetNode<Label>("Margin/Layout/Header/Page");
+        _wallet = GetNode<Label>("Margin/Layout/Header/Wallet");
+        _fps = GetNode<Label>("Margin/Layout/Header/Fps");
+        _toast = GetNode<Label>("Margin/Layout/Toast");
+        _townPage = GetNode<Control>("Margin/Layout/Pages/Town");
+        _expeditionPage = GetNode<Control>("Margin/Layout/Pages/Expedition");
+        _deckPage = GetNode<Control>("Margin/Layout/Pages/Deck");
+        _battlePage = GetNode<Control>("Margin/Layout/Pages/Battle");
+        _settlementPage = GetNode<Control>("Margin/Layout/Pages/Settlement");
+        _settingsPage = GetNode<Control>("Margin/Layout/Pages/Settings");
+        _helpPage = GetNode<Control>("Margin/Layout/Pages/Help");
+        _overlay = GetNode<Control>("Overlay");
+        _overlayPanels[0] = GetNode<Control>("Overlay/Center/PausePanel");
+        _overlayPanels[1] = GetNode<Control>("Overlay/Center/UpgradePanel");
+        _overlayPanels[2] = GetNode<Control>("Overlay/Center/DiceSkillPanel");
+        _overlayPanels[3] = GetNode<Control>("Overlay/Center/DiePanel");
+        _overlayPanels[4] = GetNode<Control>("Overlay/Center/CatalogPanel");
+        _overlayPanels[5] = GetNode<Control>("Overlay/Center/ConfirmPanel");
+        _overlayPanels[6] = GetNode<Control>("Overlay/Center/LoadErrorPanel");
+
+        BindTown(); BindExpedition(); BindDeck(); BindBattle(); BindSettlement(); BindSettings(); BindHelp(); BindOverlay();
+        ApplyUiScale(App.Preferences.UiScale);
+        Refresh(true);
     }
+
+    private T N<T>(string path) where T : Node => GetNode<T>(path);
     public void Invalidate() => _dirty = true;
-    private void Act(string id) { App.Audio.Unlock(); App.Action(id); Invalidate(); }
-    private void Do(Action action) { App.Audio.Unlock(); action(); Invalidate(); }
-    public void Refresh()
+
+    public void Refresh() => Refresh(false);
+    private void Refresh(bool force)
     {
-        if (_content is null) return;
-        if(App.Scene == "town" && App.Campaign is not null)
-        { string key = string.Join("|",State.Buildings.Select(p=>p.Key+":"+p.Value.Level+":"+p.Value.Work+":"+p.Value.Constructing))+":"+(State.Flight is not null); if(key!=_townPresentationKey){_townPresentationKey=key;_dirty=true;} }
-        if (_dirty || _builtScene != App.Scene) { Build(); ScaleTypography(this,App.Preferences.UiScale); }
-        _wallet.Text = App.Campaign is null ? "" : Resources(State.Resources);
-        _toast.Text = App.Toast?.Text ?? ""; _fps.Visible = App.Preferences.ShowFps; _fps.Text = Engine.GetFramesPerSecond() + " FPS";
-        foreach (var update in _live) update();
-        UpdateBoard(); UpdateTown(); _conduits?.QueueRedraw();
+        if (_root is null || App.Campaign is null) return;
+        UxMotion.Reduced = App.Settings.ReduceMotion;
+        _wallet.Text = Resources(State.Resources);
+        _toast.Text = App.Toast?.Text ?? "";
+        _fps.Visible = App.Preferences.ShowFps; _fps.Text = Engine.GetFramesPerSecond() + " FPS";
+
+        if (App.LoadProblem != "")
+        {
+            ShowPage(_townPage, "存档保护");
+            ShowLoadError();
+            return;
+        }
+
+        bool sceneChanged = _lastScene != App.Scene;
+        if (sceneChanged)
+        {
+            _lastScene = App.Scene;
+            _catalogOpen = false;
+            if (App.Scene != "play") _selectedBoardSlot = -1;
+            ShowScenePage();
+        }
+
+        switch (App.Scene)
+        {
+            case "town": UpdateTown(); break;
+            case "regions": UpdateExpedition(); break;
+            case "deck": UpdateDeck(); break;
+            case "play": case "paused": case "upgrade": case "diceSkill": case "die": UpdateBattle(); break;
+            case "settlement": UpdateSettlement(); break;
+            case "settings": UpdateSettings(sceneChanged || force); break;
+        }
+        RefreshOverlay();
+        _conduits?.QueueRedraw();
+        _dirty = false;
     }
-    private string Resources(IEnumerable<KeyValuePair<string, long>> values) => string.Join("    ", values.Where(p => p.Value != 0).Select(p => (Catalog.Resources.GetValueOrDefault(p.Key)?.Name ?? p.Key) + " " + Palette.Compact(p.Value)));
+
+    private string Resources(IEnumerable<KeyValuePair<string,long>> values) => string.Join("    ", values.Where(p=>p.Value!=0).Select(p => (Catalog.Resources.GetValueOrDefault(p.Key)?.Name ?? p.Key) + " " + Palette.Compact(p.Value)));
     private string RewardText(RewardDefinition reward)
     {
         var text = new List<string>(); if (reward.Resources.Count > 0) text.Add(Resources(reward.Resources));
-        text.AddRange(reward.Dice.Select(id => "骰子：" + App.Data.Types[id].Name));
-        text.AddRange(reward.Mechanics.Select(id => "机制：" + Catalog.Mechanics[id].Name));
-        text.AddRange(reward.Blueprints.Select(id => "蓝图：" + Catalog.Buildings[id].Name));
-        var b = reward.Bonuses;
-        foreach(var (type,amount) in b.DiceDamagePercent) text.Add($"{App.Data.Types[type].Name}伤害 +{amount:P0}");
-        if (b.DamagePercent > 0) text.Add($"永久伤害 +{b.DamagePercent:P0}");
-        if (b.ReloadPercent > 0) text.Add($"装填缩短 +{b.ReloadPercent:P0}");
-        if (b.StartEnergy > 0) text.Add($"初始能量 +{b.StartEnergy:0.#}");
-        if (b.PassiveEnergy > 0) text.Add($"每秒能量 +{b.PassiveEnergy:0.##}");
+        text.AddRange(reward.Dice.Select(id => "骰子 · " + App.Data.Types[id].Name));
+        text.AddRange(reward.Mechanics.Select(id => "机制 · " + Catalog.Mechanics[id].Name));
+        text.AddRange(reward.Blueprints.Select(id => "蓝图 · " + Catalog.Buildings[id].Name));
+        foreach (var (type, amount) in reward.Bonuses.DiceDamagePercent) text.Add(App.Data.Types[type].Name + "伤害 +" + amount.ToString("P0"));
+        if (reward.Bonuses.DamagePercent > 0) text.Add("永久伤害 +" + reward.Bonuses.DamagePercent.ToString("P0"));
+        if (reward.Bonuses.ReloadPercent > 0) text.Add("装填缩短 +" + reward.Bonuses.ReloadPercent.ToString("P0"));
+        if (reward.Bonuses.StartEnergy > 0) text.Add("初始能量 +" + reward.Bonuses.StartEnergy.ToString("0.#"));
+        if (reward.Bonuses.PassiveEnergy > 0) text.Add("每秒能量 +" + reward.Bonuses.PassiveEnergy.ToString("0.##"));
         return string.Join("；", text);
     }
-    private void Build()
+    private static string Outcome(string outcome) => outcome switch { "victory" => "区域通关", "defeat" => "远征失败", "abandoned" => "主动撤回", _ => outcome };
+    private static string TimeText(double seconds) => $"{(int)seconds / 60:00}:{(int)seconds % 60:00}";
+
+    private void ShowScenePage()
     {
-        App.CancelPointer(); CancelTownAim(); _dirty = false; _builtScene = App.Scene; _live.Clear();
-        if(_dragArt is not null) { RemoveChild(_dragArt); _dragArt.QueueFree(); }
-        if(_conduits is not null) {RemoveChild(_conduits);_conduits.QueueFree();_conduits=null;}
-        _field = null; _dragArt = null; _slots.Clear(); _slotArt.Clear(); _slotNames.Clear(); _slotBranches.Clear(); _reloads.Clear(); _slotKeys.Clear();
-        _townBoard = null; _townBall = null; _townTiles.Clear(); _townStatus = null; _townAimGuide = null;
-        Clear(_content); _bindingAction = ""; _bindingLabel = null;
-        _title.Text = "骰子回响";
-        _crumb.Text = "城镇准备  →  选择骰子与区域  →  局内成长  →  胜利或失败  →  回城建设、解锁";
-        if (App.LoadProblem != "") { BuildLoadError(); return; }
+        Control page; string title;
         switch (App.Scene)
         {
-            case "town": BuildTown(); break;
-            case "regions": BuildRegions(); break;
-            case "deck": BuildDeck(); break;
-            case "play": BuildBattle(); break;
-            case "paused": BuildPause(); break;
-            case "upgrade": BuildUpgrade(); break;
-            case "diceSkill": BuildDiceSkill(); break;
-            case "die": BuildDie(); break;
-            case "settlement": BuildSettlement(); break;
-            case "settings": BuildSettings(); break;
-            case "help": BuildHelp(); break;
-            default: App.Scene = "town"; Invalidate(); break;
+            case "town": page = _townPage; title = $"城镇 · 深潜 {State.Cycle + 1}"; break;
+            case "regions": page = _expeditionPage; title = $"出战 · 深潜 {State.Cycle + 1}"; break;
+            case "deck": page = _deckPage; title = "骰组"; break;
+            case "settlement": page = _settlementPage; title = "结算"; break;
+            case "settings": page = _settingsPage; title = "设置"; break;
+            case "help": page = _helpPage; title = "说明"; break;
+            default: page = _battlePage; title = App.Sim?.State.Expedition?.Region.Name ?? "远征"; break;
         }
+        ShowPage(page, title);
     }
-    private void BuildLoadError()
+
+    private void ShowPage(Control page, string title)
     {
-        var card = Card(_content, "存档保护", App.LoadProblem);
-        Label(card, "当前没有创建新档覆盖旧档。打开目录后可以保留或替换损坏文件；只有明确选择重置才会重新开始。", 20, Gold);
-        Button(card, "打开存档目录", _root.OpenSaveFolder); Button(card, "导出原始存档备份", _root.BackupSave);
-        Button(card, "备份并重置进度", () => Confirm("将先保留原始文件备份，然后建立新进度。确认重置？", _root.ResetProgress));
-        Button(card, "退出", _root.Quit);
+        foreach (var child in _pages.GetChildren()) if (child is CanvasItem c) c.Visible = ReferenceEquals(child, page);
+        _pageTitle.Text = title;
+        if (!App.Settings.ReduceMotion) Reveal(page);
     }
-    private void Navigation(Node parent, bool regions = true)
+
+    private static void Reveal(Control control)
     {
-        var row = Row(parent);
-        if (regions) Button(row, "选择区域", () => Act("regions"));
-        Button(row, "设置", () => Act("settings")); Button(row, "玩法说明", () => Act("help"));
-        Button(row, "退出游戏", _root.Quit);
+        control.Modulate = new Color(1,1,1,0); control.Scale = Vector2.One * .992f;
+        Callable.From(() =>
+        {
+            if (!IsInstanceValid(control)) return;
+            control.PivotOffset = control.Size * .5f;
+            var tween = control.CreateTween().SetParallel().SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.Out);
+            tween.TweenProperty(control, "modulate", Colors.White, .15);
+            tween.TweenProperty(control, "scale", Vector2.One, .18);
+        }).CallDeferred();
     }
-    private void BuildTown()
+
+    private void BindTown()
     {
-        _title.Text = $"城镇 · 第 {State.Cycle + 1} 层深潜";
-        var row = Row(_content, true); var left = Column(row, true); left.SizeFlagsStretchRatio = 1.8f;
-        var right = Scroll(row); right.CustomMinimumSize = new Vector2(460, 0);
-        Label(left, "把骰子弹向资源或工地。命中工地推进建设，建筑完工后解锁下一局的选择。", 20, Muted);
-        var aspect = Add(left, new AspectRatioContainer { Ratio = 800f / 480, SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill });
-        _townBoard = Add(aspect, new Control { MouseFilter = MouseFilterEnum.Stop }, "TownBoard");
+        const string p = "Margin/Layout/Pages/Town";
+        N<Button>(p+"/Actions/Start").Pressed += TownStart;
+        N<Button>(p+"/Actions/Deck").Pressed += () => OpenDeck("town");
+        N<Button>(p+"/Actions/Settings").Pressed += () => Act("settings");
+        N<Button>(p+"/Actions/Help").Pressed += () => Act("help");
+        N<Button>(p+"/Actions/Quit").Pressed += _root.Quit;
+        _townBoard = N<Control>(p+"/Main/Left/BoardAspect/BoardFrame/TownBoard");
+        _townBall = N<TextureRect>(p+"/Main/Left/BoardAspect/BoardFrame/TownBoard/TownBall");
+        _townAimGuide = N<ColorRect>(p+"/Main/Left/BoardAspect/BoardFrame/TownBoard/AimGuide");
+        _townStatus = N<Label>(p+"/Main/Left/Status");
         _townBoard.GuiInput += TownInput;
-        var t = Catalog.Definition.Town;
-        for (int index = 0; index < t.Rows * t.Columns; index++)
+        for (int i=0;i<Catalog.Definition.Town.Rows*Catalog.Definition.Town.Columns;i++)
         {
-            int tile = index;
-            var b = Add(_townBoard, new Button { Text = "空地", ClipText = true }, "Plot" + tile); _townTiles.Add(b);
-            b.AddThemeFontSizeOverride("font_size", 15);
-            b.Pressed += () =>
-            {
-                if (State.Flight is not null || State.ActiveRunId != "") return;
-                if (_movingBuilding != "" && !Catalog.IsResourceTile(tile) && State.Buildings.Values.All(x => x.Tile != tile))
-                { string id = _movingBuilding; if (App.MutateTown(s => App.Progression!.Relocate(s, id, tile))) _movingBuilding = ""; }
-                _selectedTile = tile; Invalidate();
-            };
+            int tile=i; var b=N<Button>(p+"/Main/Left/BoardAspect/BoardFrame/TownBoard/Plot"+i); _townTiles.Add(b); b.Pressed += () => SelectTownTile(tile);
         }
-        _townAimGuide = Add(_townBoard,new ColorRect { Color=Color.FromHtml(Mint), MouseFilter=MouseFilterEnum.Ignore, Visible=false },"DispatchAimGuide");
-        _townBall = Dice(_townBoard, _root.Art, App.Deck[0], 1, 0); _townBall.Size = new Vector2(30, 30); _townBall.ZIndex = 2;
-        _townStatus = Label(left, "", 20, Mint);
-        var dispatch = Row(left);
-        Button(dispatch, "向选中地块派遣 · 1 补给", () => LaunchTown(TargetTownAngle()));
-        Button(dispatch, "自动选工地派遣 · 1 补给", () => LaunchTown(App.TownSimulation.AutoAngle(State)));
-        var hint = Label(left, "长按城镇空白处调整方向，松手派遣。单击空地放置建筑；单击建筑查看升级。", 18, Muted);
-        _live.Add(() => hint.Text = _movingBuilding == "" ? "长按城镇空白处瞄准，松手派遣；单击地块选择建设位置。" : "正在搬迁：请选择一块空地。再点击建筑的“取消搬迁”可取消。");
-        if (State.ActiveRunId != "")
-        {
-            Label(right, "有一场未结束的远征。城镇建设暂不可用；继续远征或撤回结算。", 20, Gold);
-            Button(right, "继续上次远征", () => Act("resume")); Button(right, "撤回并结算已获得物资", () => Confirm("本次不记通关，但保留已获得的资源和蓝图。确认撤回？", () => Act("abandon")));
-        }
-        else if (State.Flight is null) Label(right, "下一步：完成工地，或挑选区域带回更多蓝图。", 20, Mint);
-        if (State.LastResult is { } result)
-        {
-            var recent = Card(right, "上次远征", result.RegionName + " · " + Outcome(result.Outcome));
-            Label(recent, Resources(result.Resources), 18, Gold);
-            foreach (string id in result.NewBlueprints.Where(Catalog.Buildings.ContainsKey)) Label(recent, "获得蓝图：" + Catalog.Buildings[id].Name, 18, Mint);
-        }
-        var buildingAt = State.Buildings.FirstOrDefault(p => p.Value.Tile == _selectedTile);
-        if (buildingAt.Value is not null && Catalog.Buildings.TryGetValue(buildingAt.Key, out var selected))
-        {
-            var b = buildingAt.Value; var box = Card(right, selected.Name, selected.Description);
-            Label(box, b.Constructing ? $"建设中：{b.Work}/{selected.Levels[b.Level].Work} 次有效施工" : $"已建成 Lv.{b.Level}", 20, Mint);
-            if (b.Level < selected.Levels.Length)
-            {
-                var next = selected.Levels[b.Level]; Label(box, "下级效果：" + RewardText(next.Reward), 18);
-                Label(box, "成本：" + Resources(next.Cost), 18, Gold);
-                Button(box, "开始升级", () => Do(() => App.MutateTown(s => App.Progression!.StartConstruction(s, selected.Id, b.Tile))), App.Progression!.BuildingBlockers(State, selected.Id, b.Tile).Count > 0);
-            }
-            Button(box, _movingBuilding == selected.Id ? "取消搬迁" : "搬迁到另一块空地", () => { _movingBuilding = _movingBuilding == selected.Id ? "" : selected.Id; Invalidate(); }, State.Flight is not null || State.ActiveRunId != "");
-        }
-        Label(right, "可建设蓝图", 24);
-        if (_selectedTile < 0) Label(right, "先在左侧选择一块空地。", 18, Muted);
-        foreach (var b in Catalog.Definition.Buildings.Where(b => State.Blueprints.Contains(b.Id) && !State.Buildings.ContainsKey(b.Id)))
-        {
-            var box = Card(right, b.Name, b.Description); Label(box, RewardText(b.Levels[0].Reward), 18, Mint); Label(box, Resources(b.Levels[0].Cost) + $" · 施工 {b.Levels[0].Work}", 18, Gold);
-            var reason = App.Progression!.BuildingBlockers(State, b.Id, _selectedTile); if (_selectedTile < 0) reason.Add("请选择空地。");
-            if (reason.Count > 0) Label(box, string.Join("；", reason), 16, Muted);
-            var build = Button(box, "放置工地", () => Do(() => App.MutateTown(s => App.Progression!.StartConstruction(s, b.Id, _selectedTile))));
-            _live.Add(() => build.Disabled = _selectedTile < 0 || App.Progression!.BuildingBlockers(State, b.Id, _selectedTile).Count > 0);
-        }
-        if (State.UnlockedMechanics.Contains("auto_dispatch"))
-            Button(right, "自动派遣：" + (State.AutoDispatch ? "开" : "关"), () => Do(() => App.MutateTown(s => s.AutoDispatch = !s.AutoDispatch)));
-        Navigation(_content);
+        N<Button>(p+"/Main/Left/Dispatch/DispatchSelected").Pressed += () => LaunchTown(TargetTownAngle());
+        N<Button>(p+"/Main/Left/Dispatch/DispatchAuto").Pressed += () => LaunchTown(App.TownSimulation.AutoAngle(State));
+        N<Button>(p+"/Main/Inspector/Margin/Content/Build").Pressed += BuildSelectedBlueprint;
+        N<Button>(p+"/Main/Inspector/Margin/Content/Upgrade").Pressed += UpgradeSelectedBuilding;
+        N<Button>(p+"/Main/Inspector/Margin/Content/Move").Pressed += ToggleMove;
+        N<Button>(p+"/Main/Inspector/Margin/Content/AutoDispatch").Pressed += () => { Tap(); App.MutateTown(s=>s.AutoDispatch=!s.AutoDispatch); UpdateTownInspector(); };
     }
-    private double TargetTownAngle()
+
+    private void TownStart()
     {
-        if (_selectedTile < 0) return App.TownSimulation.AutoAngle(State);
-        var box = App.TownSimulation.TileBounds(_selectedTile);
-        return Math.Atan2((box.Top + box.Bottom) / 2 - 430, (box.Left + box.Right) / 2 - 400);
+        if (State.ActiveRunId != "") { Act("resume"); return; }
+        if (State.Flight is not null) return;
+        Tap(); App.EditingDeck.Clear(); App.EditingDeck.AddRange(App.Deck); App.Scene="regions"; Invalidate();
     }
-    private void LaunchTown(double angle) => Do(() => App.MutateTown(s => App.TownSimulation.Launch(s, angle, App.Deck[0])));
+
+    private void SelectTownTile(int tile)
+    {
+        if (State.Flight is not null || State.ActiveRunId != "") return;
+        Tap();
+        if (_movingBuilding != "" && !Catalog.IsResourceTile(tile) && State.Buildings.Values.All(x=>x.Tile!=tile))
+        { string id=_movingBuilding; if(App.MutateTown(s=>App.Progression!.Relocate(s,id,tile))) _movingBuilding=""; }
+        _selectedTile=tile; UpdateTownInspector();
+    }
+
     private void TownInput(InputEvent ev)
     {
-        if (_townBoard is null || State.Flight is not null || State.ActiveRunId != "") return;
-        if (ev is InputEventMouseButton b && b.ButtonIndex == MouseButton.Left && b.Pressed)
-        { _townAiming = true; TownAim(_townBoard.GetGlobalMousePosition()); }
+        if (State.Flight is not null || State.ActiveRunId != "") return;
+        if (ev is InputEventMouseButton b && b.ButtonIndex==MouseButton.Left && b.Pressed)
+        { _townAiming=true; TownAim(_townBoard.GetGlobalMousePosition()); _townBoard.AcceptEvent(); }
         else if (ev is InputEventMouseMotion && _townAiming) TownAim(_townBoard.GetGlobalMousePosition());
     }
     private void TownAim(Vector2 p)
     {
-        if (_townBoard is null) return;
-        var local = (p - _townBoard.GlobalPosition) / _townBoard.Size * new Vector2(800, 480);
-        _townAngle = MathEx.Clamp(Math.Atan2(Math.Min(-20, local.Y - 430), local.X - 400), -Math.PI + .18, -.18);
+        var local=(p-_townBoard.GlobalPosition)/_townBoard.Size*new Vector2(800,480);
+        _townAngle=MathEx.Clamp(Math.Atan2(Math.Min(-20,local.Y-430),local.X-400),-Math.PI+.18,-.18);
     }
-    public void CancelTownAim() => _townAiming = false;
+    private double TargetTownAngle()
+    {
+        if(_selectedTile<0) return App.TownSimulation.AutoAngle(State);
+        var box=App.TownSimulation.TileBounds(_selectedTile); return Math.Atan2((box.Top+box.Bottom)/2-430,(box.Left+box.Right)/2-400);
+    }
+    private void LaunchTown(double angle) { Tap(); App.MutateTown(s=>App.TownSimulation.Launch(s,angle,App.Deck[0])); }
+    public void CancelTownAim() { _townAiming=false; _townAimGuide.Visible=false; }
+
     private void UpdateTown()
     {
-        if (_townBoard is null || _townBall is null || App.Scene != "town") return;
-        var size = _townBoard.Size;
-        for (int i = 0; i < _townTiles.Count; i++)
+        N<Button>("Margin/Layout/Pages/Town/Actions/Start").Text = State.ActiveRunId!="" ? "继续游戏" : "开始游戏";
+        N<Button>("Margin/Layout/Pages/Town/Actions/Start").Disabled = State.Flight is not null;
+        var size=_townBoard.Size;
+        for(int i=0;i<_townTiles.Count;i++)
         {
-            var box = App.TownSimulation.TileBounds(i); var b = _townTiles[i];
-            b.Position = new Vector2((float)box.Left / 800 * size.X, (float)box.Top / 480 * size.Y);
-            b.Size = new Vector2((float)(box.Right - box.Left) / 800 * size.X, (float)(box.Bottom - box.Top) / 480 * size.Y);
-            var built = State.Buildings.FirstOrDefault(p => p.Value.Tile == i);
-            bool wood = Catalog.Definition.Town.WoodTiles.Contains(i), stone = Catalog.Definition.Town.StoneTiles.Contains(i);
-            b.Text = wood ? "木材" : stone ? "石材" : built.Value is null ? "空地" : (Catalog.Buildings.GetValueOrDefault(built.Key)?.Name ?? built.Key) + "\n" + (built.Value.Constructing ? "施工 " + built.Value.Work : "Lv." + built.Value.Level);
-            b.TooltipText = b.Text;
-            b.Modulate = Color.FromHtml(i == _selectedTile ? Gold : wood ? "#91D6AF" : stone ? "#B7BDDC" : built.Value?.Constructing == true ? "#FFD094" : "#FFFFFF");
+            var box=App.TownSimulation.TileBounds(i); var b=_townTiles[i];
+            b.Position=new Vector2((float)box.Left/800*size.X,(float)box.Top/480*size.Y);
+            b.Size=new Vector2((float)(box.Right-box.Left)/800*size.X,(float)(box.Bottom-box.Top)/480*size.Y);
+            var built=State.Buildings.FirstOrDefault(p=>p.Value.Tile==i);
+            bool wood=Catalog.Definition.Town.WoodTiles.Contains(i),stone=Catalog.Definition.Town.StoneTiles.Contains(i);
+            b.Text=wood?"木材":stone?"石材":built.Value is null?"":(Catalog.Buildings.GetValueOrDefault(built.Key)?.Name??built.Key)+"\n"+(built.Value.Constructing?"施工 "+built.Value.Work:"Lv."+built.Value.Level);
+            b.TooltipText=b.Text==""?"空地":b.Text;
+            b.Modulate=Color.FromHtml(i==_selectedTile?Gold:wood?"#91D6AF":stone?"#B7BDDC":built.Value?.Constructing==true?"#FFD094":"#FFFFFF");
         }
-        if(_townAimGuide is not null) { _townAimGuide.Visible = _townAiming; _townAimGuide.Position = new Vector2(size.X*.5f,size.Y*430/480); _townAimGuide.Size = new Vector2(size.X*.20f,2); _townAimGuide.Rotation = (float)_townAngle; }
-        var f = State.Flight; _townBall.Position = new Vector2((float)(f?.X ?? 400) / 800 * size.X, (float)(f?.Y ?? 430) / 480 * size.Y) - _townBall.Size / 2;
-        if (_townStatus is not null) _townStatus.Text = f is not null ? $"派遣中 · 已命中 {f.Hits} 次 · 剩余 {Math.Max(0, f.Remaining):0.0} 秒" : _townAiming ? $"松手派遣 · 方向 {_townAngle * 180 / Math.PI:0}°" : "城镇就绪 · 选择地块，或开始下一场远征";
+        var f=State.Flight; SetDice(_townBall,_root.Art,App.Deck[0],1); _townBall.Size=new Vector2(42,42);
+        _townBall.Position=new Vector2((float)(f?.X??400)/800*size.X,(float)(f?.Y??430)/480*size.Y)-_townBall.Size/2;
+        _townAimGuide.Visible=_townAiming; _townAimGuide.Position=new Vector2(size.X*.5f,size.Y*430/480); _townAimGuide.Size=new Vector2(size.X*.24f,3); _townAimGuide.Rotation=(float)_townAngle;
+        _townStatus.Text=f is not null?$"派遣中 · 命中 {f.Hits} · {Math.Max(0,f.Remaining):0.0}s":_townAiming?"松手派遣":_movingBuilding!=""?"选择空地完成搬迁":"城镇就绪";
+        UpdateTownInspector();
     }
-    private void BuildRegions()
+
+    private void UpdateTownInspector()
     {
-        _title.Text = $"区域电梯 · 第 {State.Cycle + 1} 层 · 齿轮 {State.Gears}";
-        Label(_content, "每次远征独立挑战一个区域。用不同主骰通关同一区域，分别获得一次齿轮；重复使用同一主骰仍获得资源。", 20, Muted);
-        var scroll = Scroll(_content); var grid = Add(scroll, new GridContainer { Columns = 4, SizeFlagsHorizontal = SizeFlags.ExpandFill });
-        foreach (var region in Catalog.Definition.Regions)
+        const string p="Margin/Layout/Pages/Town/Main/Inspector/Margin/Content";
+        var title=N<Label>(p+"/SelectionTitle"); var status=N<Label>(p+"/SelectionStatus"); var desc=N<Label>(p+"/SelectionDescription");
+        var effect=N<Label>(p+"/SelectionEffect"); var cost=N<Label>(p+"/SelectionCost"); var picker=N<OptionButton>(p+"/BlueprintPicker");
+        var build=N<Button>(p+"/Build"); var upgrade=N<Button>(p+"/Upgrade"); var move=N<Button>(p+"/Move"); var auto=N<Button>(p+"/AutoDispatch");
+        _selectedBuilding=""; picker.Visible=build.Visible=true; upgrade.Visible=move.Visible=false;
+        title.Text=_selectedTile<0?"选择地块":"空地"; status.Text=desc.Text=effect.Text=cost.Text="";
+        var buildingAt=State.Buildings.FirstOrDefault(x=>x.Value.Tile==_selectedTile);
+        if(buildingAt.Value is not null && Catalog.Buildings.TryGetValue(buildingAt.Key,out var definition))
         {
-            bool open = App.Progression!.IsRegionOpen(State, region.Id); var record = State.Record(region.Id);
-            var box = Card(grid, region.Name, region.Description); box.CustomMinimumSize = new Vector2(310, 0);
-            Label(box, $"{region.Phases.Length} 个阶段 · {region.TotalWaves} 波 · {region.Phases.Length} 个头目", 18, Muted);
-            Label(box, $"不同主骰：{record.ClearedWith.Count}  ·  通关 {record.Clears} 次", 18, Mint);
-            Label(box, "通关主骰：" + (record.ClearedWith.Count == 0 ? "无" : string.Join("、", record.ClearedWith.Select(id => App.Data.Types.GetValueOrDefault(id)?.Name ?? id))), 16, Muted);
-            var remaining = region.BlueprintPool.Where(id => !State.Blueprints.Contains(id)).ToArray();
-            Label(box, "待发现蓝图：" + (remaining.Length == 0 ? "已收集" : string.Join("、", remaining.Select(id => Catalog.Buildings[id].Name))), 17, Gold);
-            if (!open) Label(box, string.Join("\n", App.Progression.MissingRequirements(State, region.Requirements)), 17, Muted);
-            Button(box, open ? "选择骰子并出发" : "未开放", () => Do(() => App.SelectRegion(region.Id)), !open || State.ActiveRunId != "" || State.Flight is not null);
+            _selectedBuilding=definition.Id; var b=buildingAt.Value; title.Text=definition.Name; status.Text=b.Constructing?$"施工 {b.Work}/{definition.Levels[b.Level].Work}":$"Lv.{b.Level}"; desc.Text=definition.Description;
+            picker.Visible=build.Visible=false; move.Visible=true; move.Text=_movingBuilding==definition.Id?"取消搬迁":"搬迁";
+            if(b.Level<definition.Levels.Length)
+            { var next=definition.Levels[b.Level]; effect.Text=RewardText(next.Reward); cost.Text=Resources(next.Cost); upgrade.Visible=true; upgrade.Disabled=App.Progression!.BuildingBlockers(State,definition.Id,b.Tile).Count>0; }
         }
-        if (State.ActiveRunId != "") Button(_content, "当前远征未结束 · 返回城镇继续或结算", () => Act("town"));
-        var bottom = Row(_content); Button(bottom, "返回城镇", () => Act("town"));
-        Button(bottom, "进入下一层深潜", () => Confirm("保留骰子、机制、建筑和资源；开始更难的新一层区域进度。确认进入？", () => Act("nextCycle")), !App.Progression!.CanStartNextCycle(State));
-        if (!App.Progression.CanStartNextCycle(State)) Label(_content, "深潜条件：" + string.Join("；", App.Progression.MissingRequirements(State, Catalog.Definition.NextCycleRequirements)), 16, Muted);
-    }
-    private void BuildDeck()
-    {
-        _title.Text = "配置骰子 · " + Catalog.Regions[State.SelectedRegion].Name;
-        Label(_content, "必须携带6种不同骰子，最多1种神话。首位主骰决定通关记录；召唤等概率，秩序在场时合成使用洗牌袋。", 20, Muted);
-        var gridParent = Scroll(_content);
-        var grid = new GridContainer { Columns = 3, SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        foreach (var die in App.Data.Dice.OrderBy(d => Array.IndexOf(DiceContent.Rarities,d.Rarity)))
+        else if(_selectedTile>=0)
         {
-            bool unlocked = State.UnlockedDice.Contains(die.Id), selected = App.EditingDeck.Contains(die.Id);
-            var box = Card(grid, die.Name + (unlocked ? selected ? " · 已携带" : "" : " · 未解锁"), die.Description); box.CustomMinimumSize = new Vector2(420, 0);
-            Label(box, DiceContent.RarityName(die.Rarity) + " · " + die.Tag, 20, DiceContent.RarityColor(die.Rarity));
-            Button(box, "查看 A/B/C/D 强化", () => ShowDiceCatalog(die.Id));
-            var art = Dice(box, _root.Art, die.Id, 1, 112); art.Modulate = unlocked ? Colors.White : new Color(.4f, .4f, .4f);
-            if (!unlocked)
-            {
-                var source = Catalog.Buildings.Values.Where(b => b.Levels.Any(l => l.Reward.Dice.Contains(die.Id))).Select(b => b.Name);
-                Label(box, "解锁来源：" + string.Join("、", source), 18, Gold);
-            }
-            Button(box, selected ? "移出卡组" : "加入卡组", () => Act("deck:" + die.Id), !unlocked || !selected && !App.CanAddMythic(die.Id));
-            Button(box, App.EditingDeck.FirstOrDefault() == die.Id ? "本次主骰" : "设为主骰", () => Do(() => App.SetLeadDice(die.Id)), !selected || App.EditingDeck.FirstOrDefault() == die.Id);
+            bool wood=Catalog.Definition.Town.WoodTiles.Contains(_selectedTile),stone=Catalog.Definition.Town.StoneTiles.Contains(_selectedTile);
+            if(wood||stone){title.Text=wood?"木材":"石材";desc.Text="资源地块";picker.Visible=build.Visible=false;}
         }
-        Add(gridParent, grid);
-        string lead = App.EditingDeck.Count == 0 ? "未选择" : App.Data.Types[App.EditingDeck[0]].Name;
-        Label(_content, $"已携带 {App.EditingDeck.Count}/6 · 主骰 {lead}" + (App.EditingDeck.Count > 0 ? $" · 每种召唤概率 {100.0 / App.EditingDeck.Count:0.#}%" : ""), 22, Mint);
-        var bottom = Row(_content); Button(bottom, "返回区域", () => Act("deckBack"));
-        Button(bottom, "保存卡组", () => Act("deckSave"), !App.Data.ValidDeck(App.EditingDeck));
-        Button(bottom, "开始远征", () => Do(() => { if (App.SaveDeck()) App.StartExpedition(); }), !App.Data.ValidDeck(App.EditingDeck) || State.ActiveRunId != "" || State.Flight is not null);
+        _blueprintIds=Catalog.Definition.Buildings.Where(b=>State.Blueprints.Contains(b.Id)&&!State.Buildings.ContainsKey(b.Id)).Select(b=>b.Id).ToArray();
+        int keep=Math.Max(0,picker.Selected); picker.Clear(); foreach(string id in _blueprintIds) picker.AddItem(Catalog.Buildings[id].Name); if(_blueprintIds.Length>0)picker.Selected=Math.Min(keep,_blueprintIds.Length-1);
+        build.Disabled=_selectedTile<0||Catalog.IsResourceTile(_selectedTile)||_blueprintIds.Length==0||State.ActiveRunId!=""||State.Flight is not null;
+        if(!build.Disabled && _blueprintIds.Length>0){var reasons=App.Progression!.BuildingBlockers(State,_blueprintIds[picker.Selected],_selectedTile);build.Disabled=reasons.Count>0;if(reasons.Count>0)cost.Text=string.Join("；",reasons);}
+        auto.Visible=State.UnlockedMechanics.Contains("auto_dispatch"); auto.Text="自动派遣 "+(State.AutoDispatch?"开":"关"); auto.Disabled=State.ActiveRunId!="";
+        N<Label>(p+"/LastResult").Text=State.LastResult is { } result?$"上次远征 · {result.RegionName} · {Outcome(result.Outcome)}\n{Resources(result.Resources)}":"";
     }
-    private static string Outcome(string outcome) => outcome switch { "victory" => "区域通关", "defeat" => "远征失败", "abandoned" => "主动撤回", _ => outcome };
-    private void BuildSettlement()
+
+    private void BuildSelectedBlueprint()
     {
-        var run = App.Sim?.State; var e = run?.Expedition; if (run is null || e is null) { App.Scene = "town"; Invalidate(); return; }
-        _title.Text = Outcome(e.Outcome) + " · " + e.Region.Name;
-        var body = Scroll(_content); var stats = Card(body, "本次远征", e.EndReason);
-        Label(stats, $"波次 {run.Wave} · 击破 {run.Kills - e.StartKills} · 用时 {TimeText(run.Time - e.StartTime)}", 25);
-        if (!App.SettlementSaved)
+        var picker=N<OptionButton>("Margin/Layout/Pages/Town/Main/Inspector/Margin/Content/BlueprintPicker");
+        if(_selectedTile<0||picker.Selected<0||picker.Selected>=_blueprintIds.Length)return; string id=_blueprintIds[picker.Selected]; Tap(); App.MutateTown(s=>App.Progression!.StartConstruction(s,id,_selectedTile)); UpdateTownInspector();
+    }
+    private void UpgradeSelectedBuilding(){if(_selectedBuilding==""||!State.Buildings.TryGetValue(_selectedBuilding,out var b))return;Tap();App.MutateTown(s=>App.Progression!.StartConstruction(s,_selectedBuilding,b.Tile));UpdateTownInspector();}
+    private void ToggleMove(){if(_selectedBuilding=="")return;Tap();_movingBuilding=_movingBuilding==_selectedBuilding?"":_selectedBuilding;UpdateTownInspector();}
+
+    private void BindExpedition()
+    {
+        const string p="Margin/Layout/Pages/Expedition";
+        foreach(var r in Catalog.Definition.Regions)
         {
-            Label(stats, "奖励尚未写入存档。不要把这个界面当作领取成功；重试保存后才能回城或继续无尽。", 22, Gold);
-            Button(stats, "重新保存并确认结算", () => Act("retrySettlement"));
+            var card=N<PanelContainer>(p+"/RegionScroll/RegionGrid/Region_"+r.Id); _regionCards[r.Id]=card; string id=r.Id;
+            card.GetNode<Button>("Margin/Content/Action").Pressed += () => SelectRegion(id);
         }
-        else if (State.LastResult is { } receipt)
+        for(int i=0;i<6;i++)_deckChips.Add(N<PanelContainer>(p+"/Side/DeckStrip/Deck"+i));
+        N<Button>(p+"/Side/EditDeck").Pressed += () => OpenDeck("regions");
+        N<Button>(p+"/Side/Start").Pressed += StartExpedition;
+        N<Button>(p+"/Side/DeepDive").Pressed += () => ShowConfirmation("进入下一层","保留当前永久成长，开启下一层区域进度。",()=>Act("nextCycle"));
+        N<Button>(p+"/Side/Back").Pressed += () => Act("town");
+    }
+    private void SelectRegion(string id){if(!App.Progression!.IsRegionOpen(State,id))return;Tap();App.MutateTown(s=>s.SelectedRegion=id);UpdateExpedition();}
+    private void OpenDeck(string returnScene){Tap();_deckReturn=returnScene;App.EditingDeck.Clear();App.EditingDeck.AddRange(App.Deck);App.Scene="deck";Invalidate();}
+    private void StartExpedition(){if(State.ActiveRunId!=""||State.Flight is not null)return;Tap();if(App.SaveDeck())App.StartExpedition();Invalidate();}
+
+    private void UpdateExpedition()
+    {
+        if(App.EditingDeck.Count==0){App.EditingDeck.Clear();App.EditingDeck.AddRange(App.Deck);}
+        foreach(var region in Catalog.Definition.Regions)
         {
-            Label(stats, "已到账：" + (receipt.Resources.Count == 0 ? "本次未获得资源" : Resources(receipt.Resources)), 24, Gold);
-            Label(stats, receipt.NewGear ? "新主骰通关：区域齿轮 +1" : e.Outcome == "victory" ? "同一主骰重复通关：保留资源奖励，不重复发放齿轮。" : "未通关：已获得的资源与蓝图保留。", 20, Mint);
-            if (receipt.FirstClear) Label(stats, "首次通关奖励已领取。", 20, Mint);
-            foreach (string id in receipt.NewBlueprints) Label(stats, "新蓝图：" + (Catalog.Buildings.GetValueOrDefault(id)?.Name ?? id), 22, Gold);
-            foreach (string id in receipt.NewDice) Label(stats, "解锁骰子：" + App.Data.Types[id].Name, 22, Mint);
-            foreach (string id in receipt.NewMechanics) Label(stats, "解锁机制：" + Catalog.Mechanics[id].Name, 22, Mint);
-            foreach (string id in receipt.NewRegions) Label(stats, "区域开放：" + Catalog.Regions[id].Name, 22, Mint);
-            Label(stats, receipt.NewBlueprints.Count > 0 ? "下一步：回城把新蓝图建出来，再用新的骰子或机制出发。" : "下一步：回城建设，或更换主骰补齐区域齿轮。", 21);
+            var card=_regionCards[region.Id]; bool open=App.Progression!.IsRegionOpen(State,region.Id),selected=State.SelectedRegion==region.Id;var record=State.Record(region.Id);
+            card.GetNode<Label>("Margin/Content/Name").Text=region.Name; card.GetNode<Label>("Margin/Content/Meta").Text=$"{region.Phases.Length} 阶段 · {region.TotalWaves} 波";
+            card.GetNode<Label>("Margin/Content/Progress").Text=$"通关 {record.Clears} · 主骰记录 {record.ClearedWith.Count}";
+            var remaining=region.BlueprintPool.Where(id=>!State.Blueprints.Contains(id)).Select(id=>Catalog.Buildings[id].Name).ToArray();
+            card.GetNode<Label>("Margin/Content/Reward").Text=remaining.Length==0?"蓝图已收集":"待发现 · "+string.Join("、",remaining.Take(3))+(remaining.Length>3?"…":"");
+            card.GetNode<Label>("Margin/Content/Lock").Text=open?"":string.Join("；",App.Progression.MissingRequirements(State,region.Requirements));
+            var action=card.GetNode<Button>("Margin/Content/Action");action.Text=!open?"未开放":selected?"已选择":"选择";action.Disabled=!open||State.ActiveRunId!=""||State.Flight is not null;card.Modulate=selected?new Color(1,.96f,.76f,1):Colors.White;
         }
-        var buttons = Row(_content); Button(buttons, "返回城镇 · 建设与解锁", () => Act("town"), !App.SettlementSaved);
-        if (e.Outcome == "victory" && e.CanContinueEndless) Button(buttons, "保留本局搭配 · 继续无尽", () => Act("endless"), !App.SettlementSaved);
+        var chosen=Catalog.Regions[State.SelectedRegion];var chosenRecord=State.Record(chosen.Id);
+        N<Label>("Margin/Layout/Pages/Expedition/Side/SelectedRegion").Text=chosen.Name;
+        N<Label>("Margin/Layout/Pages/Expedition/Side/SelectedMeta").Text=$"{chosen.TotalWaves} 波 · 通关 {chosenRecord.Clears} · 齿轮 {State.Gears}";
+        BindDeckStrip(App.EditingDeck);
+        string lead=App.EditingDeck.Count>0&&App.Data.Types.ContainsKey(App.EditingDeck[0])?App.Data.Types[App.EditingDeck[0]].Name:"未选择";
+        N<Label>("Margin/Layout/Pages/Expedition/Side/DeckSummary").Text=$"{App.EditingDeck.Count}/6 · 主骰 {lead}";
+        bool valid=App.Data.ValidDeck(App.EditingDeck)&&App.Progression.CanUseDeck(State,App.EditingDeck); bool canStart=valid&&State.ActiveRunId==""&&State.Flight is null&&App.Progression.IsRegionOpen(State,State.SelectedRegion);
+        N<Button>("Margin/Layout/Pages/Expedition/Side/Start").Disabled=!canStart;
+        N<Label>("Margin/Layout/Pages/Expedition/Side/Blocker").Text=State.ActiveRunId!=""?"已有未结束远征":State.Flight is not null?"城镇派遣尚未结束":!valid?"需要 6 种合法骰子":"";
+        N<Button>("Margin/Layout/Pages/Expedition/Side/DeepDive").Disabled=!App.Progression.CanStartNextCycle(State);
     }
-    private static string TimeText(double seconds) => $"{(int)seconds / 60:00}:{(int)seconds % 60:00}";
-    private void BuildPause()
+    private void BindDeckStrip(IReadOnlyList<string> deck)
     {
-        _title.Text = "远征暂停"; var box = Card(_content, "当前战斗已经暂停", "返回城镇时保留战斗快照；结算前不能开始另一场远征。");
-        Button(box, "继续远征", () => Act("continue")); Button(box, "设置", () => Act("settings")); Button(box, "保存并返回城镇", () => Act("town"));
-        Button(box, "撤回并结算", () => Confirm("撤回不算通关，已获得资源和蓝图保留。确认撤回？", () => Act("abandon")));
-        Button(box, "玩法说明", () => Act("help"));
+        for(int i=0;i<_deckChips.Count;i++)
+        {
+            var chip=_deckChips[i]; bool show=i<deck.Count&&App.Data.Types.ContainsKey(deck[i]);chip.Visible=show;if(!show)continue;string id=deck[i];SetDice(chip.GetNode<TextureRect>("Layout/Art"),_root.Art,id,1);chip.GetNode<Label>("Layout/Name").Text=App.Data.Types[id].Name;chip.GetNode<Label>("Layout/Lead").Text=i==0?"主骰":"";
+        }
     }
-    private void BuildUpgrade()
+
+    private void BindDeck()
     {
-        _title.Text = "选择本局强化"; Label(_content, "战斗已暂停。强化只在当前远征生效；继续无尽会保留当前搭配。", 21, Muted);
-        var grid = Add(Scroll(_content), new GridContainer { Columns = Math.Max(1, Math.Min(3, App.Sim!.State.Offers.Count)), SizeFlagsHorizontal = SizeFlags.ExpandFill });
-        foreach (string id in App.Sim.State.Offers)
-        { var u = App.Data.UpgradeTypes[id]; var box = Card(grid, u.Name, u.Tag); box.CustomMinimumSize = new Vector2(380, 280); Label(box, u.Description, 23); Label(box, $"当前层数 {App.Sim.State.Upgrades.GetValueOrDefault(id)}/{u.Max}", 20, Mint); Button(box, "选择强化", () => Act("upgrade:" + id)); }
-        Button(_content, "保存并返回城镇", () => Act("town"));
+        const string p="Margin/Layout/Pages/Deck";
+        N<Button>(p+"/Top/Back").Pressed += () => {Tap();App.Scene=_deckReturn;Invalidate();};
+        N<Button>(p+"/Bottom/Save").Pressed += SaveDeckAndReturn;
+        N<Button>(p+"/Bottom/Start").Pressed += StartExpedition;
+        foreach(var die in App.Data.Dice)
+        {
+            var card=N<PanelContainer>(p+"/Scroll/Grid/Die_"+die.Id);_diceCards[die.Id]=card;string id=die.Id;
+            card.GetNode<Button>("Margin/Content/Actions/Details").Pressed += () => OpenDiceCatalog(id);
+            card.GetNode<Button>("Margin/Content/Actions/Toggle").Pressed += () => {App.Action("deck:"+id);UpdateDeck();};
+            card.GetNode<Button>("Margin/Content/Actions/Lead").Pressed += () => {Tap();App.SetLeadDice(id);UpdateDeck();};
+        }
     }
-    private void BuildDie()
+    private void SaveDeckAndReturn(){Tap();if(App.SaveDeck())App.Scene=_deckReturn;Invalidate();}
+    private void UpdateDeck()
     {
-        if (App.Sim is null || App.SelectedSlot < 0 || App.Sim.State.Board[App.SelectedSlot] is not { } die) { App.Scene = "play"; Invalidate(); return; }
-        var definition = App.Data.Types[die.Type]; var stats = App.Sim.Stats(die); var box = Card(Scroll(_content), definition.Name + $" · {die.Pips} 点", definition.Description);
-        Label(box,DiceContent.RarityName(definition.Rarity),22,DiceContent.RarityColor(definition.Rarity));
-        Dice(box, _root.Art, die.Type, die.Pips, 180);
-        string contentStatus=App.Sim.ContentStatus(die);if(contentStatus!="")Label(box,contentStatus,22,Mint);
-        Label(box, $"齐射伤害 {Palette.Compact(stats.Volley)} · 装填 {stats.Reload:0.00} 秒 · 每轮 {stats.Count} 颗弹丸", 25, Mint);
-        Label(box, die.Pips < 6 ? "同种同点才能合成。合成会减少当前攻击席位，并生成卡组内随机种类的更高点数骰子。" : "已到六点上限。保留火力，或回收腾出空位。", 21);
-        Label(box, App.Sim.SkillDescription(die), 21, Gold);
-        if (die.Pips is 3 or 4) Label(box, "下一次合成会继承落点骰子的 A/B 分支编号，但技能按随机结果种类切换。", 19, Muted);
-        if (die.Pips == 5) Label(box, "合成六级后：按最终种类重新选择 A/B，再选择 C/D。", 21, Mint);
-        Button(box, "返回战斗", () => Act("closeDie"));
-        if(App.Sim.CanReincarnate(die))
-            Button(box,"主动转世 · 不返还能量",()=>Confirm("这颗六点轮回将重建为低点轮回，失去本次强化选择。\n"+App.Sim.ExpansionStatus(die),()=>Act("recycle:"+App.SelectedSlot)));
-        else Button(box, "回收此骰子 · +" + App.Sim.RecycleValue(die) + " 能量", () => Act("recycle:" + App.SelectedSlot));
+        if(App.EditingDeck.Count==0){App.EditingDeck.Clear();App.EditingDeck.AddRange(App.Deck);}
+        foreach(var die in App.Data.Dice)
+        {
+            var card=_diceCards[die.Id];bool unlocked=State.UnlockedDice.Contains(die.Id),selected=App.EditingDeck.Contains(die.Id),lead=App.EditingDeck.FirstOrDefault()==die.Id;
+            var art=card.GetNode<TextureRect>("Margin/Content/Top/Art");SetDice(art,_root.Art,die.Id,1);art.Modulate=unlocked?Colors.White:new Color(.32f,.32f,.32f,1);
+            card.GetNode<Label>("Margin/Content/Top/Text/Name").Text=die.Name;var rarity=card.GetNode<Label>("Margin/Content/Top/Text/Rarity");rarity.Text=DiceContent.RarityName(die.Rarity)+" · "+die.Tag;rarity.AddThemeColorOverride("font_color",Color.FromHtml(DiceContent.RarityColor(die.Rarity)));
+            card.GetNode<Label>("Margin/Content/Top/Text/Description").Text=die.Description;card.GetNode<Label>("Margin/Content/Status").Text=!unlocked?"未解锁":lead?"主骰":selected?"已携带":"";
+            var toggle=card.GetNode<Button>("Margin/Content/Actions/Toggle");toggle.Text=selected?"移出":"携带";toggle.Disabled=!unlocked||(!selected&&!App.CanAddMythic(die.Id));var leadButton=card.GetNode<Button>("Margin/Content/Actions/Lead");leadButton.Text=lead?"主骰":"设主骰";leadButton.Disabled=!selected||lead;
+        }
+        string leadName=App.EditingDeck.Count>0&&App.Data.Types.ContainsKey(App.EditingDeck[0])?App.Data.Types[App.EditingDeck[0]].Name:"未选择";N<Label>("Margin/Layout/Pages/Deck/Top/Summary").Text=$"{App.EditingDeck.Count}/6 · 主骰 {leadName}";
+        bool valid=App.Data.ValidDeck(App.EditingDeck)&&App.Progression!.CanUseDeck(State,App.EditingDeck);N<Button>("Margin/Layout/Pages/Deck/Bottom/Save").Disabled=!valid;N<Button>("Margin/Layout/Pages/Deck/Bottom/Start").Disabled=!valid||State.ActiveRunId!=""||State.Flight is not null;
     }
-    private void BuildHelp()
+
+    private void BindBattle()
     {
-        _title.Text = "玩法说明"; var box = Scroll(_content);
-        Label(box, "城镇与区域", 27, Mint);
-        Label(box, "从区域中带回金币、建材、蓝图与补给。蓝图需要放置工地，再用城镇弹射推进施工。建成后立即获得骰子、机制或永久加成；下一次远征应用这些变化。", 23);
-        Label(box, "每场远征只进入一个区域，经过普通波、小头目和最终头目。头目逃出防线算失败，不能靠拖时间跳过。胜利、失败与撤回均回城结算；失败不清空已经获得的物资。", 23);
-        Label(box, "神话规则", 27, Mint);
-        Label(box,"每套卡组最多1种神话，但场上可以有多颗同种神话；全局规则由最高点、同点最早的实例负责，不按数量叠加。秩序的预言显示在阵地下方，六点D可用裁定按钮；六点轮回在详情中主动转世。",23);
-        Label(box, "骰子战斗", 27, Mint);
-        Label(box, "长按战场瞄准，松手发射；移出战场再松手取消。卡组必须携带六种不同骰子，棋盘有 24 个席位。拖动可移动骰子；只有同种、同点骰子才能合成。合成产生的类型从本局卡组随机选取，点数上升一级。", 23);
-        Label(box, "点击骰子查看数值或回收。合成会减少当前火力席位，所以高点数并不总比保留更多攻击频率更合适。", 23);
-        Label(box, "三级与六级分支", 27, Mint);
-        Label(box, "先随机确定合成结果，再选择这颗新骰子的技能。三级从 A/B 中选一项；四、五级沿用落点骰子的分支编号，技能按新类型切换；六级清除继承分支，重新选 A/B，再选 C/D。选择只影响该颗骰子，敌人和弹丸在选择期间完全暂停。", 23);
-        Label(box, "主骰、齿轮与深潜", 27, Mint);
-        Label(box, "卡组首位是主骰，仅决定这次通关记录归属。每个区域、每层深潜、每种主骰首次通关各给一份齿轮。同一主骰反复通关仍有普通奖励，但不重复给齿轮。区域界面显示下一片区域缺少什么。", 23);
-        Label(box, "解锁无尽后，区域胜利可以先确认正常奖励，再保留当前搭配继续挑战。无尽段只结算新增收获，不重复领取此前奖励。深潜会保留永久成长，并开启下一层独立区域记录。", 23);
-        Button(_content, "返回", () => Act("closeHelp"));
+        const string p="Margin/Layout/Pages/Battle";
+        _field=N<TextureRect>(p+"/Body/Left/FieldAspect/FieldFrame/Field");_field.Texture=_root.Battlefield.GetTexture();
+        _field.GuiInput += ev=>{if(App.Scene!="play")return;if(ev is InputEventMouseButton b&&b.ButtonIndex==MouseButton.Left&&b.Pressed){var pt=FieldPoint(_field.GetGlobalMousePosition());App.OnDown(pt.X,pt.Y);_field.AcceptEvent();}};
+        for(int i=0;i<16;i++)
+        {
+            int slot=i;var view=N<Control>(p+"/Body/Right/Margin/Content/BoardGrid/Slot"+i);_slots.Add(view);_slotArt.Add(view.GetNode<TextureRect>("Margin/Layout/Art"));_slotBranches.Add(view.GetNode<Label>("Margin/Layout/Meta/Branches"));_slotReady.Add(view.GetNode<Label>("Margin/Layout/Meta/Ready"));_slotReload.Add(view.GetNode<ProgressBar>("Margin/Layout/Reload"));_slotHigh.Add(view.GetNode<CanvasItem>("HighFrame"));_slotReadyFrame.Add(view.GetNode<CanvasItem>("ReadyFrame"));_slotSelectedFrame.Add(view.GetNode<CanvasItem>("SelectedFrame"));
+            view.GuiInput += ev=>SlotInput(slot,view,ev);
+        }
+        _dragArt=N<TextureRect>(p+"/DragArt");
+        N<Button>(p+"/Body/Right/Margin/Content/Summon").Pressed += ()=>Act("summon");
+        N<Button>(p+"/Body/Right/Margin/Content/Actions/Adjudicate").Pressed += ()=>Act("orderSkip");
+        N<Button>(p+"/Body/Right/Margin/Content/Actions/Pause").Pressed += ()=>Act("pause");
+        _conduits=N<BattleConduits>(p+"/Conduits");
+        _conduits.Initialize(App,_root.Art,slot=>_slotArt[slot].GetGlobalRect().GetCenter()-new Vector2(0,_slotArt[slot].Size.Y*.2f),()=>_field.GlobalPosition+new Vector2((216f-25)/382*_field.Size.X,(530f-132)/444*_field.Size.Y),()=>_field.Size.Y/444);
     }
-    private void Confirm(string text, Action yes)
+    private void SlotInput(int slot,Control view,InputEvent ev)
     {
-        if (_confirm is not null && IsInstanceValid(_confirm)) return;
-        App.CancelPointer(); _confirm = new ConfirmationDialog { Title = "确认操作", DialogText = text, OkButtonText = "确认", CancelButtonText = "取消" };
-        AddChild(_confirm);
-        void Close() { if (_confirm is not null) { _confirm.Hide(); _confirm.QueueFree(); _confirm = null; } }
-        _confirm.Confirmed += () => { Close(); yes(); Invalidate(); }; _confirm.Canceled += Close; _confirm.PopupCentered(new Vector2I(640, 250));
+        if(App.Scene!="play")return;
+        if(ev is InputEventMouseButton b && b.Pressed)
+        {
+            if(b.ButtonIndex==MouseButton.Right || (b.ButtonIndex==MouseButton.Left && b.DoubleClick))
+            {App.CancelPointer();App.OpenDie(slot);view.AcceptEvent();Invalidate();return;}
+            if(b.ButtonIndex==MouseButton.Left){var pt=BoardPoint(view.GetGlobalMousePosition(),false);App.OnDown(pt.X,pt.Y);view.AcceptEvent();}
+        }
     }
+    private bool SlotHasPair(Simulation sim,int index){if(sim.State.Board[index] is null)return false;for(int j=0;j<sim.State.Board.Length;j++)if(j!=index&&sim.CanMerge(index,j))return true;return false;}
+    private void UpdateBattle()
+    {
+        if(App.Sim is null)return;var sim=App.Sim;var state=sim.State;var e=state.Expedition;if(e is null)return;const string p="Margin/Layout/Pages/Battle";int phase=e.Region.PhaseIndex(e.LocalWave(state.Wave));
+        string wave=e.LegacyRules?$"第 {state.Wave} 波":$"{e.Region.Phases[phase].Name} · {e.LocalWave(state.Wave)}/{e.Region.TotalWaves}"+(e.Region.IsBossWave(e.LocalWave(state.Wave))?" · "+e.Region.Phases[phase].BossName:"");
+        N<Label>(p+"/Hud/Bar/Wave").Text=wave;N<Label>(p+"/Hud/Bar/Energy").Text=$"能量 {state.Energy:0.#}";N<Label>(p+"/Hud/Bar/Enemies").Text=$"敌人 {state.Enemies.Count(x=>x.Hp>0)}";N<Label>(p+"/Hud/Bar/HealthText").Text=$"防线 {state.Health}/{App.Data.Game.Rules.MaxHealth}";N<Label>(p+"/Hud/Bar/Lead").Text="主骰 · "+App.Data.Types[e.LeadDice].Name;
+        N<ProgressBar>(p+"/Body/Right/Margin/Content/Health").MaxValue=App.Data.Game.Rules.MaxHealth;N<ProgressBar>(p+"/Body/Right/Margin/Content/Health").Value=state.Health;
+        N<Label>(p+"/Body/Left/FieldAspect/FieldFrame/Intermission").Text=state.NextWaveIn>=0?$"整理时间  {Math.Max(0,state.NextWaveIn):0.0}":"";
+        if(_selectedBoardSlot>=0&&(_selectedBoardSlot>=state.Board.Length||state.Board[_selectedBoardSlot] is null))_selectedBoardSlot=-1;
+        bool dragging=App.Scene=="play"&&App.Pointer?.Mode=="drag";
+        for(int i=0;i<_slots.Count;i++)
+        {
+            var die=state.Board[i];bool selected=i==_selectedBoardSlot;bool validTarget=_selectedBoardSlot>=0&&i!=_selectedBoardSlot&&sim.CanMerge(_selectedBoardSlot,i);bool hasPair=_selectedBoardSlot<0&&SlotHasPair(sim,i);
+            _slotSelectedFrame[i].Visible=selected;_slotReadyFrame[i].Visible=validTarget||hasPair;_slotHigh[i].Visible=die?.Pips>=3;_slotReady[i].Text=validTarget?"合成":hasPair?"◆":"";
+            if(die is null){_slotArt[i].Texture=null;_slotBranches[i].Text="";_slotReload[i].Visible=false;_slots[i].TooltipText="空位 · 单击召唤到这里";_slotKeys[i]="empty";continue;}
+            string key=die.Type+":"+die.Pips+":"+die.Tier3+":"+die.Tier6;bool changed=_slotKeys[i]!=""&&_slotKeys[i]!="empty"&&_slotKeys[i]!=key;_slotKeys[i]=key;SetDice(_slotArt[i],_root.Art,die.Type,die.Pips);_slotBranches[i].Text=die.Tier3==""?"":die.Tier6==""?die.Tier3:die.Tier3+" + "+die.Tier6;_slotReload[i].Visible=true;_slotReload[i].Value=1-MathEx.Clamp(die.Cooldown/sim.Stats(die).Reload,0,1);_slots[i].TooltipText=App.Data.Types[die.Type].Name+" · "+DiceContent.RarityName(App.Data.Types[die.Type].Rarity)+"\n"+sim.SkillDescription(die);
+            if(changed)AnimateSlot(i,die.Pips);bool source=dragging&&App.Pointer!.Slot==i,dragMatch=dragging&&sim.CanMerge(App.Pointer!.Slot,i);_slots[i].Modulate=source?new Color(1,1,1,.32f):dragMatch?Color.FromHtml(Mint):Colors.White;
+        }
+        N<Label>(p+"/Body/Right/Margin/Content/BoardHeader/BoardTitle").Text=$"阵地 {sim.Count}/{App.Data.Game.Board.Slots}";N<Label>(p+"/Body/Right/Margin/Content/BoardHeader/MergeState").Text=_selectedBoardSlot>=0?"选择合成目标":sim.HasPair()?"有可合成":"";
+        var summon=N<Button>(p+"/Body/Right/Margin/Content/Summon");summon.Text=$"召唤 · {sim.SummonCost:0} 能量";summon.Disabled=App.Scene!="play"||sim.Count>=App.Data.Game.Board.Slots||state.Energy+1e-6<sim.SummonCost;
+        var adjudicate=N<Button>(p+"/Body/Right/Margin/Content/Actions/Adjudicate");adjudicate.Visible=state.Deck.Any(id=>App.Data.Types[id].Traits.GetValueOrDefault("orderLaw")>0);adjudicate.Disabled=App.Scene!="play"||!sim.CanSkipOrder;N<Button>(p+"/Body/Right/Margin/Content/Actions/Pause").Disabled=App.Scene!="play";
+        N<Label>(p+"/Body/Right/Margin/Content/ExpansionStatus").Text=sim.GlobalExpansionStatus();
+        N<Label>(p+"/Body/Left/Hint").Text=App.Scene!="play"?"":App.Pointer?.Mode=="aim"?"松手发射 · 移出战场取消":_selectedBoardSlot>=0?"再点亮起的骰子完成合成 · 双击或右键查看详情":sim.HasPair()?"亮框表示可合成 · 单击一颗开始":sim.Count==App.Data.Game.Board.Slots?"阵地已满 · 合成会同时降低下一次召唤费用":"按住战场瞄准，松开发射";
+        _dragArt.Visible=dragging;if(dragging&&state.Board[App.Pointer!.Slot] is { } d){SetDice(_dragArt,_root.Art,d.Type,d.Pips);_dragArt.GlobalPosition=GetGlobalMousePosition()-_dragArt.Size/2;}
+    }
+    private void AnimateSlot(int i,int pips)
+    {
+        if(App.Settings.ReduceMotion)return;var art=_slotArt[i];art.PivotOffset=art.Size/2;art.Scale=Vector2.One*.82f;art.Modulate=new Color(1,1,1,.65f);var t=art.CreateTween().SetParallel().SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);t.TweenProperty(art,"scale",Vector2.One*(pips>=6?1.08f:pips>=3?1.04f:1f),pips>=6?.42:pips>=3?.32:.22);t.TweenProperty(art,"modulate",Colors.White,.2);
+    }
+    private void SelectOrMerge(int slot)
+    {
+        if(App.Sim is null||slot<0||slot>=App.Sim.State.Board.Length||App.Sim.State.Board[slot] is null)return;
+        if(_selectedBoardSlot<0){_selectedBoardSlot=slot;return;}if(_selectedBoardSlot==slot){_selectedBoardSlot=-1;return;}
+        if(App.Sim.CanMerge(_selectedBoardSlot,slot)){int source=_selectedBoardSlot;_selectedBoardSlot=-1;App.MergeSlots(source,slot);Invalidate();return;}_selectedBoardSlot=slot;
+    }
+    private PointD FieldPoint(Vector2 position){if(!_field.GetGlobalRect().HasPoint(position)||_field.Size.X<=0||_field.Size.Y<=0)return new(-1000,-1000);var q=(position-_field.GlobalPosition)/_field.Size;return new(25+q.X*382,132+q.Y*444);}
+    private int BoardSlotAt(Vector2 position){for(int i=0;i<_slots.Count;i++)if(_slots[i].GetGlobalRect().HasPoint(position))return i;return -1;}
+    private PointD BoardPoint(Vector2 position,bool moving){int i=BoardSlotAt(position);if(i>=0){var center=App.Data.SlotPosition(i);var local=(position-_slots[i].GlobalPosition)/_slots[i].Size;return new(center.X+(local.X-.5)*75,center.Y+(local.Y-.5)*80);}if(moving&&App.Pointer is { } pointer){var original=App.Data.SlotPosition(pointer.Slot);return new(original.X+1000,original.Y+1000);}return new(-1000,-1000);}
+    public void MovePointer(Vector2 position){if(_townAiming)TownAim(position);if(App.Pointer is not { } p)return;var logical=p.Mode=="aim"?FieldPoint(position):BoardPoint(position,true);App.OnMove(logical.X,logical.Y);if(_dragArt.Visible)_dragArt.GlobalPosition=position-_dragArt.Size/2;}
+    public void ReleasePointer(Vector2 position)
+    {
+        if(_townAiming){bool inside=_townBoard.GetGlobalRect().HasPoint(position);_townAiming=false;_townAimGuide.Visible=false;if(inside)LaunchTown(_townAngle);}
+        if(App.Pointer is not { } pointer)return;string mode=pointer.Mode;int source=pointer.Slot;int clicked=BoardSlotAt(position);var logical=mode=="aim"?FieldPoint(position):BoardPoint(position,false);App.OnUp(logical.X,logical.Y);if(mode=="diepress"&&clicked==source&&App.Scene=="play")SelectOrMerge(source);
+    }
+
+    private void BindSettlement(){const string p="Margin/Layout/Pages/Settlement/Panel/Margin/Content/Actions";N<Button>(p+"/Return").Pressed+=()=>Act("town");N<Button>(p+"/Endless").Pressed+=()=>Act("endless");N<Button>(p+"/Retry").Pressed+=()=>Act("retrySettlement");}
+    private void UpdateSettlement()
+    {
+        var run=App.Sim?.State;var e=run?.Expedition;if(run is null||e is null)return;const string p="Margin/Layout/Pages/Settlement/Panel/Margin/Content";N<Label>(p+"/Result").Text=Outcome(e.Outcome)+" · "+e.Region.Name;N<Label>(p+"/Reason").Text=e.EndReason;N<Label>(p+"/Stats").Text=$"波次 {run.Wave} · 击破 {run.Kills-e.StartKills} · {TimeText(run.Time-e.StartTime)}";
+        if(!App.SettlementSaved){N<Label>(p+"/Rewards").Text="结算尚未写入存档";N<Label>(p+"/Unlocks").Text="";}else if(State.LastResult is { } receipt){N<Label>(p+"/Rewards").Text=receipt.Resources.Count==0?"本次未获得资源":Resources(receipt.Resources);var lines=new List<string>();if(receipt.NewGear)lines.Add("区域齿轮 +1");if(receipt.FirstClear)lines.Add("首次通关");lines.AddRange(receipt.NewBlueprints.Select(id=>"蓝图 · "+(Catalog.Buildings.GetValueOrDefault(id)?.Name??id)));lines.AddRange(receipt.NewDice.Select(id=>"骰子 · "+App.Data.Types[id].Name));lines.AddRange(receipt.NewMechanics.Select(id=>"机制 · "+Catalog.Mechanics[id].Name));lines.AddRange(receipt.NewRegions.Select(id=>"区域 · "+Catalog.Regions[id].Name));N<Label>(p+"/Unlocks").Text=string.Join("\n",lines);}
+        N<Button>(p+"/Actions/Return").Disabled=!App.SettlementSaved;var endless=N<Button>(p+"/Actions/Endless");endless.Visible=e.Outcome=="victory"&&e.CanContinueEndless;endless.Disabled=!App.SettlementSaved;N<Button>(p+"/Actions/Retry").Visible=!App.SettlementSaved;
+    }
+
+    private void BindHelp()=>N<Button>("Margin/Layout/Pages/Help/Back").Pressed+=()=>Act("closeHelp");
+
+    private void BindSettings()
+    {
+        const string p="Margin/Layout/Pages/Settings";var mode=N<OptionButton>(p+"/Columns/Display/WindowMode");mode.AddItem("窗口");mode.AddItem("无边框全屏");mode.AddItem("全屏");var res=N<OptionButton>(p+"/Columns/Display/Resolution");foreach(var r in _resolutions)res.AddItem($"{r.X} × {r.Y}");var fps=N<OptionButton>(p+"/Columns/Display/FpsLimit");foreach(int f in _fpsOptions)fps.AddItem(f==0?"不限":f.ToString());var msaa=N<OptionButton>(p+"/Columns/Display/Msaa");foreach(string s in new[]{"关闭","2×","4×","8×"})msaa.AddItem(s);
+        mode.ItemSelected+=i=>{if(!_settingsSync&&_settingsDraft is not null)_settingsDraft.WindowMode=new[]{"windowed","borderless","fullscreen"}[(int)i];};res.ItemSelected+=i=>{if(!_settingsSync&&_settingsDraft is not null){_settingsDraft.Width=_resolutions[(int)i].X;_settingsDraft.Height=_resolutions[(int)i].Y;}};fps.ItemSelected+=i=>{if(!_settingsSync&&_settingsDraft is not null)_settingsDraft.MaxFps=_fpsOptions[(int)i];};msaa.ItemSelected+=i=>{if(!_settingsSync&&_settingsDraft is not null)_settingsDraft.Msaa=(int)i;};
+        N<CheckButton>(p+"/Columns/Display/VSync").Toggled+=v=>{if(!_settingsSync&&_settingsDraft is not null)_settingsDraft.VSync=v;};N<CheckButton>(p+"/Columns/Display/ShowFps").Toggled+=v=>{if(!_settingsSync&&_settingsDraft is not null)_settingsDraft.ShowFps=v;};N<HSlider>(p+"/Columns/Display/UiScale").ValueChanged+=v=>{if(!_settingsSync&&_settingsDraft is not null){_settingsDraft.UiScale=v;N<Label>(p+"/Columns/Display/UiScaleLabel").Text=$"界面字号 {v:P0}";}};
+        N<HSlider>(p+"/Columns/Audio/Master").ValueChanged+=v=>SetVolumeDraft("master",v);N<HSlider>(p+"/Columns/Audio/Sfx").ValueChanged+=v=>SetVolumeDraft("sfx",v);N<HSlider>(p+"/Columns/Audio/Music").ValueChanged+=v=>SetVolumeDraft("music",v);N<CheckButton>(p+"/Columns/Audio/ScreenShake").Toggled+=v=>{if(!_settingsSync&&_settingsDraft is not null)_settingsDraft.ScreenShake=v;};N<CheckButton>(p+"/Columns/Audio/FlashEffects").Toggled+=v=>{if(!_settingsSync&&_settingsDraft is not null)_settingsDraft.FlashEffects=v;};N<CheckButton>(p+"/Columns/Audio/ShowAim").Toggled+=v=>{if(!_settingsSync&&_settingsDraft is not null)_settingsDraft.ShowAim=v;};
+        N<Button>(p+"/Columns/Audio/SoundToggle").Pressed+=()=>{App.Action("sound");UpdateSettings(false);};N<Button>(p+"/Columns/Audio/MusicToggle").Pressed+=()=>{App.Action("music");UpdateSettings(false);};N<Button>(p+"/Columns/Audio/ReduceMotion").Pressed+=()=>{App.Action("motion");UpdateSettings(false);};
+        foreach(var q in new[]{("summon","SummonKey"),("pause","PauseKey"),("mute","MuteKey"),("fullscreen","FullscreenKey")}){string id=q.Item1;N<Button>(p+"/Columns/Controls/"+q.Item2).Pressed+=()=>{_bindingAction=id;N<Label>(p+"/Columns/Controls/BindingHint").Text="请按一个新按键；Esc 取消。";};}
+        N<Button>(p+"/Columns/Controls/Backup").Pressed+=_root.BackupSave;N<Button>(p+"/Columns/Controls/OpenFolder").Pressed+=_root.OpenSaveFolder;N<Button>(p+"/Columns/Controls/Reset").Pressed+=()=>ShowConfirmation("重置永久进度","原文件会先备份。远征、城镇、区域与解锁随后重置。",_root.ResetProgress);
+        N<Button>(p+"/Bottom/Cancel").Pressed+=()=>Act("closeSettings");N<Button>(p+"/Bottom/Defaults").Pressed+=()=>{_settingsDraft=new DesktopPreferences();SyncSettingsControls();};N<Button>(p+"/Bottom/Apply").Pressed+=()=>{if(_settingsDraft is not null)_root.PreviewPreferences(_settingsDraft);};
+    }
+    private void SetVolumeDraft(string kind,double v){if(_settingsSync||_settingsDraft is null)return;if(kind=="master")_settingsDraft.MasterVolume=v;else if(kind=="sfx")_settingsDraft.SfxVolume=v;else _settingsDraft.MusicVolume=v;const string p="Margin/Layout/Pages/Settings/Columns/Audio/";N<Label>(p+(kind=="master"?"MasterLabel":kind=="sfx"?"SfxLabel":"MusicLabel")).Text=(kind=="master"?"总音量 ":kind=="sfx"?"音效 ":"音乐 ")+v.ToString("P0");}
+    private void UpdateSettings(bool resetDraft){if(resetDraft||_settingsDraft is null)_settingsDraft=CampaignCatalog.Copy(App.Preferences);SyncSettingsControls();const string p="Margin/Layout/Pages/Settings/Columns/Audio/";N<Button>(p+"SoundToggle").Text="声音 "+(App.Settings.Sound?"开":"关");N<Button>(p+"MusicToggle").Text="音乐 "+(App.Settings.Music?"开":"关");N<Button>(p+"ReduceMotion").Text="减弱动态 "+(App.Settings.ReduceMotion?"开":"关");}
+    private void SyncSettingsControls()
+    {
+        if(_settingsDraft is null)return;_settingsSync=true;const string p="Margin/Layout/Pages/Settings";var d=_settingsDraft;N<OptionButton>(p+"/Columns/Display/WindowMode").Selected=d.WindowMode switch{"borderless"=>1,"fullscreen"=>2,_=>0};int ri=Array.FindIndex(_resolutions,r=>r.X==d.Width&&r.Y==d.Height);N<OptionButton>(p+"/Columns/Display/Resolution").Selected=Math.Max(0,ri);N<CheckButton>(p+"/Columns/Display/VSync").ButtonPressed=d.VSync;int fi=Array.IndexOf(_fpsOptions,d.MaxFps);N<OptionButton>(p+"/Columns/Display/FpsLimit").Selected=Math.Max(0,fi);N<OptionButton>(p+"/Columns/Display/Msaa").Selected=Math.Clamp(d.Msaa,0,3);N<HSlider>(p+"/Columns/Display/UiScale").Value=d.UiScale;N<Label>(p+"/Columns/Display/UiScaleLabel").Text=$"界面字号 {d.UiScale:P0}";N<CheckButton>(p+"/Columns/Display/ShowFps").ButtonPressed=d.ShowFps;
+        N<HSlider>(p+"/Columns/Audio/Master").Value=d.MasterVolume;N<Label>(p+"/Columns/Audio/MasterLabel").Text=$"总音量 {d.MasterVolume:P0}";N<HSlider>(p+"/Columns/Audio/Sfx").Value=d.SfxVolume;N<Label>(p+"/Columns/Audio/SfxLabel").Text=$"音效 {d.SfxVolume:P0}";N<HSlider>(p+"/Columns/Audio/Music").Value=d.MusicVolume;N<Label>(p+"/Columns/Audio/MusicLabel").Text=$"音乐 {d.MusicVolume:P0}";N<CheckButton>(p+"/Columns/Audio/ScreenShake").ButtonPressed=d.ScreenShake;N<CheckButton>(p+"/Columns/Audio/FlashEffects").ButtonPressed=d.FlashEffects;N<CheckButton>(p+"/Columns/Audio/ShowAim").ButtonPressed=d.ShowAim;
+        N<Button>(p+"/Columns/Controls/SummonKey").Text="召唤："+d.Bindings["summon"];N<Button>(p+"/Columns/Controls/PauseKey").Text="暂停："+d.Bindings["pause"];N<Button>(p+"/Columns/Controls/MuteKey").Text="声音："+d.Bindings["mute"];N<Button>(p+"/Columns/Controls/FullscreenKey").Text="全屏："+d.Bindings["fullscreen"];_settingsSync=false;
+    }
+    public bool HandleKeyBinding(InputEventKey key)
+    {
+        if(_bindingAction==""||_settingsDraft is null||App.Scene!="settings")return false;var code=key.PhysicalKeycode==Key.None?key.Keycode:key.PhysicalKeycode;var hint=N<Label>("Margin/Layout/Pages/Settings/Columns/Controls/BindingHint");if(code==Key.Escape){_bindingAction="";hint.Text="已取消按键修改。";return true;}string value=code.ToString();if(key.AltPressed||key.CtrlPressed||key.MetaPressed||code is Key.None or Key.Shift or Key.Ctrl or Key.Alt or Key.Meta||_settingsDraft.Bindings.Any(p=>p.Key!=_bindingAction&&p.Value.Equals(value,StringComparison.OrdinalIgnoreCase))){hint.Text="请选择未占用的单个按键。";return true;}_settingsDraft.Bindings[_bindingAction]=value;_bindingAction="";hint.Text="已修改，应用后生效。";SyncSettingsControls();return true;
+    }
+
+    private void BindOverlay()
+    {
+        N<Button>("Overlay/Center/PausePanel/Margin/Content/Continue").Pressed+=()=>Act("continue");N<Button>("Overlay/Center/PausePanel/Margin/Content/Settings").Pressed+=()=>Act("settings");N<Button>("Overlay/Center/PausePanel/Margin/Content/Town").Pressed+=()=>Act("town");N<Button>("Overlay/Center/PausePanel/Margin/Content/Abandon").Pressed+=()=>ShowConfirmation("撤回远征","不计通关；已经获得的资源与蓝图保留。",()=>Act("abandon"));N<Button>("Overlay/Center/PausePanel/Margin/Content/Help").Pressed+=()=>Act("help");
+        for(int i=0;i<3;i++){int index=i;N<Button>($"Overlay/Center/UpgradePanel/Margin/Content/Choices/Choice{i}/Margin/Content/Action").Pressed+=()=>ChooseUpgrade(index);}N<Button>("Overlay/Center/UpgradePanel/Margin/Content/Town").Pressed+=()=>Act("town");
+        for(int i=0;i<2;i++){int index=i;N<Button>($"Overlay/Center/DiceSkillPanel/Margin/Content/Choices/Choice{i}/Margin/Content/Action").Pressed+=()=>ChooseSkill(index);}
+        N<Button>("Overlay/Center/DiePanel/Margin/Content/Back").Pressed+=()=>Act("closeDie");N<Button>("Overlay/Center/DiePanel/Margin/Content/Recycle").Pressed+=RecycleSelected;
+        N<Button>("Overlay/Center/CatalogPanel/Margin/Content/Close").Pressed+=CloseCatalog;
+        N<Button>("Overlay/Center/ConfirmPanel/Margin/Content/Actions/Cancel").Pressed+=()=>CloseConfirmation(false);N<Button>("Overlay/Center/ConfirmPanel/Margin/Content/Actions/Confirm").Pressed+=()=>CloseConfirmation(true);
+        N<Button>("Overlay/Center/LoadErrorPanel/Margin/Content/OpenFolder").Pressed+=_root.OpenSaveFolder;N<Button>("Overlay/Center/LoadErrorPanel/Margin/Content/Backup").Pressed+=_root.BackupSave;N<Button>("Overlay/Center/LoadErrorPanel/Margin/Content/Reset").Pressed+=()=>ShowConfirmation("重置进度","原文件会先备份，再建立新进度。",_root.ResetProgress);N<Button>("Overlay/Center/LoadErrorPanel/Margin/Content/Quit").Pressed+=_root.Quit;
+    }
+    private void HideOverlayPanels(){foreach(var p in _overlayPanels)p.Visible=false;}
+    private void ShowOverlayPanel(Control panel){HideOverlayPanels();_overlay.Visible=true;panel.Visible=true;if(!App.Settings.ReduceMotion)Reveal(panel);}
+    private void HideOverlay(){HideOverlayPanels();_overlay.Visible=false;}
+    private void RefreshOverlay()
+    {
+        if(App.LoadProblem!=""){ShowLoadError();return;}if(_confirmOpen){ShowOverlayPanel(_overlayPanels[5]);return;}if(_catalogOpen){ShowOverlayPanel(_overlayPanels[4]);return;}
+        switch(App.Scene){case"paused":ShowPause();break;case"upgrade":ShowUpgrade();break;case"diceSkill":ShowDiceSkill();break;case"die":ShowDie();break;default:HideOverlay();break;}
+    }
+    private void ShowPause()=>ShowOverlayPanel(_overlayPanels[0]);
+    private void ShowUpgrade(){if(App.Sim is null)return;ShowOverlayPanel(_overlayPanels[1]);for(int i=0;i<3;i++){var card=N<PanelContainer>($"Overlay/Center/UpgradePanel/Margin/Content/Choices/Choice{i}");bool show=i<App.Sim.State.Offers.Count;card.Visible=show;if(!show)continue;string id=App.Sim.State.Offers[i];var u=App.Data.UpgradeTypes[id];card.GetNode<Label>("Margin/Content/Key").Text=u.Tag;card.GetNode<Label>("Margin/Content/Name").Text=u.Name;card.GetNode<Label>("Margin/Content/Description").Text=u.Description;card.GetNode<Label>("Margin/Content/Preview").Text=$"Lv {App.Sim.State.Upgrades.GetValueOrDefault(id)}/{u.Max}";card.GetNode<Button>("Margin/Content/Action").Text="选择";}}
+    private void ChooseUpgrade(int index){if(App.Sim is null||index<0||index>=App.Sim.State.Offers.Count)return;Act("upgrade:"+App.Sim.State.Offers[index]);}
+    private void ShowDiceSkill(){if(App.Sim?.CurrentSkillChoice is not { } q)return;ShowOverlayPanel(_overlayPanels[2]);var definition=App.Data.Types[q.DiceType];N<Label>("Overlay/Center/DiceSkillPanel/Margin/Content/Title").Text=definition.Name+" · "+q.ResultPips+"点";N<Label>("Overlay/Center/DiceSkillPanel/Margin/Content/Tier").Text=q.Tier==3?"A / B":"C / D";SetDice(N<TextureRect>("Overlay/Center/DiceSkillPanel/Margin/Content/Art"),_root.Art,q.DiceType,q.ResultPips);var opts=App.Sim.SkillOptions;for(int i=0;i<2;i++){var card=N<PanelContainer>($"Overlay/Center/DiceSkillPanel/Margin/Content/Choices/Choice{i}");var o=opts[i];var preview=App.Sim.PreviewSkill(q.ChoiceId,o.Key);card.GetNode<Label>("Margin/Content/Key").Text=o.Key;card.GetNode<Label>("Margin/Content/Name").Text=o.Name;card.GetNode<Label>("Margin/Content/Description").Text=o.Description;card.GetNode<Label>("Margin/Content/Preview").Text=$"齐射 {preview.Volley:0.##} · {preview.Count} 发 · {preview.Reload:0.00}s";card.GetNode<Button>("Margin/Content/Action").Text="选择 "+o.Key;}}
+    private void ChooseSkill(int index){if(App.Sim?.CurrentSkillChoice is not { } q||index<0||index>=App.Sim.SkillOptions.Count)return;Act($"diceSkill:{q.ChoiceId}:{App.Sim.SkillOptions[index].Key}");}
+    private void ShowDie(){if(App.Sim is null||App.SelectedSlot<0||App.SelectedSlot>=App.Sim.State.Board.Length||App.Sim.State.Board[App.SelectedSlot] is not { } die){App.Scene="play";return;}ShowOverlayPanel(_overlayPanels[3]);var def=App.Data.Types[die.Type];var stats=App.Sim.Stats(die);N<Label>("Overlay/Center/DiePanel/Margin/Content/Title").Text=def.Name+" · "+die.Pips+"点";var rarity=N<Label>("Overlay/Center/DiePanel/Margin/Content/Rarity");rarity.Text=DiceContent.RarityName(def.Rarity);rarity.AddThemeColorOverride("font_color",Color.FromHtml(DiceContent.RarityColor(def.Rarity)));SetDice(N<TextureRect>("Overlay/Center/DiePanel/Margin/Content/Art"),_root.Art,die.Type,die.Pips);N<Label>("Overlay/Center/DiePanel/Margin/Content/Stats").Text=$"齐射 {Palette.Compact(stats.Volley)} · {stats.Count} 发 · 装填 {stats.Reload:0.00}s";N<Label>("Overlay/Center/DiePanel/Margin/Content/Skill").Text=App.Sim.SkillDescription(die);N<Label>("Overlay/Center/DiePanel/Margin/Content/Status").Text=App.Sim.ContentStatus(die);var recycle=N<Button>("Overlay/Center/DiePanel/Margin/Content/Recycle");recycle.Text=App.Sim.CanReincarnate(die)?"主动转世":"回收 · +"+App.Sim.RecycleValue(die)+" 能量";}
+    private void RecycleSelected(){if(App.Sim is null||App.SelectedSlot<0||App.SelectedSlot>=App.Sim.State.Board.Length||App.Sim.State.Board[App.SelectedSlot] is not { } die)return;if(App.Sim.CanReincarnate(die))ShowConfirmation("主动转世","这颗六点轮回会重建为低点轮回，并失去本次强化选择。",()=>Act("recycle:"+App.SelectedSlot));else Act("recycle:"+App.SelectedSlot);}
+
+    public Control ShowDiceCatalog(string id){OpenDiceCatalog(id);return _overlayPanels[4];}
+    private void OpenDiceCatalog(string id)
+    {
+        if(!App.Data.Types.TryGetValue(id,out var die))return;_catalogOpen=true;var set=App.Data.Skills[id];N<Label>("Overlay/Center/CatalogPanel/Margin/Content/Title").Text=die.Name;var meta=N<Label>("Overlay/Center/CatalogPanel/Margin/Content/Meta");meta.Text=DiceContent.RarityName(die.Rarity)+" · "+die.Tag;meta.AddThemeColorOverride("font_color",Color.FromHtml(DiceContent.RarityColor(die.Rarity)));N<Label>("Overlay/Center/CatalogPanel/Margin/Content/Description").Text=die.Description;var skills=set.Level3.Concat(set.Level6).ToDictionary(x=>x.Key);foreach(string k in new[]{"A","B","C","D"}){var s=skills[k];N<Label>("Overlay/Center/CatalogPanel/Margin/Content/"+k).Text=(k is "A" or "B"?"3点 ":"6点 ")+k+" · "+s.Name+"\n"+s.Description;}ShowOverlayPanel(_overlayPanels[4]);
+    }
+    public void CloseCatalog(){_catalogOpen=false;RefreshOverlay();}
+
+    public void ShowConfirmation(string title,string text,Action yes,Action? no=null,string confirmText="确认",string cancelText="取消")
+    {
+        _confirmOpen=true;_confirmYes=yes;_confirmNo=no;N<Label>("Overlay/Center/ConfirmPanel/Margin/Content/Title").Text=title;N<Label>("Overlay/Center/ConfirmPanel/Margin/Content/Text").Text=text;N<Button>("Overlay/Center/ConfirmPanel/Margin/Content/Actions/Confirm").Text=confirmText;N<Button>("Overlay/Center/ConfirmPanel/Margin/Content/Actions/Cancel").Text=cancelText;ShowOverlayPanel(_overlayPanels[5]);App.CancelPointer();
+    }
+    public void UpdateConfirmationText(string text){if(_confirmOpen)N<Label>("Overlay/Center/ConfirmPanel/Margin/Content/Text").Text=text;}
+    public bool ConfirmationOpen=>_confirmOpen;
+    public void DismissConfirmation()
+    {
+        _confirmOpen=false; _confirmYes=_confirmNo=null; RefreshOverlay();
+    }
+    private void CloseConfirmation(bool accepted){var yes=_confirmYes;var no=_confirmNo;_confirmOpen=false;_confirmYes=_confirmNo=null;if(accepted)yes?.Invoke();else no?.Invoke();RefreshOverlay();}
+    private void ShowLoadError(){N<Label>("Overlay/Center/LoadErrorPanel/Margin/Content/Text").Text=App.LoadProblem;ShowOverlayPanel(_overlayPanels[6]);}
+
+    private void Act(string id){App.Audio.Unlock();App.Action(id);Invalidate();}
+    private void Tap(){App.Audio.Unlock();App.Audio.Play("tap");}
+
     public void Back()
     {
-        if (_confirm is not null) { _confirm.Hide(); _confirm.QueueFree(); _confirm = null; return; }
-        switch (App.Scene)
-        {
-            case "play": Act("pause"); break; case "paused": Act("continue"); break;
-            case "settings": Act("closeSettings"); break; case "deck": Act("deckBack"); break;
-            case "regions": Act("town"); break; case "help": Act("closeHelp"); break; case "die": Act("closeDie"); break;
-            case "settlement": if (App.SettlementSaved) Act("town"); break;
-            case "town": Confirm("退出游戏？当前进度会保存。", _root.Quit); break;
-        }
+        if(_confirmOpen){CloseConfirmation(false);return;}if(_catalogOpen){CloseCatalog();return;}
+        switch(App.Scene){case"play":Act("pause");break;case"paused":Act("continue");break;case"settings":Act("closeSettings");break;case"deck":App.Scene=_deckReturn;Invalidate();break;case"regions":Act("town");break;case"help":Act("closeHelp");break;case"die":Act("closeDie");break;case"settlement":if(App.SettlementSaved)Act("town");break;case"town":ShowConfirmation("退出游戏","当前进度会保存。",_root.Quit,null,"退出","取消");break;}
     }
+
+    public void ApplyUiScale(double scale)=>ScaleTypography(this,scale);
+
     public void AssertLayout()
     {
-        if (_content.Size.X <= 0 || _content.Size.Y <= 0) throw new InvalidOperationException("Native content area is empty.");
-        if (App.Scene == "play")
+        if(Size.X<=0||Size.Y<=0)throw new InvalidOperationException("Campaign UI root is empty.");
+        if(App.Scene is "play" or "paused" or "upgrade" or "diceSkill" or "die")
         {
-            if (_field is null || _slots.Count != App.Data.Game.Board.Slots || _field.Size.X < 200 || _field.Size.Y < 200)
-                throw new InvalidOperationException("Battle layout has no usable field / configured slots.");
-            var bounds=GetViewportRect().Grow(1);
-            var shell=GetChildren().OfType<MarginContainer>().Single();
-            if(!bounds.Encloses(shell.GetGlobalRect())) throw new InvalidOperationException("Battle shell exceeds viewport at the current font scale: "+shell.GetGlobalRect()+" vs "+bounds+" content="+_content.GetGlobalRect());
-            foreach(var slot in _slots)
-                if(!bounds.Encloses(slot.GetGlobalRect())) throw new InvalidOperationException("A dice slot lies outside the visible viewport: "+slot.Name);
+            if(_field.Size.X<300||_field.Size.Y<300||_slots.Count!=App.Data.Game.Board.Slots)throw new InvalidOperationException("Battle layout has no usable field or authored slots.");
+            var bounds=GetViewportRect().Grow(2);foreach(var slot in _slots)if(!bounds.Encloses(slot.GetGlobalRect()))throw new InvalidOperationException("A battle slot lies outside the visible viewport: "+slot.Name);
         }
     }
 }

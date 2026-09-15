@@ -57,15 +57,14 @@ public partial class GameRoot
             App.Action("editDeck"); await Frames();
             foreach (string id in new[] { "poison", "mirror", "evolution", "scatter", "blackhole", "reincarnation", "order" })
             {
-                var dialog = _ui.ShowDiceCatalog(id);
+                var panel = _ui.ShowDiceCatalog(id);
                 for (int i = 0; i < 4; i++) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
-                var label = dialog.GetLabel();
-                if (label.Size.Y + label.Position.Y > dialog.Size.Y || label.Size.X > dialog.Size.X)
+                if (!panel.IsVisibleInTree() || !GetViewport().GetVisibleRect().Grow(2).Encloses(panel.GetGlobalRect()))
                     throw new InvalidOperationException("Clipped content catalogue: " + id);
-                using var image = dialog.GetTexture().GetImage();
+                using var image = GetViewport().GetTexture().GetImage();
                 if (image.SavePng(Path.Combine(path, "catalog_" + id + ".png")) != Error.Ok) throw new IOException("Catalogue capture failed.");
-                dialog.Hide(); dialog.QueueFree(); screens++; GD.Print("CONTENT CAPTURED catalog_" + id);
+                _ui.CloseCatalog(); screens++; GD.Print("CONTENT CAPTURED catalog_" + id);
             }
             File.WriteAllText(Path.Combine(path, "capture-result.json"), JsonSerializer.Serialize(new { completed = true, screens, faces, engine = Engine.GetVersionInfo()["string"].AsString() }));
             Audio.Shutdown();

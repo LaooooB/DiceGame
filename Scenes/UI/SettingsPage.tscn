@@ -1,0 +1,169 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/UI/GameButton.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/PrimaryButton.tscn" id="2"]
+
+[node name="SettingsPage" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="Columns" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 20
+
+[node name="Display" type="VBoxContainer" parent="Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Columns/Display"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "显示"
+
+[node name="WindowModeLabel" type="Label" parent="Columns/Display"]
+layout_mode = 2
+text = "窗口模式"
+[node name="WindowMode" type="OptionButton" parent="Columns/Display"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+[node name="ResolutionLabel" type="Label" parent="Columns/Display"]
+layout_mode = 2
+text = "窗口分辨率"
+[node name="Resolution" type="OptionButton" parent="Columns/Display"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+[node name="VSync" type="CheckButton" parent="Columns/Display"]
+layout_mode = 2
+text = "垂直同步"
+[node name="FpsLabel" type="Label" parent="Columns/Display"]
+layout_mode = 2
+text = "帧率上限"
+[node name="FpsLimit" type="OptionButton" parent="Columns/Display"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+[node name="MsaaLabel" type="Label" parent="Columns/Display"]
+layout_mode = 2
+text = "2D 抗锯齿"
+[node name="Msaa" type="OptionButton" parent="Columns/Display"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+[node name="UiScaleLabel" type="Label" parent="Columns/Display"]
+layout_mode = 2
+text = "界面字号 100%"
+[node name="UiScale" type="HSlider" parent="Columns/Display"]
+layout_mode = 2
+min_value = 0.8
+max_value = 1.3
+step = 0.05
+value = 1.0
+[node name="ShowFps" type="CheckButton" parent="Columns/Display"]
+layout_mode = 2
+text = "显示帧率"
+
+[node name="Audio" type="VBoxContainer" parent="Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Columns/Audio"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "声音与舒适度"
+[node name="MasterLabel" type="Label" parent="Columns/Audio"]
+layout_mode = 2
+text = "总音量 80%"
+[node name="Master" type="HSlider" parent="Columns/Audio"]
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 0.8
+[node name="SfxLabel" type="Label" parent="Columns/Audio"]
+layout_mode = 2
+text = "音效 100%"
+[node name="Sfx" type="HSlider" parent="Columns/Audio"]
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 1.0
+[node name="MusicLabel" type="Label" parent="Columns/Audio"]
+layout_mode = 2
+text = "音乐 60%"
+[node name="Music" type="HSlider" parent="Columns/Audio"]
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 0.6
+[node name="SoundToggle" parent="Columns/Audio" instance=ExtResource("1")]
+layout_mode = 2
+text = "声音 开"
+[node name="MusicToggle" parent="Columns/Audio" instance=ExtResource("1")]
+layout_mode = 2
+text = "音乐 开"
+[node name="ScreenShake" type="CheckButton" parent="Columns/Audio"]
+layout_mode = 2
+text = "屏幕震动"
+[node name="FlashEffects" type="CheckButton" parent="Columns/Audio"]
+layout_mode = 2
+text = "受伤闪光"
+[node name="ShowAim" type="CheckButton" parent="Columns/Audio"]
+layout_mode = 2
+text = "瞄准辅助线"
+[node name="ReduceMotion" parent="Columns/Audio" instance=ExtResource("1")]
+layout_mode = 2
+text = "减弱动态 关"
+
+[node name="Controls" type="VBoxContainer" parent="Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Columns/Controls"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "控制与存档"
+[node name="SummonKey" parent="Columns/Controls" instance=ExtResource("1")]
+layout_mode = 2
+text = "召唤：Space"
+[node name="PauseKey" parent="Columns/Controls" instance=ExtResource("1")]
+layout_mode = 2
+text = "暂停：Escape"
+[node name="MuteKey" parent="Columns/Controls" instance=ExtResource("1")]
+layout_mode = 2
+text = "声音：M"
+[node name="FullscreenKey" parent="Columns/Controls" instance=ExtResource("1")]
+layout_mode = 2
+text = "全屏：F11"
+[node name="BindingHint" type="Label" parent="Columns/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6078,0.6863,0.7412,1)
+theme_override_font_sizes/font_size = 16
+autowrap_mode = 2
+text = "单击按键项后按一个新按键；Esc 取消。"
+[node name="Backup" parent="Columns/Controls" instance=ExtResource("1")]
+layout_mode = 2
+text = "备份当前存档"
+[node name="OpenFolder" parent="Columns/Controls" instance=ExtResource("1")]
+layout_mode = 2
+text = "打开存档目录"
+[node name="Reset" parent="Columns/Controls" instance=ExtResource("1")]
+layout_mode = 2
+text = "备份并重置永久进度"
+
+[node name="Bottom" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+[node name="Cancel" parent="Bottom" instance=ExtResource("1")]
+layout_mode = 2
+text = "取消"
+[node name="Defaults" parent="Bottom" instance=ExtResource("1")]
+layout_mode = 2
+text = "恢复默认"
+[node name="Apply" parent="Bottom" instance=ExtResource("2")]
+layout_mode = 2
+text = "应用并保存"

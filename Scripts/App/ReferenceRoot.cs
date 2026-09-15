@@ -117,8 +117,8 @@ public partial class ReferenceRoot : Node
     }
     private void ShowStartupError(string message)
     {
-        var error=new Label {Text="骰子回响启动失败\n\n"+message+"\n\n请查看 Godot 输出面板，使用 4.6 stable .NET 版本重新构建。",Position=new Vector2(40,40),Size=new Vector2(880,500),AutowrapMode=TextServer.AutowrapMode.WordSmart};
-        AddChild(error);if(_captureMode)GetTree().Quit(1);
+        GD.PushError("Reference capture startup failed: "+message);
+        if(_captureMode)GetTree().Quit(1);
     }
     private sealed class CaptureStorage : IDesktopStorage
     {public string? Read()=>null;public void Write(string json){}public uint NewSeed()=>24137;}

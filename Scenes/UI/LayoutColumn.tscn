@@ -1,5 +1,0 @@
-[gd_scene format=3]
-
-[node name="LayoutColumn" type="VBoxContainer"]
-size_flags_horizontal = 3
-theme_override_constants/separation = 12

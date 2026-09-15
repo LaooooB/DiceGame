@@ -1,0 +1,128 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/UI/RegionCard.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/DeckChip.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/GameButton.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/PrimaryButton.tscn" id="4"]
+
+[node name="ExpeditionPage" type="HBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 14
+
+[node name="RegionScroll" type="ScrollContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="RegionGrid" type="GridContainer" parent="RegionScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+
+[node name="Region_region_01" parent="RegionScroll/RegionGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Region_region_02" parent="RegionScroll/RegionGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Region_region_03" parent="RegionScroll/RegionGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Region_region_04" parent="RegionScroll/RegionGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Region_region_05" parent="RegionScroll/RegionGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Region_region_06" parent="RegionScroll/RegionGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Region_region_07" parent="RegionScroll/RegionGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Region_region_08" parent="RegionScroll/RegionGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Side" type="VBoxContainer" parent="."]
+custom_minimum_size = Vector2(520, 0)
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="SelectedRegion" type="Label" parent="Side"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "区域"
+
+[node name="SelectedMeta" type="Label" parent="Side"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6078, 0.6863, 0.7412, 1)
+theme_override_font_sizes/font_size = 18
+
+[node name="DeckTitle" type="Label" parent="Side"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9725, 0.8706, 0.5294, 1)
+theme_override_font_sizes/font_size = 19
+text = "出战骰组"
+
+[node name="DeckStrip" type="GridContainer" parent="Side"]
+layout_mode = 2
+columns = 3
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="Deck0" parent="Side/DeckStrip" instance=ExtResource("2")]
+layout_mode = 2
+
+[node name="Deck1" parent="Side/DeckStrip" instance=ExtResource("2")]
+layout_mode = 2
+
+[node name="Deck2" parent="Side/DeckStrip" instance=ExtResource("2")]
+layout_mode = 2
+
+[node name="Deck3" parent="Side/DeckStrip" instance=ExtResource("2")]
+layout_mode = 2
+
+[node name="Deck4" parent="Side/DeckStrip" instance=ExtResource("2")]
+layout_mode = 2
+
+[node name="Deck5" parent="Side/DeckStrip" instance=ExtResource("2")]
+layout_mode = 2
+
+[node name="DeckSummary" type="Label" parent="Side"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4471, 0.9176, 0.7843, 1)
+theme_override_font_sizes/font_size = 18
+
+[node name="EditDeck" parent="Side" instance=ExtResource("3")]
+layout_mode = 2
+text = "调整骰组"
+
+[node name="Start" parent="Side" instance=ExtResource("4")]
+layout_mode = 2
+text = "出发"
+
+[node name="Blocker" type="Label" parent="Side"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.5608, 0.5255, 1)
+theme_override_font_sizes/font_size = 16
+autowrap_mode = 2
+
+[node name="Spacer" type="Control" parent="Side"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="DeepDive" parent="Side" instance=ExtResource("3")]
+layout_mode = 2
+text = "进入下一层"
+
+[node name="Back" parent="Side" instance=ExtResource("3")]
+layout_mode = 2
+text = "返回城镇"

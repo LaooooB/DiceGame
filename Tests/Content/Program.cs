@@ -143,7 +143,7 @@ internal static class Program
         {var s=Sim("gamble","charge");var d=Die(s,"gamble",6,"A","C");d.BadRolls=23;var c=Die(s,"charge",1,"","",1);c.Charge=2;for(int i=0;i<Data.Game.Rules.MaxQueuedShots;i++)s.State.PendingShots.Add(new PendingShot());uint rng=s.Random.State;Check(!s.Fire(-1.5).Ok);Eq(s.Random.State,rng);Eq(d.BadRolls,23);Near(c.Charge,2);s.State.Board[0]=null;s.State.Board[1]=null;Die(s,"gamble",1,"","",0);Die(s,"gamble",1,"","",1);Check(!s.Merge(0,1).Ok);Eq(s.Random.State,rng);Eq(s.Count,2);});
         MainTest("snapshot dictionaries are deep-copied between pellets, echoes and exported saves", () =>
         {var s=Sim("echo");var d=Die(s,"echo",6,"A","C");ForceRoll(s,.1);s.QueueVolley(d,0,-1.5,1,false);var saved=s.ExportSave();saved.PendingShots[0].Snapshot.Stats.Traits["echoFactor"]=999;Check(s.State.PendingShots[0].Snapshot.Stats.Trait("echoFactor")!=999);s.State.PendingShots[0].Snapshot.Stats.Traits["rootFirst"]=99;Check(s.State.PendingShots[1].Snapshot.Stats.Trait("rootFirst")!=99);});
-        MainTest("stress: 24 six-pip proc dice / snapshots / DOT stay bounded", Stress);
+        MainTest("stress: 16 six-pip proc dice / snapshots / DOT stay bounded", Stress);
         Directory.CreateDirectory("Artifacts");File.WriteAllText("Artifacts/content-test-results.json",JsonSerializer.Serialize(new{passed=Passed,failed=Failed,tests=Results},new JsonSerializerOptions{WriteIndented=true}));
         Console.WriteLine($"\n{Passed} content tests passed, {Failed} failed.");return Failed==0?0:1;
     }
@@ -160,7 +160,7 @@ internal static class Program
     static void Stress()
     {
         var s=Sim("poison","echo","prism","time","mirror","gamble");
-        for(int i=0;i<24;i++)Die(s,s.State.Deck[i%6],6,i%2==0?"A":"B",i%3==0?"C":"D",i);
+        for(int i=0;i<16;i++)Die(s,s.State.Deck[i%6],6,i%2==0?"A":"B",i%3==0?"C":"D",i);
         for(int i=0;i<56;i++){var e=Enemy(s,60+i%7*48,165+i/7*30);e.W=e.H=22;e.Hp=e.MaxHp=1e12;}
         s.Grid.Rebuild(s.State.Enemies);var watch=Stopwatch.StartNew();int maxP=0,maxQ=0,maxPoison=0;
         for(int i=0;i<2400;i++)

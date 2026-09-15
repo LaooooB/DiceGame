@@ -15,20 +15,20 @@
     "launchY": 530
   },
   "board": {
-    "slots": 24,
-    "columns": 6,
+    "slots": 16,
+    "columns": 4,
     "left": 75,
     "top": 638,
     "stepX": 94,
-    "stepY": 93,
+    "stepY": 86,
     "size": 78
   },
   "rules": {
     "maxDeck": 6,
     "maxPips": 6,
-    "startEnergy": 60,
-    "summonCost": 8,
-    "passiveEnergy": 1.1,
+    "startEnergy": 16,
+    "summonCost": 10,
+    "passiveEnergy": 0.25,
     "maxHealth": 12,
     "mergeSurge": 0.65,
     "aimMaxDegrees": 66,
@@ -43,18 +43,15 @@
     "upgradeEvery": 3,
     "bossEvery": 5,
     "minDeck": 6,
-    "damageScale": 0.3333333333333333,
+    "damageScale": 0.5,
     "enableDiceSkills": true,
     "startingDicePattern": [
       0,
-      0,
       1,
-      0,
-      0,
-      1,
-      0,
-      0,
-      1
+      2,
+      3,
+      4,
+      5
     ],
     "starterDeck": [
       "pulse",
@@ -72,37 +69,37 @@
       "pips": 1,
       "volleyPower": 1.0,
       "reloadFactor": 1.0,
-      "recycle": 3
+      "recycle": 2
     },
     {
       "pips": 2,
       "volleyPower": 2.04,
       "reloadFactor": 1.12,
-      "recycle": 5
+      "recycle": 3
     },
     {
       "pips": 3,
       "volleyPower": 4.24,
       "reloadFactor": 1.26,
-      "recycle": 8
+      "recycle": 5
     },
     {
       "pips": 4,
       "volleyPower": 8.82,
       "reloadFactor": 1.43,
-      "recycle": 15
+      "recycle": 8
     },
     {
       "pips": 5,
       "volleyPower": 18.6,
       "reloadFactor": 1.61,
-      "recycle": 27
+      "recycle": 12
     },
     {
       "pips": 6,
       "volleyPower": 39.5,
       "reloadFactor": 1.82,
-      "recycle": 49
+      "recycle": 18
     }
   ],
   "waves": {
@@ -115,8 +112,8 @@
     "baseCount": 9,
     "countPerWave": 0.8,
     "maxCount": 25,
-    "clearEnergy": 12,
-    "killEnergy": 4,
+    "clearEnergy": 4,
+    "killEnergy": 1,
     "bossHpFactor": 7.8
   },
   "limits": {

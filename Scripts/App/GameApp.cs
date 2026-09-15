@@ -56,7 +56,7 @@ public sealed partial class GameApp
         try
         {
             string? raw=_storage.Read();if(string.IsNullOrEmpty(raw)) return;
-            var saved=SaveCodec.Decode(Data,raw);Deck=saved.Deck;Settings=saved.Settings;Meta=saved.Meta;Preferences=saved.Preferences;Campaign=saved.Campaign;_hadSave=true;_migratedBattle=saved.MigratedFromVersion>0;
+            var saved=SaveCodec.Decode(Data,raw);Deck=saved.Deck;Settings=saved.Settings;Meta=saved.Meta;Preferences=saved.Preferences;Campaign=saved.Campaign;_hadSave=true;_migratedBattle=saved.MigratedFromVersion is >0 and <3;
             if(saved.Run is not null && (!saved.Run.Over || Catalog is not null)) ResumeData=saved.Run;
         }
         catch(Exception e) {ResumeData=null;LoadProblem="存档无法读取："+e.Message;Notify("存档已保留。请在设置中检查备份或明确重置。");}
@@ -149,6 +149,11 @@ public sealed partial class GameApp
         if(Scene!="play") return;CancelPointer();Scene="paused";Save();
     }
     public void CancelPointer() => Pointer=null;
+    public void OpenDie(int slot)
+    {
+        if(Scene!="play" || Sim is null || slot<0 || slot>=Sim.State.Board.Length || Sim.State.Board[slot] is null) return;
+        SelectedSlot=slot; Scene="die"; Save(); Audio.Play("tap");
+    }
     public int SlotAt(double x,double y)
     {
         for(int i=0;i<Data.Game.Board.Slots;i++)
@@ -199,7 +204,7 @@ public sealed partial class GameApp
             }
         }
         else if(p.Mode=="diepress" && Scene=="play" && Sim?.State.Board[p.Slot] is not null)
-        {SelectedSlot=p.Slot;Scene="die";Save();Audio.Play("tap");}
+        { Audio.Play("tap"); }
         else if(p.Mode=="drag" && Scene=="play" && Sim is not null)
         {
             int target=SlotAt(x,y);
@@ -215,10 +220,23 @@ public sealed partial class GameApp
             }
         }
     }
+    public bool MergeSlots(int source,int target)
+    {
+        if(Scene!="play" || Sim is null) return false;
+        var result=Sim.Merge(source,target);
+        if(!result.Ok)
+        {
+            Audio.Play("error");
+            Notify(Sim.State.Board.ElementAtOrDefault(source)?.Pips==6?"六点骰子已达上限。":"只能合成同种类、同点数的骰子。");
+            return false;
+        }
+        ConsumeEvents(); Save(); return true;
+    }
+
     public void Summon(int preferred=-1)
     {
         if(Scene!="play" || Sim is null) return;var result=Sim.Summon();
-        if(!result.Ok) {Audio.Play("error");Notify(result.Reason=="full"?$"{Data.Game.Board.Slots} 格已满：合成配对，或单击骰子回收。":"能量不足，击破敌人或等待自然恢复。");}
+        if(!result.Ok) {Audio.Play("error");Notify(result.Reason=="full"?$"{Data.Game.Board.Slots} 格已满：先合成压缩阵地，或查看骰子后回收。":"能量不足。主要能量会在清波后结算。");}
         else
         {
             if(preferred>=0 && preferred!=result.Slot && Sim.State.Board[preferred] is null)

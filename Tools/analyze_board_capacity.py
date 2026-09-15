@@ -78,7 +78,7 @@ def main() -> None:
         "limitations": "Unlimited energy, no combat, no recycling. Not win rate or an all-run no-jam guarantee.",
         "no_pair_bucket_count_below_six": 6 * 5,
         "sufficient_slots_for_first_six_without_jam": 31,
-        "chosen_slots": 24,
+        "chosen_slots": 16,
         "legacy_opening": experiment(args.trials, args.seed, [0, 0, 1]),
         "new_opening": experiment(args.trials, args.seed, [0, 0, 1] * 3),
     }

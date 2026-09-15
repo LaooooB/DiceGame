@@ -1,0 +1,285 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/UI/BattleSlot.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/GameButton.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/PrimaryButton.tscn" id="3"]
+[ext_resource type="Script" path="res://Scripts/UI/BattleConduits.cs" id="4"]
+
+[sub_resource type="StyleBoxFlat" id="Hud"]
+bg_color = Color(0.0196, 0.0392, 0.0627, 0.965)
+border_width_bottom = 1
+border_color = Color(0.302, 0.2549, 0.1451, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_left = 4
+corner_radius_bottom_right = 4
+
+[sub_resource type="StyleBoxFlat" id="Field"]
+bg_color = Color(0.0118, 0.0235, 0.0353, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.1608, 0.2392, 0.302, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_left = 4
+corner_radius_bottom_right = 4
+shadow_color = Color(0,0,0,.5)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="Side"]
+bg_color = Color(0.0275, 0.0549, 0.0824, 0.985)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2392, 0.2039, 0.1255, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_left = 4
+corner_radius_bottom_right = 4
+
+[sub_resource type="StyleBoxFlat" id="HpBg"]
+bg_color = Color(0.12,0.07,0.07,1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_left = 2
+corner_radius_bottom_right = 2
+
+[sub_resource type="StyleBoxFlat" id="HpFill"]
+bg_color = Color(0.95,0.35,0.32,1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_left = 2
+corner_radius_bottom_right = 2
+
+[node name="BattlePage" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="Hud" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Hud")
+
+[node name="Bar" type="HBoxContainer" parent="Hud"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="Wave" type="Label" parent="Hud/Bar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "第 1 波"
+
+[node name="Energy" type="Label" parent="Hud/Bar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9725, 0.8706, 0.5294, 1)
+theme_override_font_sizes/font_size = 22
+text = "能量 16"
+
+[node name="Enemies" type="Label" parent="Hud/Bar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "敌人 0"
+
+[node name="HealthText" type="Label" parent="Hud/Bar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1,0.58,0.55,1)
+theme_override_font_sizes/font_size = 20
+text = "防线 12/12"
+
+[node name="Lead" type="Label" parent="Hud/Bar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4471, 0.9176, 0.7843, 1)
+theme_override_font_sizes/font_size = 18
+text = "主骰"
+
+[node name="Body" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="Left" type="VBoxContainer" parent="Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="FieldAspect" type="AspectRatioContainer" parent="Body/Left"]
+layout_mode = 2
+size_flags_vertical = 3
+ratio = 0.86036
+
+[node name="FieldFrame" type="PanelContainer" parent="Body/Left/FieldAspect"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Field")
+
+[node name="Field" type="TextureRect" parent="Body/Left/FieldAspect/FieldFrame"]
+layout_mode = 2
+mouse_filter = 0
+mouse_default_cursor_shape = 3
+expand_mode = 1
+stretch_mode = 0
+
+[node name="Intermission" type="Label" parent="Body/Left/FieldAspect/FieldFrame"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 28.0
+offset_bottom = 88.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.9725, 0.8706, 0.5294, 1)
+theme_override_font_sizes/font_size = 30
+horizontal_alignment = 1
+text = ""
+
+[node name="Hint" type="Label" parent="Body/Left"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6078,0.6863,0.7412,1)
+theme_override_font_sizes/font_size = 18
+text = "按住战场瞄准，松开发射"
+
+[node name="Right" type="PanelContainer" parent="Body"]
+custom_minimum_size = Vector2(690, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Side")
+
+[node name="Margin" type="MarginContainer" parent="Body/Right"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 16
+
+[node name="Content" type="VBoxContainer" parent="Body/Right/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="BoardHeader" type="HBoxContainer" parent="Body/Right/Margin/Content"]
+layout_mode = 2
+
+[node name="BoardTitle" type="Label" parent="Body/Right/Margin/Content/BoardHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 26
+text = "阵地 6/16"
+
+[node name="MergeState" type="Label" parent="Body/Right/Margin/Content/BoardHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4471,0.9176,0.7843,1)
+theme_override_font_sizes/font_size = 17
+horizontal_alignment = 2
+text = ""
+
+[node name="BoardGrid" type="GridContainer" parent="Body/Right/Margin/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+columns = 4
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+
+[node name="Slot0" parent="Body/Right/Margin/Content/BoardGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Slot1" parent="Body/Right/Margin/Content/BoardGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Slot2" parent="Body/Right/Margin/Content/BoardGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Slot3" parent="Body/Right/Margin/Content/BoardGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Slot4" parent="Body/Right/Margin/Content/BoardGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Slot5" parent="Body/Right/Margin/Content/BoardGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Slot6" parent="Body/Right/Margin/Content/BoardGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Slot7" parent="Body/Right/Margin/Content/BoardGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Slot8" parent="Body/Right/Margin/Content/BoardGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Slot9" parent="Body/Right/Margin/Content/BoardGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Slot10" parent="Body/Right/Margin/Content/BoardGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Slot11" parent="Body/Right/Margin/Content/BoardGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Slot12" parent="Body/Right/Margin/Content/BoardGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Slot13" parent="Body/Right/Margin/Content/BoardGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Slot14" parent="Body/Right/Margin/Content/BoardGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Slot15" parent="Body/Right/Margin/Content/BoardGrid" instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Summon" parent="Body/Right/Margin/Content" instance=ExtResource("3")]
+layout_mode = 2
+text = "召唤 · 10 能量"
+
+[node name="Actions" type="HBoxContainer" parent="Body/Right/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Adjudicate" parent="Body/Right/Margin/Content/Actions" instance=ExtResource("2")]
+visible = false
+layout_mode = 2
+text = "裁定"
+
+[node name="Pause" parent="Body/Right/Margin/Content/Actions" instance=ExtResource("2")]
+layout_mode = 2
+text = "暂停"
+
+[node name="ExpansionStatus" type="Label" parent="Body/Right/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6078,0.6863,0.7412,1)
+theme_override_font_sizes/font_size = 16
+autowrap_mode = 2
+
+[node name="Health" type="ProgressBar" parent="Body/Right/Margin/Content"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+theme_override_styles/background = SubResource("HpBg")
+theme_override_styles/fill = SubResource("HpFill")
+max_value = 12.0
+value = 12.0
+show_percentage = false
+
+[node name="DragArt" type="TextureRect" parent="."]
+visible = false
+z_index = 80
+offset_right = 138.0
+offset_bottom = 138.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Conduits" type="Control" parent="."]
+z_index = 70
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("4")

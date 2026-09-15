@@ -14,15 +14,16 @@ public sealed class SaveEnvelope
 }
 public static class SaveCodec
 {
-    public const int CurrentVersion=3;
+    public const int CurrentVersion=4;
     public const int MaxBytes=8_000_000;
     public static SaveEnvelope Decode(GameData data,string json)
     {
         if(System.Text.Encoding.UTF8.GetByteCount(json)>MaxBytes) throw new InvalidDataException("Save is too large.");
         var saved=JsonSerializer.Deserialize<SaveEnvelope>(json,GameData.JsonOptions) ?? throw new InvalidDataException("Empty save.");
-        if (saved.Version is < 1 or > 3 || saved.Settings is null || saved.Meta is null || saved.Deck is null)
+        if (saved.Version is < 1 or > 4 || saved.Settings is null || saved.Meta is null || saved.Deck is null)
             throw new InvalidDataException("Invalid save header.");
         if (data.Game.Rules.EnableDiceSkills && saved.Version < 3) MigrateBattle(data, saved);
+        if (saved.Version == 3) MigrateBoardLayout(data, saved);
         if (!data.ValidDeck(saved.Deck)) throw new InvalidDataException("The saved deck does not meet the current deck-size rule.");
         Check(saved.Meta.BestWave,0,1e18);Check(saved.Meta.BestScore,0,1e18);
         if(saved.Preferences is null) throw new InvalidDataException("Missing desktop preferences.");
@@ -65,6 +66,30 @@ public static class SaveCodec
             if(saved.Campaign is not null) saved.Campaign.UnlockedDice.UnionWith(run.Deck);
         }
         saved.Version=CurrentVersion;
+    }
+    private static void MigrateBoardLayout(GameData data, SaveEnvelope saved)
+    {
+        if (saved.Run is { } run)
+        {
+            Require(run.Board is not null, "Missing version-three board.");
+            if (run.Board.Length == 24)
+            {
+                ValidateRun(data, run, false, 24);
+                var occupied = run.Board.Select((die,index)=>(die,index)).Where(x=>x.die is not null).ToArray();
+                var keep = occupied.OrderByDescending(x=>x.die!.Pips).ThenBy(x=>x.index).Take(data.Game.Board.Slots).OrderBy(x=>x.index).ToArray();
+                var keepIds = keep.Select(x=>x.die!.Id).ToHashSet();
+                var removed = occupied.Where(x=>!keepIds.Contains(x.die!.Id)).Select(x=>x.die!).ToArray();
+                double refund = removed.Sum(d=>data.Game.Levels[Math.Clamp(d.Pips,1,data.Game.Rules.MaxPips)-1].Recycle);
+                run.Board = new DieState?[data.Game.Board.Slots];
+                for (int i=0;i<keep.Length;i++) run.Board[i]=keep[i].die;
+                run.PendingSkills.RemoveAll(q=>!keepIds.Contains(q.DieId));
+                run.Expansion.FateMinimumIds.RemoveAll(id=>!keepIds.Contains(id));
+                run.Energy = Math.Min(9_999_999, run.Energy + refund);
+            }
+            else Require(run.Board.Length == data.Game.Board.Slots, "Unsupported saved board layout.");
+        }
+        saved.MigratedFromVersion = 3;
+        saved.Version = CurrentVersion;
     }
     private static void ValidateSkills(GameData data,RunState s)
     {
@@ -114,10 +139,10 @@ public static class SaveCodec
         Check(q.WallRetention,0,.95);
         Require(q.Color is not null && q.Color.Length<=32);
     }
-    public static void ValidateRun(GameData data,RunState s,bool legacy=false)
+    public static void ValidateRun(GameData data,RunState s,bool legacy=false,int? boardSlots=null)
     {
         var c=data.Game;var r=c.Rules;
-        Require(s.Schema==(legacy?1:c.Schema) && (legacy?ValidLegacyDeck(data,s.Deck):data.ValidDeck(s.Deck)) && s.Board is not null && s.Board.Length==(legacy?8:c.Board.Slots));
+        Require(s.Schema==(legacy?1:c.Schema) && (legacy?ValidLegacyDeck(data,s.Deck):data.ValidDeck(s.Deck)) && s.Board is not null && s.Board.Length==(boardSlots ?? (legacy?8:c.Board.Slots)));
         Check(s.Time,0,1e9);Check(s.NextId,1,1e12);Check(s.Wave,1,1e7);Check(s.WaveTime,0,s.Expedition is null?60:1e9);
         Check(s.Health,0,r.MaxHealth);Check(s.Energy,0,1e7);Check(s.Score,0,1e18);Check(s.Kills,0,1e12);Check(s.Merges,0,1e12);
         Check(s.Shots,0,1e12);Check(s.Combo,0,1e6);Check(s.ComboTime,0,10);Check(s.BestCombo,0,1e9);

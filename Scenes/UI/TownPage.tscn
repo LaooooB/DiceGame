@@ -1,0 +1,401 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/UI/GameButton.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/PrimaryButton.tscn" id="2"]
+
+[sub_resource type="StyleBoxFlat" id="Frame"]
+bg_color = Color(0.0235, 0.0471, 0.0745, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.302, 0.2549, 0.1451, 0.95)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_left = 4
+corner_radius_bottom_right = 4
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="Side"]
+bg_color = Color(0.0314, 0.0627, 0.0902, 0.985)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2392, 0.2039, 0.1255, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_left = 4
+corner_radius_bottom_right = 4
+
+[node name="TownPage" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="Actions" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Start" parent="Actions" instance=ExtResource("2")]
+layout_mode = 2
+text = "开始游戏"
+
+[node name="Deck" parent="Actions" instance=ExtResource("1")]
+custom_minimum_size = Vector2(150, 58)
+layout_mode = 2
+size_flags_horizontal = 0
+text = "骰组"
+
+[node name="Settings" parent="Actions" instance=ExtResource("1")]
+custom_minimum_size = Vector2(150, 58)
+layout_mode = 2
+size_flags_horizontal = 0
+text = "设置"
+
+[node name="Help" parent="Actions" instance=ExtResource("1")]
+custom_minimum_size = Vector2(150, 58)
+layout_mode = 2
+size_flags_horizontal = 0
+text = "说明"
+
+[node name="Spacer" type="Control" parent="Actions"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Quit" parent="Actions" instance=ExtResource("1")]
+custom_minimum_size = Vector2(150, 58)
+layout_mode = 2
+size_flags_horizontal = 0
+text = "退出"
+
+[node name="Main" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="Left" type="VBoxContainer" parent="Main"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="BoardAspect" type="AspectRatioContainer" parent="Main/Left"]
+layout_mode = 2
+size_flags_vertical = 3
+ratio = 1.66667
+
+[node name="BoardFrame" type="PanelContainer" parent="Main/Left/BoardAspect"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Frame")
+
+[node name="TownBoard" type="Control" parent="Main/Left/BoardAspect/BoardFrame"]
+layout_mode = 2
+mouse_filter = 0
+
+[node name="Plot0" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot1" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot2" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot3" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot4" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot5" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot6" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot7" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot8" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot9" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot10" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot11" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot12" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot13" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot14" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot15" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot16" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot17" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot18" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot19" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot20" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot21" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot22" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot23" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot24" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot25" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot26" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot27" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot28" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot29" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot30" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Plot31" parent="Main/Left/BoardAspect/BoardFrame/TownBoard" instance=ExtResource("1")]
+offset_right = 88.0
+offset_bottom = 54.0
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="AimGuide" type="ColorRect" parent="Main/Left/BoardAspect/BoardFrame/TownBoard"]
+visible = false
+offset_right = 180.0
+offset_bottom = 3.0
+mouse_filter = 2
+color = Color(0.4471, 0.9176, 0.7843, 0.9)
+
+[node name="TownBall" type="TextureRect" parent="Main/Left/BoardAspect/BoardFrame/TownBoard"]
+offset_right = 42.0
+offset_bottom = 42.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Status" type="Label" parent="Main/Left"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4471, 0.9176, 0.7843, 1)
+theme_override_font_sizes/font_size = 19
+text = "城镇就绪"
+
+[node name="Dispatch" type="HBoxContainer" parent="Main/Left"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="DispatchSelected" parent="Main/Left/Dispatch" instance=ExtResource("1")]
+layout_mode = 2
+text = "派遣到选中地块 · 1 补给"
+
+[node name="DispatchAuto" parent="Main/Left/Dispatch" instance=ExtResource("1")]
+layout_mode = 2
+text = "自动派遣 · 1 补给"
+
+[node name="Inspector" type="PanelContainer" parent="Main"]
+custom_minimum_size = Vector2(520, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Side")
+
+[node name="Margin" type="MarginContainer" parent="Main/Inspector"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 20
+
+[node name="Content" type="VBoxContainer" parent="Main/Inspector/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SelectionTitle" type="Label" parent="Main/Inspector/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "选择地块"
+
+[node name="SelectionStatus" type="Label" parent="Main/Inspector/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4471, 0.9176, 0.7843, 1)
+theme_override_font_sizes/font_size = 19
+
+[node name="SelectionDescription" type="Label" parent="Main/Inspector/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6078, 0.6863, 0.7412, 1)
+theme_override_font_sizes/font_size = 17
+autowrap_mode = 2
+
+[node name="SelectionEffect" type="Label" parent="Main/Inspector/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+autowrap_mode = 2
+
+[node name="SelectionCost" type="Label" parent="Main/Inspector/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9725, 0.8706, 0.5294, 1)
+theme_override_font_sizes/font_size = 17
+autowrap_mode = 2
+
+[node name="BlueprintPicker" type="OptionButton" parent="Main/Inspector/Margin/Content"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+
+[node name="Build" parent="Main/Inspector/Margin/Content" instance=ExtResource("2")]
+layout_mode = 2
+text = "放置工地"
+
+[node name="Upgrade" parent="Main/Inspector/Margin/Content" instance=ExtResource("1")]
+visible = false
+layout_mode = 2
+text = "开始升级"
+
+[node name="Move" parent="Main/Inspector/Margin/Content" instance=ExtResource("1")]
+visible = false
+layout_mode = 2
+text = "搬迁"
+
+[node name="AutoDispatch" parent="Main/Inspector/Margin/Content" instance=ExtResource("1")]
+visible = false
+layout_mode = 2
+text = "自动派遣"
+
+[node name="Divider" type="HSeparator" parent="Main/Inspector/Margin/Content"]
+layout_mode = 2
+
+[node name="LastResult" type="Label" parent="Main/Inspector/Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.6078, 0.6863, 0.7412, 1)
+theme_override_font_sizes/font_size = 17
+autowrap_mode = 2
+

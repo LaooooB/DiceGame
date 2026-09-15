@@ -1,0 +1,320 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/UI/GameButton.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/PrimaryButton.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/SkillChoiceCard.tscn" id="3"]
+
+[sub_resource type="StyleBoxFlat" id="Panel"]
+bg_color = Color(0.0235,0.0471,0.0745,0.995)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.4471,0.9176,0.7843,0.9)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_left = 5
+corner_radius_bottom_right = 5
+shadow_color = Color(0,0,0,.65)
+shadow_size = 20
+
+[node name="OverlayLayer" type="Control"]
+visible = false
+z_index = 100
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="Dim" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.0039,0.0118,0.0196,0.72)
+
+[node name="Center" type="CenterContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="PausePanel" type="PanelContainer" parent="Center"]
+visible = false
+custom_minimum_size = Vector2(620, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+[node name="Margin" type="MarginContainer" parent="Center/PausePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 28
+[node name="Content" type="VBoxContainer" parent="Center/PausePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+[node name="Title" type="Label" parent="Center/PausePanel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+horizontal_alignment = 1
+text = "暂停"
+[node name="Continue" parent="Center/PausePanel/Margin/Content" instance=ExtResource("2")]
+layout_mode = 2
+text = "继续"
+[node name="Settings" parent="Center/PausePanel/Margin/Content" instance=ExtResource("1")]
+layout_mode = 2
+text = "设置"
+[node name="Town" parent="Center/PausePanel/Margin/Content" instance=ExtResource("1")]
+layout_mode = 2
+text = "返回城镇"
+[node name="Abandon" parent="Center/PausePanel/Margin/Content" instance=ExtResource("1")]
+layout_mode = 2
+text = "撤回远征"
+[node name="Help" parent="Center/PausePanel/Margin/Content" instance=ExtResource("1")]
+layout_mode = 2
+text = "说明"
+
+[node name="UpgradePanel" type="PanelContainer" parent="Center"]
+visible = false
+custom_minimum_size = Vector2(1220, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+[node name="Margin" type="MarginContainer" parent="Center/UpgradePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 28
+[node name="Content" type="VBoxContainer" parent="Center/UpgradePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+[node name="Title" type="Label" parent="Center/UpgradePanel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+horizontal_alignment = 1
+text = "强化"
+[node name="Choices" type="HBoxContainer" parent="Center/UpgradePanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 12
+[node name="Choice0" parent="Center/UpgradePanel/Margin/Content/Choices" instance=ExtResource("3")]
+layout_mode = 2
+[node name="Choice1" parent="Center/UpgradePanel/Margin/Content/Choices" instance=ExtResource("3")]
+layout_mode = 2
+[node name="Choice2" parent="Center/UpgradePanel/Margin/Content/Choices" instance=ExtResource("3")]
+layout_mode = 2
+[node name="Town" parent="Center/UpgradePanel/Margin/Content" instance=ExtResource("1")]
+layout_mode = 2
+text = "返回城镇"
+
+[node name="DiceSkillPanel" type="PanelContainer" parent="Center"]
+visible = false
+custom_minimum_size = Vector2(1120, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+[node name="Margin" type="MarginContainer" parent="Center/DiceSkillPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 28
+[node name="Content" type="VBoxContainer" parent="Center/DiceSkillPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+[node name="Title" type="Label" parent="Center/DiceSkillPanel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+horizontal_alignment = 1
+text = "骰子 · 3点"
+[node name="Tier" type="Label" parent="Center/DiceSkillPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9725,0.8706,0.5294,1)
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+text = "A / B"
+[node name="Art" type="TextureRect" parent="Center/DiceSkillPanel/Margin/Content"]
+custom_minimum_size = Vector2(180,180)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+[node name="Choices" type="HBoxContainer" parent="Center/DiceSkillPanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 14
+[node name="Choice0" parent="Center/DiceSkillPanel/Margin/Content/Choices" instance=ExtResource("3")]
+layout_mode = 2
+[node name="Choice1" parent="Center/DiceSkillPanel/Margin/Content/Choices" instance=ExtResource("3")]
+layout_mode = 2
+
+[node name="DiePanel" type="PanelContainer" parent="Center"]
+visible = false
+custom_minimum_size = Vector2(720, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+[node name="Margin" type="MarginContainer" parent="Center/DiePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 28
+[node name="Content" type="VBoxContainer" parent="Center/DiePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+[node name="Title" type="Label" parent="Center/DiePanel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+horizontal_alignment = 1
+[node name="Rarity" type="Label" parent="Center/DiePanel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+[node name="Art" type="TextureRect" parent="Center/DiePanel/Margin/Content"]
+custom_minimum_size = Vector2(210,210)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+[node name="Stats" type="Label" parent="Center/DiePanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4471,0.9176,0.7843,1)
+theme_override_font_sizes/font_size = 21
+horizontal_alignment = 1
+[node name="Skill" type="Label" parent="Center/DiePanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9725,0.8706,0.5294,1)
+theme_override_font_sizes/font_size = 18
+autowrap_mode = 2
+[node name="Status" type="Label" parent="Center/DiePanel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+autowrap_mode = 2
+[node name="Back" parent="Center/DiePanel/Margin/Content" instance=ExtResource("2")]
+layout_mode = 2
+text = "返回战斗"
+[node name="Recycle" parent="Center/DiePanel/Margin/Content" instance=ExtResource("1")]
+layout_mode = 2
+text = "回收"
+
+[node name="CatalogPanel" type="PanelContainer" parent="Center"]
+visible = false
+custom_minimum_size = Vector2(900, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+[node name="Margin" type="MarginContainer" parent="Center/CatalogPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 26
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 26
+[node name="Content" type="VBoxContainer" parent="Center/CatalogPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+[node name="Title" type="Label" parent="Center/CatalogPanel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+[node name="Meta" type="Label" parent="Center/CatalogPanel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+[node name="Description" type="Label" parent="Center/CatalogPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6078,0.6863,0.7412,1)
+theme_override_font_sizes/font_size = 18
+autowrap_mode = 2
+[node name="A" type="Label" parent="Center/CatalogPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4471,0.9176,0.7843,1)
+theme_override_font_sizes/font_size = 18
+autowrap_mode = 2
+[node name="B" type="Label" parent="Center/CatalogPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9725,0.8706,0.5294,1)
+theme_override_font_sizes/font_size = 18
+autowrap_mode = 2
+[node name="C" type="Label" parent="Center/CatalogPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4471,0.9176,0.7843,1)
+theme_override_font_sizes/font_size = 18
+autowrap_mode = 2
+[node name="D" type="Label" parent="Center/CatalogPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9725,0.8706,0.5294,1)
+theme_override_font_sizes/font_size = 18
+autowrap_mode = 2
+[node name="Close" parent="Center/CatalogPanel/Margin/Content" instance=ExtResource("1")]
+layout_mode = 2
+text = "关闭"
+
+[node name="ConfirmPanel" type="PanelContainer" parent="Center"]
+visible = false
+custom_minimum_size = Vector2(680, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+[node name="Margin" type="MarginContainer" parent="Center/ConfirmPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 28
+[node name="Content" type="VBoxContainer" parent="Center/ConfirmPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+[node name="Title" type="Label" parent="Center/ConfirmPanel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 34
+text = "确认"
+[node name="Text" type="Label" parent="Center/ConfirmPanel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+autowrap_mode = 2
+[node name="Actions" type="HBoxContainer" parent="Center/ConfirmPanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 10
+[node name="Cancel" parent="Center/ConfirmPanel/Margin/Content/Actions" instance=ExtResource("1")]
+layout_mode = 2
+text = "取消"
+[node name="Confirm" parent="Center/ConfirmPanel/Margin/Content/Actions" instance=ExtResource("2")]
+layout_mode = 2
+text = "确认"
+
+[node name="LoadErrorPanel" type="PanelContainer" parent="Center"]
+visible = false
+custom_minimum_size = Vector2(760, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+[node name="Margin" type="MarginContainer" parent="Center/LoadErrorPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 28
+[node name="Content" type="VBoxContainer" parent="Center/LoadErrorPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+[node name="Title" type="Label" parent="Center/LoadErrorPanel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 34
+text = "存档保护"
+[node name="Text" type="Label" parent="Center/LoadErrorPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1,0.5608,0.5255,1)
+theme_override_font_sizes/font_size = 19
+autowrap_mode = 2
+[node name="OpenFolder" parent="Center/LoadErrorPanel/Margin/Content" instance=ExtResource("1")]
+layout_mode = 2
+text = "打开存档目录"
+[node name="Backup" parent="Center/LoadErrorPanel/Margin/Content" instance=ExtResource("1")]
+layout_mode = 2
+text = "导出备份"
+[node name="Reset" parent="Center/LoadErrorPanel/Margin/Content" instance=ExtResource("1")]
+layout_mode = 2
+text = "备份并重置"
+[node name="Quit" parent="Center/LoadErrorPanel/Margin/Content" instance=ExtResource("1")]
+layout_mode = 2
+text = "退出"

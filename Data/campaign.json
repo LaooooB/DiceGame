@@ -644,7 +644,7 @@
     {
       "id": "supply_depot",
       "name": "补给仓库",
-      "description": "新远征获得额外起始能量。不会改变已经开始的战斗。",
+      "description": "新远征获得少量额外起始能量。不会改变已经开始的战斗。",
       "levels": [
         {
           "cost": {
@@ -655,7 +655,7 @@
           "work": 3,
           "reward": {
             "bonuses": {
-              "startEnergy": 12
+              "startEnergy": 6
             }
           }
         },
@@ -668,7 +668,7 @@
           "work": 4,
           "reward": {
             "bonuses": {
-              "startEnergy": 12
+              "startEnergy": 6
             }
           }
         }
@@ -842,7 +842,7 @@
     {
       "id": "energy_well",
       "name": "能量井",
-      "description": "提升新远征的自然能量恢复。",
+      "description": "小幅提升新远征的自然能量恢复。",
       "levels": [
         {
           "cost": {
@@ -853,7 +853,7 @@
           "work": 4,
           "reward": {
             "bonuses": {
-              "passiveEnergy": 0.15
+              "passiveEnergy": 0.08
             }
           }
         }

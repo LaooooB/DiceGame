@@ -20,7 +20,6 @@ public partial class GameRoot : Node
     private readonly List<PaintLayer> _layers = [];
     private bool _ready, _capture, _allowCaptureInput, _exitPrompt;
     private DesktopPreferences? _videoRollback, _videoPending;
-    private ConfirmationDialog? _videoDialog;
     private double _videoSeconds;
     private NativeRenderer _renderer = null!;
 
@@ -30,25 +29,25 @@ public partial class GameRoot : Node
         { AddChild(new ReferenceRoot { Name = "ReferenceCaptureOnly" }); return; }
         try
         {
-            _window = GetWindow(); _window.MinSize = new Vector2I(960, 640); GetTree().AutoAcceptQuit = false;
+            _window = GetWindow(); _window.MinSize = new Vector2I(1280, 720); GetTree().AutoAcceptQuit = false;
             var data = new GameData(Read("game"), Read("dice"), Read("upgrades"), Read("dice_skills"));
             var catalog = new CampaignCatalog(data, Read("campaign"));
             Art = new NativeArt(); Audio = new NativeAudio { Name = "NativeAudio" }; AddChild(Audio);
             Storage = new DesktopStorage(data); _capture = OS.GetCmdlineUserArgs().Any(a => a is "--capture-campaign" or "--capture-content");
             App = new GameApp(data, _capture ? new PreviewStorage() : Storage, Audio, catalog) { NativeUi = true };
             _renderer = new NativeRenderer(App);
-            Battlefield = new SubViewport { Name = "Battlefield", Size = new Vector2I(764, 888), Disable3D = true,
+            Battlefield = new SubViewport { Name = "Battlefield", Size = new Vector2I(1528, 1776), Disable3D = true,
                 TransparentBg = true, RenderTargetUpdateMode = SubViewport.UpdateMode.Always, RenderTargetClearMode = SubViewport.ClearMode.Always };
             AddChild(Battlefield);
-            var logical = new Node2D { Name = "OriginalBattleCoordinates", Scale = Vector2.One * 2, Position = new Vector2(-50, -264) };
-            var combatClip = new Control { Name = "OriginalCombatClip", Size = new Vector2(764,810), ClipContents = true, MouseFilter = Control.MouseFilterEnum.Ignore };
+            var logical = new Node2D { Name = "OriginalBattleCoordinates", Scale = Vector2.One * 4, Position = new Vector2(-100, -528) };
+            var combatClip = new Control { Name = "OriginalCombatClip", Size = new Vector2(1528,1620), ClipContents = true, MouseFilter = Control.MouseFilterEnum.Ignore };
             Battlefield.AddChild(combatClip); combatClip.AddChild(logical);
             Layer(logical, "WallsEnemiesAim", _renderer.FieldBelow);
             Layer(logical, "AdditiveProjectiles", _renderer.Projectiles).Material = new CanvasItemMaterial { BlendMode = CanvasItemMaterial.BlendModeEnum.Add };
             Layer(logical, "CombatEffects", _renderer.FieldAbove);
-            var launcherCoordinates = new Node2D { Name = "LauncherCoordinates", Scale = Vector2.One * 2, Position = new Vector2(-50,-264) };
+            var launcherCoordinates = new Node2D { Name = "LauncherCoordinates", Scale = Vector2.One * 4, Position = new Vector2(-100,-528) };
             Battlefield.AddChild(launcherCoordinates); Layer(launcherCoordinates,"Launcher",_renderer.BattleLauncher);
-            _ui = new CampaignUi { Name = "NativeDesktopUI" }; AddChild(_ui); _ui.Initialize(this);
+            _ui = GetNode<CampaignUi>("CampaignUI"); _ui.Initialize(this);
             ApplyPreferences(App.Preferences);
             _window.CloseRequested += Quit; _window.FocusExited += LoseFocus; _window.MouseExited += CancelInput;
             GetViewport().SizeChanged += CancelInput; _ready = true;
@@ -58,8 +57,9 @@ public partial class GameRoot : Node
         catch (Exception ex)
         {
             GD.PushError("Startup failed: " + ex);
-            var panel = new Label { Text = "工程启动失败\n\n" + ex.Message + "\n\n请查看 Godot 输出面板。原存档不会被重置。", Position = new Vector2(40, 40), Size = new Vector2(1200, 600), AutowrapMode = TextServer.AutowrapMode.WordSmart };
-            AddChild(panel); if (_capture) GetTree().Quit(1);
+            var panel = GetNodeOrNull<Control>("StartupError");
+            if (panel is not null) { panel.Visible = true; panel.GetNode<Label>("Margin/Text").Text = "工程启动失败\n\n" + ex.Message + "\n\n请查看 Godot 输出面板。原存档不会被重置。"; }
+            if (_capture) GetTree().Quit(1);
         }
     }
     private static string Read(string name) => Godot.FileAccess.GetFileAsString($"res://Data/{name}.json");
@@ -73,7 +73,7 @@ public partial class GameRoot : Node
         if (_videoRollback is not null)
         {
             _videoSeconds -= Math.Max(0, delta);
-            if (_videoDialog is not null) _videoDialog.DialogText = $"保留新的显示设置？\n{Math.Max(0, (int)Math.Ceiling(_videoSeconds))} 秒后自动恢复。";
+            _ui.UpdateConfirmationText($"保留新的显示设置？\n{Math.Max(0, (int)Math.Ceiling(_videoSeconds))} 秒后自动恢复。");
             if (_videoSeconds <= 0) FinishVideo(false);
         }
     }
@@ -115,9 +115,7 @@ public partial class GameRoot : Node
             { if (App.SetPreferences(preferences)) { ApplyPreferences(preferences); App.Notify("设置已保存。"); _ui.Invalidate(); } return; }
             _videoRollback = CampaignCatalog.Copy(old); _videoPending = CampaignCatalog.Copy(preferences); _videoSeconds = 15;
             ApplyPreferences(preferences);
-            _videoDialog = new ConfirmationDialog { Title = "确认显示设置", OkButtonText = "保留", CancelButtonText = "恢复", DialogText = "保留新的显示设置？" };
-            AddChild(_videoDialog); _videoDialog.Confirmed += () => FinishVideo(true); _videoDialog.Canceled += () => FinishVideo(false);
-            _videoDialog.PopupCentered(new Vector2I(540, 220));
+            _ui.ShowConfirmation("确认显示设置", "保留新的显示设置？\n15 秒后自动恢复。", () => FinishVideo(true), () => FinishVideo(false), "保留", "恢复");
         }
         catch (Exception ex) { if (_videoRollback is not null) FinishVideo(false); App.Notify("设置未应用：" + ex.Message, 4); }
     }
@@ -125,7 +123,7 @@ public partial class GameRoot : Node
     {
         if (_videoRollback is null) return;
         var rollback = _videoRollback; var pending = _videoPending!; _videoRollback = null; _videoPending = null;
-        if (_videoDialog is not null) { _videoDialog.Hide(); _videoDialog.QueueFree(); _videoDialog = null; }
+        _ui.DismissConfirmation();
         bool saved = keep && App.SetPreferences(pending); ApplyPreferences(saved ? pending : rollback); _ui.Invalidate();
         App.Notify(saved ? "显示设置已保存。" : "已恢复原显示设置。");
     }
@@ -141,10 +139,10 @@ public partial class GameRoot : Node
         {
             _window.Mode = Window.ModeEnum.Windowed;
             var usable = DisplayServer.ScreenGetUsableRect(_window.CurrentScreen);
-            _window.Size = new Vector2I(Math.Min(p.Width, Math.Max(960, usable.Size.X)), Math.Min(p.Height, Math.Max(640, usable.Size.Y)));
+            _window.Size = new Vector2I(Math.Min(p.Width, Math.Max(1280, usable.Size.X)), Math.Min(p.Height, Math.Max(720, usable.Size.Y)));
             _window.Position = usable.Position + (usable.Size - _window.Size) / 2;
         }
-        _ui.Theme = UiKit.Theme(Art, p.UiScale); UiKit.ScaleTypography(_ui,p.UiScale);
+        _ui.ApplyUiScale(p.UiScale);
     }
     private void CancelInput() { if (_ready) { App.CancelPointer(); _ui.CancelTownAim(); } }
     private void LoseFocus()
@@ -162,8 +160,8 @@ public partial class GameRoot : Node
             if(App.StorageFailed && App.LoadProblem=="")
             {
                 _exitPrompt=true; App.OnFocusLost();
-                var dialog = new ConfirmationDialog {Title="无法保存",DialogText="存档写入失败。现在退出会丢失最近尚未成功保存的进度。仍要退出？",OkButtonText="仍然退出",CancelButtonText="留在游戏"};
-                AddChild(dialog); dialog.Confirmed+=()=>GetTree().Quit(); dialog.Canceled+=()=>{_exitPrompt=false;dialog.QueueFree();};dialog.PopupCentered(new Vector2I(650,250));return;
+                _ui.ShowConfirmation("无法保存", "存档写入失败。现在退出会丢失最近尚未成功保存的进度。仍要退出？", () => GetTree().Quit(), () => _exitPrompt=false, "仍然退出", "留在游戏");
+                return;
             }
         }
         GetTree().Quit();
@@ -210,10 +208,10 @@ public partial class GameRoot : Node
             var simulation=App.Sim!;
             for(int i=0;i<App.Data.Game.Board.Slots;i++)
             {
-                int pip=1+i/6;var die=simulation.MakeDie(App.Data.DefaultDeck[i%6],pip);
+                int pip=1+i%6;var die=simulation.MakeDie(App.Data.DefaultDeck[i%6],pip);
                 if(pip>=3)die.Tier3=i%2==0?"A":"B";simulation.State.Board[i]=die;
             }
-            simulation.Fire(-1.68);for(int i=0;i<50;i++)simulation.Step(1d/120);App.ConsumeEvents();await Capture("battle_24_slots");
+            simulation.Fire(-1.68);for(int i=0;i<50;i++)simulation.Step(1d/120);App.ConsumeEvents();await Capture("battle_16_slots");
             async Task CapturePair(int pips,string name)
             {
                 simulation=App.Sim!;simulation.State.PendingShots.Clear();simulation.State.Projectiles.Clear();

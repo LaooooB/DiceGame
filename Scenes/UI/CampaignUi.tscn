@@ -1,0 +1,132 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/CampaignUi.cs" id="1"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/TownPage.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/ExpeditionPage.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/DeckPage.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/BattlePage.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/SettlementPage.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/SettingsPage.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/HelpPage.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/OverlayLayer.tscn" id="9"]
+
+[node name="CampaignUI" type="Control"]
+z_index = 50
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.0196,0.0392,0.0627,1)
+
+[node name="Ambient" type="TextureRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+modulate = Color(1,1,1,0.1)
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Margin" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 18
+
+[node name="Layout" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="HBoxContainer" parent="Margin/Layout"]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="Margin/Layout/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9725,0.8706,0.5294,1)
+theme_override_font_sizes/font_size = 30
+text = "骰子回响"
+
+[node name="Page" type="Label" parent="Margin/Layout/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6078,0.6863,0.7412,1)
+theme_override_font_sizes/font_size = 20
+text = "城镇"
+
+[node name="Spacer" type="Control" parent="Margin/Layout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Wallet" type="Label" parent="Margin/Layout/Header"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 2
+
+[node name="Fps" type="Label" parent="Margin/Layout/Header"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4471,0.9176,0.7843,1)
+theme_override_font_sizes/font_size = 16
+text = "60 FPS"
+
+[node name="Pages" type="Control" parent="Margin/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+clip_contents = true
+
+[node name="Town" parent="Margin/Layout/Pages" instance=ExtResource("2")]
+layout_mode = 1
+
+[node name="Expedition" parent="Margin/Layout/Pages" instance=ExtResource("3")]
+visible = false
+layout_mode = 1
+
+[node name="Deck" parent="Margin/Layout/Pages" instance=ExtResource("4")]
+visible = false
+layout_mode = 1
+
+[node name="Battle" parent="Margin/Layout/Pages" instance=ExtResource("5")]
+visible = false
+layout_mode = 1
+
+[node name="Settlement" parent="Margin/Layout/Pages" instance=ExtResource("6")]
+visible = false
+layout_mode = 1
+
+[node name="Settings" parent="Margin/Layout/Pages" instance=ExtResource("7")]
+visible = false
+layout_mode = 1
+
+[node name="Help" parent="Margin/Layout/Pages" instance=ExtResource("8")]
+visible = false
+layout_mode = 1
+
+[node name="Toast" type="Label" parent="Margin/Layout"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9725,0.8706,0.5294,1)
+theme_override_font_sizes/font_size = 17
+autowrap_mode = 2
+
+[node name="Overlay" parent="." instance=ExtResource("9")]
+layout_mode = 1

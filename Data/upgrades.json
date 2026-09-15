@@ -37,12 +37,12 @@
   },
   {
     "id": "income",
-    "name": "能量回流",
-    "tag": "经济 · 召唤",
-    "description": "每次击破敌人额外获得 1 能量。",
+    "name": "战后回流",
+    "tag": "经济 · 清波",
+    "description": "每次清空一波额外获得 2 能量。",
     "color": "#F8DE87",
     "icon": "energy",
-    "max": 4
+    "max": 3
   },
   {
     "id": "repair",

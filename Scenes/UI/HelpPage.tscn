@@ -1,0 +1,73 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/UI/GameButton.tscn" id="1"]
+
+[node name="HelpPage" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="Scroll" type="ScrollContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Content" type="VBoxContainer" parent="Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 14
+
+[node name="Title1" type="Label" parent="Scroll/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "战斗"
+
+[node name="Battle" type="Label" parent="Scroll/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75,0.82,0.87,1)
+theme_override_font_sizes/font_size = 20
+autowrap_mode = 2
+text = "按住战场瞄准，松开发射。清波后会留出整理时间；此时召唤、合成和调整阵地最安全。"
+
+[node name="Title2" type="Label" parent="Scroll/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "合成"
+
+[node name="Merge" type="Label" parent="Scroll/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75,0.82,0.87,1)
+theme_override_font_sizes/font_size = 20
+autowrap_mode = 2
+text = "同种类、同点数才能合成。单击一颗骰子会标出可合成目标，再单击目标即可合成；也可以直接拖动。双击或右键查看详情。三级选择 A/B；六级重新选择 A/B，再选择 C/D。"
+
+[node name="Title3" type="Label" parent="Scroll/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "阵地经济"
+
+[node name="Economy" type="Label" parent="Scroll/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75,0.82,0.87,1)
+theme_override_font_sizes/font_size = 20
+autowrap_mode = 2
+text = "阵地越满，继续召唤越贵。合成会压缩阵地并降低下一次召唤费用。主要能量在清波时结算，击破只提供少量补充。"
+
+[node name="Title4" type="Label" parent="Scroll/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "远征与城镇"
+
+[node name="Campaign" type="Label" parent="Scroll/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75,0.82,0.87,1)
+theme_override_font_sizes/font_size = 20
+autowrap_mode = 2
+text = "每场远征进入一个区域。通关、失败或撤回都会带回已确认的资源；城镇建筑提供永久成长、骰子和机制解锁。"
+
+[node name="Back" parent="." instance=ExtResource("1")]
+layout_mode = 2
+text = "返回"

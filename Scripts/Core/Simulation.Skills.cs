@@ -53,7 +53,8 @@ public sealed partial class Simulation
     /// <summary>Called only after the random result is committed. Choices never reroll RNG or the result identity.</summary>
     private void ResolveMergeSkills(DieState die, DieState target, int slot)
     {
-        double surge = 1 + R.MergeSurge + .35 * UpgradeLevel("surge");
+        double pipScale = die.Pips switch { 2 => 1.0, 3 => 1.25, 4 => 1.5, 5 => 1.8, 6 => 2.2, _ => 1.0 };
+        double surge = 1 + R.MergeSurge * pipScale + .35 * UpgradeLevel("surge");
         if (R.EnableDiceSkills && die.Pips is 3 or 6)
         {
             QueueSkillChoice(die, 3, die.Pips == 3, surge);

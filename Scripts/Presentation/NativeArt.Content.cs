@@ -16,7 +16,7 @@ public sealed partial class NativeArt
     {
         if (!ContentArt.TryGetValue(id, out var d)) return null;
         string path = d.GlyphPath == "" ? "M12 2L22 12L12 22L2 12Z" : d.GlyphPath;
-        string svg = $"<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path d='{Xml(path)}' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>";
+        string svg = $"<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 24 24'><path d='{Xml(path)}' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>";
         return Gradient("dice-icon:" + id, svg);
     }
     /// <summary>Native ImageTexture cache; no web view, font bundle or missing-atlas fallback.</summary>
@@ -24,7 +24,7 @@ public sealed partial class NativeArt
     {
         if (!ContentArt.TryGetValue(id, out var d)) return null;
         pips = Math.Clamp(pips, 1, 6);
-        var svg = new StringBuilder($"<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128' viewBox='0 0 128 128'><defs><linearGradient id='face' x2='0.8' y2='1'><stop stop-color='{Xml(d.Color)}'/><stop offset='1' stop-color='{Xml(d.Shade)}'/></linearGradient></defs><rect x='12' y='16' width='104' height='104' rx='22' fill='#08111E' opacity='.65'/><rect x='12' y='8' width='104' height='104' rx='22' fill='url(#face)' stroke='{DiceContent.RarityColor(d.Rarity)}' stroke-width='3'/><rect x='19' y='15' width='90' height='90' rx='16' fill='none' stroke='white' stroke-opacity='.25'/>");
+        var svg = new StringBuilder($"<svg xmlns='http://www.w3.org/2000/svg' width='256' height='256' viewBox='0 0 128 128'><defs><linearGradient id='face' x2='0.8' y2='1'><stop stop-color='{Xml(d.Color)}'/><stop offset='1' stop-color='{Xml(d.Shade)}'/></linearGradient></defs><rect x='12' y='16' width='104' height='104' rx='22' fill='#08111E' opacity='.65'/><rect x='12' y='8' width='104' height='104' rx='22' fill='url(#face)' stroke='{DiceContent.RarityColor(d.Rarity)}' stroke-width='3'/><rect x='19' y='15' width='90' height='90' rx='16' fill='none' stroke='white' stroke-opacity='.25'/>");
         string path = d.GlyphPath == "" ? "M12 2L22 12L12 22L2 12Z" : d.GlyphPath;
         svg.Append($"<g transform='translate(39 23) scale(2.1)'><path d='{Xml(path)}' fill='none' stroke='#0A1A27' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></g>");
         for (int i = 0; i < pips; i++)

@@ -1,6 +1,32 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://Scripts/App/GameRoot.cs" id="1_main"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/CampaignUi.tscn" id="2_ui"]
 
 [node name="DiceRicochet" type="Node"]
 script = ExtResource("1_main")
+
+[node name="CampaignUI" parent="." instance=ExtResource("2_ui")]
+
+[node name="StartupError" type="PanelContainer" parent="."]
+visible = false
+z_index = 500
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="StartupError"]
+layout_mode = 2
+theme_override_constants/margin_left = 60
+theme_override_constants/margin_top = 60
+theme_override_constants/margin_right = 60
+theme_override_constants/margin_bottom = 60
+
+[node name="Text" type="Label" parent="StartupError/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.5608, 0.5255, 1)
+theme_override_font_sizes/font_size = 24
+autowrap_mode = 2
+text = "工程启动失败"
