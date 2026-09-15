@@ -1,0 +1,50 @@
+name: Expansion toolchain
+on:
+  push:
+    branches: [dice-expansion-20]
+    paths: [.github/workflows/expansion-toolchain.yml]
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Package compiler and reference assemblies
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT=$(dirname "$(readlink -f "$(command -v dotnet)")")
+          SDK=$(dotnet --version)
+          RUNTIME=$(dotnet --list-runtimes | awk '$1 == "Microsoft.NETCore.App" && $2 ~ /^8\./ {print $2}' | sort -V | tail -1)
+          REF=$(ls "$ROOT/packs/Microsoft.NETCore.App.Ref" | grep '^8\.' | sort -V | tail -1)
+          tar -C "$ROOT" -czf /tmp/dice-net8-toolchain.tar.gz dotnet host "shared/Microsoft.NETCore.App/$RUNTIME" "sdk/$SDK" "packs/Microsoft.NETCore.App.Ref/$REF"
+          sha256sum /tmp/dice-net8-toolchain.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dice-net8-toolchain
+          path: /tmp/dice-net8-toolchain.tar.gz
+          compression-level: 0
+          retention-days: 1
+      - name: Cache pinned Godot SDK packages
+        run: dotnet restore DiceGame.csproj
+      - name: Package engine SDK dependencies
+        run: tar -C "$HOME/.nuget" -czf /tmp/dice-godot-sdk.tar.gz packages
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dice-godot-sdk
+          path: /tmp/dice-godot-sdk.tar.gz
+          compression-level: 0
+          retention-days: 1
+      - name: Download pinned Mono editor
+        run: curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6-stable/Godot_v4.6-stable_mono_linux_x86_64.zip' -o /tmp/dice-godot-editor.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dice-godot-editor
+          path: /tmp/dice-godot-editor.zip
+          compression-level: 0
+          retention-days: 1
