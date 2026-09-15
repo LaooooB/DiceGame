@@ -15,7 +15,7 @@ corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_left = 5
 corner_radius_bottom_right = 5
-shadow_color = Color(0,0,0,.65)
+shadow_color = Color(0,0,0,0.65)
 shadow_size = 20
 
 [node name="OverlayLayer" type="Control"]
