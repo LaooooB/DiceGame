@@ -1,9 +1,10 @@
 {
-  "passed": 14,
+  "passed": 23,
   "failed": 0,
   "checks": [
     "town button opens region selector",
     "region button opens deck",
+    "five-die deck disables native launch",
     "native launch button enters battle",
     "native field press enters aim",
     "holding does not fire",
@@ -13,6 +14,14 @@
     "native drag enters merge gesture",
     "native merge updates actual simulation",
     "native empty-slot click summons there",
+    "fourth-row slot 24 receives native summon click",
+    "all 24 slots fit inside the actual viewport",
+    "native merge to three opens actual result\u0027s A/B choices",
+    "native skill modal freezes battle time",
+    "native A button commits only the target die and resumes",
+    "native sixth-pip result asks A/B again",
+    "native sixth-pip first choice stays paused for C/D",
+    "native sixth-pip final choice resumes with B\u002BD and merge volley",
     "escape pauses",
     "native pause button resumes",
     "native settlement button returns to town"

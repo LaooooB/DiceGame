@@ -17,11 +17,11 @@ internal static class Program
         Test("catalog: eight finite regions and reachable unlock graph",()=>
         { Eq(Catalog.Regions.Count,8); foreach(var r in Catalog.Regions.Values){Eq(r.Phases.Length,3);Eq(r.TotalWaves,36);Check(r.IsBossWave(12)&&r.IsBossWave(24)&&r.IsBossWave(36));Check(!r.IsBossWave(11));} });
         Test("fresh profile: town, initial dice, one open region",()=>
-        { var a=App();Eq(a.Scene,"town");Eq(a.Deck.Count,2);Check(a.Campaign!.UnlockedDice.SetEquals(a.Deck));Eq(Catalog.Regions.Keys.Count(id=>Progress.IsRegionOpen(a.Campaign,id)),1); });
+        { var a=App();Eq(a.Scene,"town");Eq(a.Deck.Count,6);Check(a.Campaign!.UnlockedDice.SetEquals(a.Deck));Eq(Catalog.Regions.Keys.Count(id=>Progress.IsRegionOpen(a.Campaign,id)),1); });
         Test("gates: locked dice and locked regions reject launch without spending",()=>
         { var s=Progress.NewState();long n=s.NextRunSerial;Throws(()=>Progress.PrepareRun(s,"region_02",["pulse"],1));Throws(()=>Progress.PrepareRun(s,"region_01",["arc"],1));Eq(s.NextRunSerial,n);Eq(s.ActiveRunId,""); });
-        Test("launch: one immutable main die and eight slots",()=>
-        { var a=App();Check(a.StartExpedition(7));Eq(a.Sim!.State.Board.Length,8);Eq(a.Sim.State.Expedition!.LeadDice,a.Deck[0]);Check(a.Sim.State.Deck.All(a.Campaign!.UnlockedDice.Contains)); });
+        Test("launch: one immutable main die and configured slots",()=>
+        { var a=App();Check(a.StartExpedition(7));Eq(a.Sim!.State.Board.Length,24);Eq(a.Sim.State.Expedition!.LeadDice,a.Deck[0]);Check(a.Sim.State.Deck.All(a.Campaign!.UnlockedDice.Contains)); });
         Test("launch save failure: no run published and no attempt consumed",()=>
         { var store=new MemoryStorage{FailWrites=true};var a=App(store);Check(!a.StartExpedition());Check(a.Sim is null);Eq(a.Campaign!.ActiveRunId,"");Eq(a.Campaign.NextRunSerial,1L);Eq(a.Campaign.Record("region_01").Attempts,0L); });
         Test("one active expedition: second launch is rejected",()=>
@@ -87,9 +87,9 @@ internal static class Program
         Test("new cycle uses configured gate and preserves permanent unlocks",()=>
         {var s=Progress.NewState();Throws(()=>Progress.StartNextCycle(s));s.UnlockedMechanics.Add("next_cycle");s.RegionRecords[s.RecordKey("region_08")]=new RegionRecord{Clears=2,ClearedWith=["pulse","blast"]};s.UnlockedDice.Add("arc");long coins=s.Balance("coins");Check(Progress.CanStartNextCycle(s));Progress.StartNextCycle(s);Eq(s.Cycle,1);Eq(s.Gears,0);Eq(s.Balance("coins"),coins);Check(s.UnlockedDice.Contains("arc"));Check(!Progress.IsRegionOpen(s,"region_02"));});
         Test("legacy save migration: retain previously usable six-dice deck",()=>
-        {var store=new MemoryStorage{Value=SaveCodec.Encode(new SaveEnvelope{Version=1,Deck=Data.Dice.Select(x=>x.Id).ToList()})};var a=App(store);Eq(a.Deck.Count,6);Eq(a.Campaign!.UnlockedDice.Count,6);a.Save();Eq(SaveCodec.Decode(Data,store.Value!).Version,2);});
+        {var store=new MemoryStorage{Value=SaveCodec.Encode(new SaveEnvelope{Version=1,Deck=Data.Dice.Select(x=>x.Id).ToList()})};var a=App(store);Eq(a.Deck.Count,6);Eq(a.Campaign!.UnlockedDice.Count,6);a.Save();Eq(SaveCodec.Decode(Data,store.Value!).Version,3);});
         Test("legacy active run migration: not replaced or restarted",()=>
-        {var old=new Simulation(Data,Data.Dice.Select(x=>x.Id),710);old.Fire(-1.6);for(int i=0;i<30;i++)old.Step(1.0/120);var before=old.ExportSave();var store=new MemoryStorage{Value=SaveCodec.Encode(new SaveEnvelope{Version=1,Deck=before.Deck,Run=before})};var a=App(store);Check(a.ResumeData!.Expedition is {LegacyRules:true,Endless:true});Eq(a.ResumeData.Wave,before.Wave);Eq(a.ResumeData.Rng,before.Rng);Eq(Encode(a.ResumeData.Board),Encode(before.Board));a.Resume();for(int i=0;i<80;i++){old.Step(1.0/120);a.Sim!.Step(1.0/120);}var migrated=a.Sim!.ExportSave();migrated.Expedition=null;Eq(Encode(migrated),Encode(old.ExportSave()));});
+        {var old=new Simulation(GameData.FromDirectory(Path.Combine(AppContext.BaseDirectory,"LegacyBalanceData")),Data.Dice.Select(x=>x.Id),710);old.Fire(-1.6);for(int i=0;i<30;i++)old.Step(1.0/120);var before=old.ExportSave();var store=new MemoryStorage{Value=SaveCodec.Encode(new SaveEnvelope{Version=1,Deck=before.Deck,Run=before})};var a=App(store);Check(a.ResumeData!.Expedition is {LegacyRules:true,Endless:true});Eq(a.ResumeData.Wave,before.Wave);Eq(a.ResumeData.Rng,before.Rng);Eq(Encode(a.ResumeData.Board.Take(8)),Encode(before.Board));Eq(a.ResumeData.Board.Length,24);a.Resume();Check(a.Sim!.State.Expedition is {LegacyRules:true});Check(a.Sim.State.Time==before.Time);});
         Test("invalid save: no silent overwrite",()=>
         {var store=new MemoryStorage{Value="{damaged"};var a=App(store);Check(a.LoadProblem!="");Check(!a.StartExpedition());a.Save();Eq(store.Value,"{damaged");Eq(store.Writes,0);});
         Test("mismatched active session is rejected on load",()=>

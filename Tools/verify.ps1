@@ -22,12 +22,13 @@ function Invoke-Checked([string]$Name, [string]$Exe, [string[]]$Arguments) {
     if ($code -ne 0) { throw "$Name failed (exit $code). See $log" }
 }
 
-Push-Location $out
+Push-Location $root
 try {
     $dotnet = (Get-Command dotnet -ErrorAction Stop).Source
     Invoke-Checked 'dotnet-sdk' $dotnet @('--info')
     Invoke-Checked 'core-tests' $dotnet @('run','--project',(Join-Path $root 'Tests/DiceGame.Tests.csproj'),'--configuration','Release')
     Invoke-Checked 'campaign-tests' $dotnet @('run','--project',(Join-Path $root 'Tests/Campaign/Campaign.Tests.csproj'),'--configuration','Release')
+    Invoke-Checked 'skills-tests' $dotnet @('run','--project',(Join-Path $root 'Tests/Skills/Skills.Tests.csproj'),'--configuration','Release')
     Invoke-Checked 'native-build' $dotnet @('build',(Join-Path $root 'DiceGame.csproj'),'--configuration','Debug')
     if (-not $Godot) {
         foreach ($name in @('godot','godot4')) {
@@ -52,7 +53,7 @@ try {
         Invoke-Checked 'campaign-native-input-and-capture' $Godot @('--path',$root,'--log-file',(Join-Path $out 'campaign-capture-engine.log'),'--','--capture-campaign')
         $inputChecks = Get-Content (Join-Path $out 'CampaignScreenshots/input-checks.json') -Raw | ConvertFrom-Json
         $campaignCapture = Get-Content (Join-Path $out 'CampaignScreenshots/capture_result.json') -Raw | ConvertFrom-Json
-        if ($inputChecks.failed -ne 0 -or $inputChecks.passed -lt 14 -or -not $campaignCapture.completed) { throw 'Campaign native interaction/capture checks failed.' }
+        if ($inputChecks.failed -ne 0 -or $inputChecks.passed -lt 23 -or -not $campaignCapture.completed) { throw 'Campaign native interaction/capture checks failed.' }
         $native = Join-Path $out 'Native'
         New-Item -ItemType Directory -Force -Path $native | Out-Null
         $captureResult = Join-Path $native 'capture_result.json'

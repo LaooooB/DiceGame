@@ -25,6 +25,7 @@ public partial class CampaignUi : Control
     private readonly List<Control> _slots = [];
     private readonly List<TextureRect> _slotArt = [];
     private readonly List<Label> _slotNames = [];
+    private readonly List<Label> _slotBranches = [];
     private readonly List<ProgressBar> _reloads = [];
     private readonly List<string> _slotKeys = [];
     private Control? _townBoard;
@@ -74,6 +75,7 @@ public partial class CampaignUi : Control
         text.AddRange(reward.Mechanics.Select(id => "机制：" + Catalog.Mechanics[id].Name));
         text.AddRange(reward.Blueprints.Select(id => "蓝图：" + Catalog.Buildings[id].Name));
         var b = reward.Bonuses;
+        foreach(var (type,amount) in b.DiceDamagePercent) text.Add($"{App.Data.Types[type].Name}伤害 +{amount:P0}");
         if (b.DamagePercent > 0) text.Add($"永久伤害 +{b.DamagePercent:P0}");
         if (b.ReloadPercent > 0) text.Add($"装填缩短 +{b.ReloadPercent:P0}");
         if (b.StartEnergy > 0) text.Add($"初始能量 +{b.StartEnergy:0.#}");
@@ -85,7 +87,7 @@ public partial class CampaignUi : Control
         App.CancelPointer(); CancelTownAim(); _dirty = false; _builtScene = App.Scene; _live.Clear();
         if(_dragArt is not null) { RemoveChild(_dragArt); _dragArt.QueueFree(); }
         if(_conduits is not null) {RemoveChild(_conduits);_conduits.QueueFree();_conduits=null;}
-        _field = null; _dragArt = null; _slots.Clear(); _slotArt.Clear(); _slotNames.Clear(); _reloads.Clear(); _slotKeys.Clear();
+        _field = null; _dragArt = null; _slots.Clear(); _slotArt.Clear(); _slotNames.Clear(); _slotBranches.Clear(); _reloads.Clear(); _slotKeys.Clear();
         _townBoard = null; _townBall = null; _townTiles.Clear(); _townStatus = null; _townAimGuide = null;
         Clear(_content); _bindingAction = ""; _bindingLabel = null;
         _title.Text = "骰子回响";
@@ -99,6 +101,7 @@ public partial class CampaignUi : Control
             case "play": BuildBattle(); break;
             case "paused": BuildPause(); break;
             case "upgrade": BuildUpgrade(); break;
+            case "diceSkill": BuildDiceSkill(); break;
             case "die": BuildDie(); break;
             case "settlement": BuildSettlement(); break;
             case "settings": BuildSettings(); break;
@@ -256,7 +259,7 @@ public partial class CampaignUi : Control
     private void BuildDeck()
     {
         _title.Text = "配置骰子 · " + Catalog.Regions[State.SelectedRegion].Name;
-        Label(_content, "首位是本次主骰，决定通关记录归属。主骰之外的骰子不限制战斗使用；卡组的召唤和合成规则保持不变。", 20, Muted);
+        Label(_content, "必须携带 6 种不同骰子。首位是主骰，决定通关记录归属；召唤和合成从六种骰子中等概率随机。", 20, Muted);
         var grid = Add(Scroll(_content), new GridContainer { Columns = 3, SizeFlagsHorizontal = SizeFlags.ExpandFill });
         foreach (var die in App.Data.Dice)
         {
@@ -274,8 +277,8 @@ public partial class CampaignUi : Control
         string lead = App.EditingDeck.Count == 0 ? "未选择" : App.Data.Types[App.EditingDeck[0]].Name;
         Label(_content, $"已携带 {App.EditingDeck.Count}/6 · 主骰 {lead}" + (App.EditingDeck.Count > 0 ? $" · 每种骰子出现概率 {100.0 / App.EditingDeck.Count:0.#}%" : ""), 22, Mint);
         var bottom = Row(_content); Button(bottom, "返回区域", () => Act("deckBack"));
-        Button(bottom, "保存卡组", () => Act("deckSave"), App.EditingDeck.Count == 0);
-        Button(bottom, "开始远征", () => Do(() => { if (App.SaveDeck()) App.StartExpedition(); }), App.EditingDeck.Count == 0 || State.ActiveRunId != "" || State.Flight is not null);
+        Button(bottom, "保存卡组", () => Act("deckSave"), !App.Data.ValidDeck(App.EditingDeck));
+        Button(bottom, "开始远征", () => Do(() => { if (App.SaveDeck()) App.StartExpedition(); }), !App.Data.ValidDeck(App.EditingDeck) || State.ActiveRunId != "" || State.Flight is not null);
     }
     private static string Outcome(string outcome) => outcome switch { "victory" => "区域通关", "defeat" => "远征失败", "abandoned" => "主动撤回", _ => outcome };
     private void BuildSettlement()
@@ -324,8 +327,11 @@ public partial class CampaignUi : Control
         if (App.Sim is null || App.SelectedSlot < 0 || App.Sim.State.Board[App.SelectedSlot] is not { } die) { App.Scene = "play"; Invalidate(); return; }
         var definition = App.Data.Types[die.Type]; var stats = App.Sim.Stats(die); var box = Card(_content, definition.Name + $" · {die.Pips} 点", definition.Description);
         Dice(box, _root.Art, die.Type, die.Pips, 180);
-        Label(box, $"齐射伤害 {Palette.Compact(stats.Volley)} · 装填 {stats.Reload:0.00} 秒 · 每轮 {die.Pips} 颗弹丸", 25, Mint);
+        Label(box, $"齐射伤害 {Palette.Compact(stats.Volley)} · 装填 {stats.Reload:0.00} 秒 · 每轮 {stats.Count} 颗弹丸", 25, Mint);
         Label(box, die.Pips < 6 ? "同种同点才能合成。合成会减少当前攻击席位，并生成卡组内随机种类的更高点数骰子。" : "已到六点上限。保留火力，或回收腾出空位。", 21);
+        Label(box, App.Sim.SkillDescription(die), 21, Gold);
+        if (die.Pips is 3 or 4) Label(box, "下一次合成会继承落点骰子的 A/B 分支编号，但技能按随机结果种类切换。", 19, Muted);
+        if (die.Pips == 5) Label(box, "合成六级后：按最终种类重新选择 A/B，再选择 C/D。", 21, Mint);
         Button(box, "返回战斗", () => Act("closeDie"));
         Button(box, "回收此骰子 · +" + App.Data.Game.Levels[die.Pips - 1].Recycle + " 能量", () => Act("recycle:" + App.SelectedSlot));
     }
@@ -336,8 +342,10 @@ public partial class CampaignUi : Control
         Label(box, "从区域中带回金币、建材、蓝图与补给。蓝图需要放置工地，再用城镇弹射推进施工。建成后立即获得骰子、机制或永久加成；下一次远征应用这些变化。", 23);
         Label(box, "每场远征只进入一个区域，经过普通波、小头目和最终头目。头目逃出防线算失败，不能靠拖时间跳过。胜利、失败与撤回均回城结算；失败不清空已经获得的物资。", 23);
         Label(box, "骰子战斗", 27, Mint);
-        Label(box, "长按战场瞄准，松手发射；移出战场再松手取消。一次卡组最多六种骰子，棋盘最多八个席位。拖动可移动骰子；只有同种、同点骰子才能合成。合成产生的类型从本局卡组随机选取，点数上升一级。", 23);
+        Label(box, "长按战场瞄准，松手发射；移出战场再松手取消。卡组必须携带六种不同骰子，棋盘有 24 个席位。拖动可移动骰子；只有同种、同点骰子才能合成。合成产生的类型从本局卡组随机选取，点数上升一级。", 23);
         Label(box, "点击骰子查看数值或回收。合成会减少当前火力席位，所以高点数并不总比保留更多攻击频率更合适。", 23);
+        Label(box, "三级与六级分支", 27, Mint);
+        Label(box, "先随机确定合成结果，再选择这颗新骰子的技能。三级从 A/B 中选一项；四、五级沿用落点骰子的分支编号，技能按新类型切换；六级清除继承分支，重新选 A/B，再选 C/D。选择只影响该颗骰子，敌人和弹丸在选择期间完全暂停。", 23);
         Label(box, "主骰、齿轮与深潜", 27, Mint);
         Label(box, "卡组首位是主骰，仅决定这次通关记录归属。每个区域、每层深潜、每种主骰首次通关各给一份齿轮。同一主骰反复通关仍有普通奖励，但不重复给齿轮。区域界面显示下一片区域缺少什么。", 23);
         Label(box, "解锁无尽后，区域胜利可以先确认正常奖励，再保留当前搭配继续挑战。无尽段只结算新增收获，不重复领取此前奖励。深潜会保留永久成长，并开启下一层独立区域记录。", 23);
@@ -366,6 +374,15 @@ public partial class CampaignUi : Control
     public void AssertLayout()
     {
         if (_content.Size.X <= 0 || _content.Size.Y <= 0) throw new InvalidOperationException("Native content area is empty.");
-        if (App.Scene == "play" && (_field is null || _slots.Count != 8 || _field.Size.X < 200 || _field.Size.Y < 200)) throw new InvalidOperationException("Battle layout has no usable field / eight slots.");
+        if (App.Scene == "play")
+        {
+            if (_field is null || _slots.Count != App.Data.Game.Board.Slots || _field.Size.X < 200 || _field.Size.Y < 200)
+                throw new InvalidOperationException("Battle layout has no usable field / configured slots.");
+            var bounds=GetViewportRect().Grow(1);
+            var shell=GetChildren().OfType<MarginContainer>().Single();
+            if(!bounds.Encloses(shell.GetGlobalRect())) throw new InvalidOperationException("Battle shell exceeds viewport at the current font scale: "+shell.GetGlobalRect()+" vs "+bounds+" content="+_content.GetGlobalRect());
+            foreach(var slot in _slots)
+                if(!bounds.Encloses(slot.GetGlobalRect())) throw new InvalidOperationException("A dice slot lies outside the visible viewport: "+slot.Name);
+        }
     }
 }

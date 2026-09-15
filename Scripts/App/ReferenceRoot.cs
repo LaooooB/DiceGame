@@ -25,7 +25,7 @@ public partial class ReferenceRoot : Node
         try
         {
             _window=GetWindow();_window.MinSize=new Vector2I(960,640);
-            var data=new GameData(Godot.FileAccess.GetFileAsString("res://Data/game.json"),Godot.FileAccess.GetFileAsString("res://Data/dice.json"),Godot.FileAccess.GetFileAsString("res://Data/upgrades.json"));
+            var data=new GameData(Godot.FileAccess.GetFileAsString("res://Tests/LegacyBalanceData/game.json"),Godot.FileAccess.GetFileAsString("res://Tests/LegacyBalanceData/dice.json"),Godot.FileAccess.GetFileAsString("res://Tests/LegacyBalanceData/upgrades.json"));
             _art=new NativeArt();_rounded=GD.Load<Shader>("res://Shaders/RoundedTexture.gdshader");
             _audio=new NativeAudio {Name="SynthesizedAudio"};AddChild(_audio);
             var args=OS.GetCmdlineUserArgs();_captureMode=args.Contains("--capture-reference");

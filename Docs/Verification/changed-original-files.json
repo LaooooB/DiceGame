@@ -1,0 +1,182 @@
+[
+  {
+    "path": ".github/workflows/verify.yml",
+    "status": "modified"
+  },
+  {
+    "path": "Artifacts/static-check.json",
+    "status": "modified"
+  },
+  {
+    "path": "Data/campaign.json",
+    "status": "modified"
+  },
+  {
+    "path": "Data/game.json",
+    "status": "modified"
+  },
+  {
+    "path": "Docs/ARCHITECTURE.md",
+    "status": "modified"
+  },
+  {
+    "path": "Docs/CAMPAIGN.md",
+    "status": "modified"
+  },
+  {
+    "path": "Docs/MIGRATION.md",
+    "status": "modified"
+  },
+  {
+    "path": "Docs/SOURCE_MANIFEST.json",
+    "status": "moved_or_removed"
+  },
+  {
+    "path": "Docs/Verification/Screenshots/battle.png",
+    "status": "moved_or_removed"
+  },
+  {
+    "path": "Docs/Verification/Screenshots/deck.png",
+    "status": "moved_or_removed"
+  },
+  {
+    "path": "Docs/Verification/Screenshots/pause.png",
+    "status": "moved_or_removed"
+  },
+  {
+    "path": "Docs/Verification/Screenshots/regions.png",
+    "status": "moved_or_removed"
+  },
+  {
+    "path": "Docs/Verification/Screenshots/settings.png",
+    "status": "moved_or_removed"
+  },
+  {
+    "path": "Docs/Verification/Screenshots/settlement.png",
+    "status": "moved_or_removed"
+  },
+  {
+    "path": "Docs/Verification/Screenshots/town.png",
+    "status": "moved_or_removed"
+  },
+  {
+    "path": "Docs/Verification/Screenshots/upgrade.png",
+    "status": "moved_or_removed"
+  },
+  {
+    "path": "Docs/Verification/campaign-tests.json",
+    "status": "modified"
+  },
+  {
+    "path": "Docs/Verification/capture_result.json",
+    "status": "moved_or_removed"
+  },
+  {
+    "path": "Docs/Verification/input-checks.json",
+    "status": "moved_or_removed"
+  },
+  {
+    "path": "Docs/Verification/native-capture.json",
+    "status": "modified"
+  },
+  {
+    "path": "Docs/Verification/native-input-checks.json",
+    "status": "modified"
+  },
+  {
+    "path": "Docs/Verification/native-run.txt",
+    "status": "moved_or_removed"
+  },
+  {
+    "path": "Docs/Verification/original-assets-integrity.json",
+    "status": "moved_or_removed"
+  },
+  {
+    "path": "Docs/Verification/package-checks.json",
+    "status": "modified"
+  },
+  {
+    "path": "README.md",
+    "status": "modified"
+  },
+  {
+    "path": "Scenes/UI/DiceSlot.tscn",
+    "status": "modified"
+  },
+  {
+    "path": "Scripts/App/GameApp.Campaign.cs",
+    "status": "modified"
+  },
+  {
+    "path": "Scripts/App/GameApp.cs",
+    "status": "modified"
+  },
+  {
+    "path": "Scripts/App/GameRoot.InputChecks.cs",
+    "status": "modified"
+  },
+  {
+    "path": "Scripts/App/GameRoot.cs",
+    "status": "modified"
+  },
+  {
+    "path": "Scripts/App/ReferenceRoot.cs",
+    "status": "modified"
+  },
+  {
+    "path": "Scripts/Core/CampaignCatalog.cs",
+    "status": "modified"
+  },
+  {
+    "path": "Scripts/Core/CampaignModels.cs",
+    "status": "modified"
+  },
+  {
+    "path": "Scripts/Core/GameData.cs",
+    "status": "modified"
+  },
+  {
+    "path": "Scripts/Core/Model.cs",
+    "status": "modified"
+  },
+  {
+    "path": "Scripts/Core/SaveCodec.cs",
+    "status": "modified"
+  },
+  {
+    "path": "Scripts/Core/Simulation.cs",
+    "status": "modified"
+  },
+  {
+    "path": "Scripts/UI/CampaignUi.Battle.cs",
+    "status": "modified"
+  },
+  {
+    "path": "Scripts/UI/CampaignUi.cs",
+    "status": "modified"
+  },
+  {
+    "path": "Tests/Campaign/Campaign.Tests.csproj",
+    "status": "modified"
+  },
+  {
+    "path": "Tests/Campaign/Program.cs",
+    "status": "modified"
+  },
+  {
+    "path": "Tests/DiceGame.Tests.csproj",
+    "status": "modified"
+  },
+  {
+    "path": "Tests/Program.cs",
+    "status": "modified"
+  },
+  {
+    "path": "Tools/static_check.py",
+    "status": "modified"
+  },
+  {
+    "path": "Tools/verify.ps1",
+    "status": "modified"
+  }
+]

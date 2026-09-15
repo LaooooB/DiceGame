@@ -1,7 +1,7 @@
 {
   "kind": "package_integrity_only",
   "not_a_compiler_or_runtime_test": true,
-  "passed": 49,
+  "passed": 58,
   "failed": 0,
   "checks": [
     {
@@ -16,6 +16,11 @@
     },
     {
       "name": "JSON Data/upgrades.json",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "JSON Data/dice_skills.json",
       "status": "passed",
       "detail": ""
     },
@@ -46,6 +51,46 @@
     },
     {
       "name": "1080p default viewport",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "24-slot 6-column board",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Exactly six distinct deck entries required",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Direct damage budget is one third",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Opening/firepower economy compensation",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Every die has A/B and C/D",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Skill regression project and capacity analysis present",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Frozen original balance copied for honest reference tests",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Fresh campaign has enough unlocked dice to launch",
       "status": "passed",
       "detail": ""
     },

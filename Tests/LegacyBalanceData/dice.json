@@ -1,0 +1,83 @@
+[
+  {
+    "id": "pulse",
+    "name": "速射",
+    "tag": "密集火力",
+    "color": "#72EAC8",
+    "shade": "#228B7A",
+    "baseDamage": 13,
+    "reload": 0.66,
+    "effect": "pulse",
+    "description": "装填最快。发射稳定的高速弹丸，用数量覆盖敌阵。",
+    "icon": "pulse"
+  },
+  {
+    "id": "blast",
+    "name": "爆破",
+    "tag": "范围爆炸",
+    "color": "#FFAD76",
+    "shade": "#AD4F38",
+    "baseDamage": 11,
+    "reload": 0.86,
+    "effect": "blast",
+    "description": "命中时引爆周围方块。爆炸不会重复触发弹丸特效。",
+    "icon": "blast",
+    "radius": 48,
+    "splashFactor": 0.65
+  },
+  {
+    "id": "arc",
+    "name": "雷电",
+    "tag": "连锁电击",
+    "color": "#CBA7FF",
+    "shade": "#7250B2",
+    "baseDamage": 10,
+    "reload": 0.88,
+    "effect": "arc",
+    "description": "电弧跳向附近敌人。点数越高，可连锁的目标越多。",
+    "icon": "arc",
+    "chainRange": 87,
+    "chainFactor": 0.62
+  },
+  {
+    "id": "frost",
+    "name": "冰霜",
+    "tag": "减速控场",
+    "color": "#87D6FF",
+    "shade": "#377EA9",
+    "baseDamage": 12,
+    "reload": 0.82,
+    "effect": "frost",
+    "description": "伤害并减缓目标推进。减速有下限，不会无限冻结首领。",
+    "icon": "frost",
+    "slowFactor": 0.48,
+    "slowSeconds": 1.8
+  },
+  {
+    "id": "split",
+    "name": "分裂",
+    "tag": "散射增殖",
+    "color": "#F8DE87",
+    "shade": "#AA8337",
+    "baseDamage": 10,
+    "reload": 0.9,
+    "effect": "split",
+    "description": "首次命中分裂出子弹。子弹可以弹射，但不会再次分裂。",
+    "icon": "split",
+    "childFactor": 0.36
+  },
+  {
+    "id": "bank",
+    "name": "回弹",
+    "tag": "撞墙增伤",
+    "color": "#FF97B8",
+    "shade": "#AC4870",
+    "baseDamage": 13,
+    "reload": 0.76,
+    "effect": "bank",
+    "description": "每次撞墙强化下一次命中，命中后重置。适合侧向弹射。",
+    "icon": "bank",
+    "wallBoost": 0.3,
+    "maxBoost": 2.8
+  }
+]

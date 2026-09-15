@@ -3,7 +3,11 @@
   "contentNote": "区域名称、敌群参数、解锁奖励与建筑成长均为可替换的贯通测试内容，不代表最终内容设计。流程与内容目录分离。",
   "initialDice": [
     "pulse",
-    "blast"
+    "blast",
+    "arc",
+    "frost",
+    "split",
+    "bank"
   ],
   "initialMechanics": [],
   "initialBlueprints": [
@@ -673,7 +677,7 @@
     {
       "id": "arc_workshop",
       "name": "雷电工坊",
-      "description": "建成解锁雷电骰子：用连锁攻击处理分散敌人。",
+      "description": "完成施工后，雷电骰子的伤害永久提高 10%。基础骰子已可直接使用。",
       "levels": [
         {
           "cost": {
@@ -683,9 +687,12 @@
           },
           "work": 3,
           "reward": {
-            "dice": [
-              "arc"
-            ]
+            "dice": [],
+            "bonuses": {
+              "diceDamagePercent": {
+                "arc": 0.1
+              }
+            }
           }
         }
       ]
@@ -693,7 +700,7 @@
     {
       "id": "frost_workshop",
       "name": "冰霜工坊",
-      "description": "建成解锁冰霜骰子：降低敌人的推进速度。",
+      "description": "完成施工后，冰霜骰子的伤害永久提高 10%。基础骰子已可直接使用。",
       "levels": [
         {
           "cost": {
@@ -703,9 +710,12 @@
           },
           "work": 3,
           "reward": {
-            "dice": [
-              "frost"
-            ]
+            "dice": [],
+            "bonuses": {
+              "diceDamagePercent": {
+                "frost": 0.1
+              }
+            }
           }
         }
       ]
@@ -713,7 +723,7 @@
     {
       "id": "split_workshop",
       "name": "分裂工坊",
-      "description": "建成解锁分裂骰子：命中后产生更多弹丸。",
+      "description": "完成施工后，分裂骰子的伤害永久提高 10%。基础骰子已可直接使用。",
       "levels": [
         {
           "cost": {
@@ -723,9 +733,12 @@
           },
           "work": 4,
           "reward": {
-            "dice": [
-              "split"
-            ]
+            "dice": [],
+            "bonuses": {
+              "diceDamagePercent": {
+                "split": 0.1
+              }
+            }
           }
         }
       ]
@@ -733,7 +746,7 @@
     {
       "id": "bank_workshop",
       "name": "折射工坊",
-      "description": "建成解锁回弹骰子：为撞墙反弹路线提供新的价值。",
+      "description": "完成施工后，回弹骰子的伤害永久提高 10%。基础骰子已可直接使用。",
       "levels": [
         {
           "cost": {
@@ -743,9 +756,12 @@
           },
           "work": 4,
           "reward": {
-            "dice": [
-              "bank"
-            ]
+            "dice": [],
+            "bonuses": {
+              "diceDamagePercent": {
+                "bank": 0.1
+              }
+            }
           }
         }
       ]

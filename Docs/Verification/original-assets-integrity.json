@@ -1,235 +1,257 @@
 {
-  "passed": 46,
-  "failed": 0,
-  "checks": [
+  "input_zip_sha256": "0fa904662223bf08452dbd970c326d82e5ace38c3ae809b3d91c43d93a3dbdde",
+  "verified_unchanged": 63,
+  "files": [
     {
       "path": "Assets/Reference/background.png",
-      "unchanged": true,
       "sha256": "39e965a50a3bd2a97d216e89323a930709d4617f8f292c98e40abd853c337591"
     },
     {
+      "path": "Assets/Reference/background.png.import",
+      "sha256": "5a3f47c794cdcf3cd091b057d5f9112d91efca35c1db417bc046809354f5d8ba"
+    },
+    {
       "path": "Assets/Reference/dice_125.png",
-      "unchanged": true,
       "sha256": "bcfc567c9438510292495a386b23f66e54e96a9511d2e32f6ad7b77c7d8a344f"
     },
     {
+      "path": "Assets/Reference/dice_125.png.import",
+      "sha256": "c8199aa727c61079b461c2edf342deae6700fa37861ee81b6e60f9f0deda1a40"
+    },
+    {
       "path": "Assets/Reference/dice_22.png",
-      "unchanged": true,
       "sha256": "8ab49a7c58a7b6c179af9547eac96000882bc1fb171e62b51787812f4a344e99"
     },
     {
+      "path": "Assets/Reference/dice_22.png.import",
+      "sha256": "36a36498e4d3e7e1429154c39a7c01059772e4c07f85ab34fb883d8e0a66c230"
+    },
+    {
       "path": "Assets/Reference/dice_41.png",
-      "unchanged": true,
       "sha256": "ddb1a641a44b86ed3310939dd8e4fee016155a52cf0538ce53be0ac071753428"
     },
     {
+      "path": "Assets/Reference/dice_41.png.import",
+      "sha256": "96e711cf4a897c5e035662371f1fe3fca65e5a7719df4b142f95d755af95f978"
+    },
+    {
       "path": "Assets/Reference/dice_46.png",
-      "unchanged": true,
       "sha256": "97f462095792847f01dffa6e15de881663259ab0c11ec8a46bc666c9641c5e00"
     },
     {
+      "path": "Assets/Reference/dice_46.png.import",
+      "sha256": "2df1bf7599eba40e55e555a6537c0bb348daf690782459b79ce3428a048f5784"
+    },
+    {
       "path": "Assets/Reference/dice_49.png",
-      "unchanged": true,
       "sha256": "37e965817f97b798063b255da4a27f1105faa53a1e35498f11b089d27ebba2c4"
     },
     {
+      "path": "Assets/Reference/dice_49.png.import",
+      "sha256": "47e396b7a1af03548f85cb213be9200f5dc4230365f9165bbfdbe434b710826a"
+    },
+    {
       "path": "Assets/Reference/dice_53.png",
-      "unchanged": true,
       "sha256": "4eed712873f90e2a48cb127a31573078213458ac66cbc1a5eb1599a9ccb1b027"
     },
     {
+      "path": "Assets/Reference/dice_53.png.import",
+      "sha256": "0fe8e86c7041861b834fd3a356881d20a01bdccd5d6335b54183e0ac8bfaa195"
+    },
+    {
       "path": "Assets/Reference/dice_60.png",
-      "unchanged": true,
       "sha256": "734a686946cd9a3d55d45b29ca7864115612b68084c83773509c30ca612d0c1a"
     },
     {
+      "path": "Assets/Reference/dice_60.png.import",
+      "sha256": "945e60dcfbbf3b91863007ff0d4c766a839225eab734c3355e25b30d814c559a"
+    },
+    {
       "path": "Assets/Reference/dice_64.png",
-      "unchanged": true,
       "sha256": "63e5d94971b8874e1551369abb1e00860222cfa42d237c2194e0c501355ffe31"
     },
     {
+      "path": "Assets/Reference/dice_64.png.import",
+      "sha256": "1649b6677e86c6062b93a6fc5f500fe45292a148e4b245a16db3415fe4cd0614"
+    },
+    {
       "path": "Assets/Reference/dice_92.png",
-      "unchanged": true,
       "sha256": "e0626abb163ccb73c0a8471dc5c66d63d2c5f69470cf9d1762ea998dfdc6ad9b"
     },
     {
+      "path": "Assets/Reference/dice_92.png.import",
+      "sha256": "76c8a2197462c766a7ee2f85b6bbb298b612b402c88f16064429f4bc24e39119"
+    },
+    {
       "path": "Assets/Reference/glow_72EAC8.png",
-      "unchanged": true,
       "sha256": "76057b526c3bd0be8493e4e4a4c613ecec7b9a867ff659bc39562093bd41bebb"
     },
     {
+      "path": "Assets/Reference/glow_72EAC8.png.import",
+      "sha256": "71d1f100a409d802326d7c6c41cc065f0b05281c29e0c195ab76b1db72eacd65"
+    },
+    {
       "path": "Assets/Reference/glow_87D6FF.png",
-      "unchanged": true,
       "sha256": "6c1a059563ee9aa6ef6bf42eea19cfc397df8f210276ec54fb6816492e01f60e"
     },
     {
+      "path": "Assets/Reference/glow_87D6FF.png.import",
+      "sha256": "1832ef0984de8d90edf481a9e41610f5b375d2b21a95fc50b8a3222133b799b0"
+    },
+    {
       "path": "Assets/Reference/glow_CBA7FF.png",
-      "unchanged": true,
       "sha256": "ff0ee88459a7323f96bb22a1c96084a9615941f6d9e825be91583e736fcdcaf1"
     },
     {
+      "path": "Assets/Reference/glow_CBA7FF.png.import",
+      "sha256": "7076d0cbc304b332b385f36548bf9bf51acfd6b8d3c187f797e08dcfce353f7f"
+    },
+    {
       "path": "Assets/Reference/glow_F8DE87.png",
-      "unchanged": true,
       "sha256": "d4ae267d0efcd61a1bae84daf4d468b1e2771ea8caa915c9be98820ff84107f7"
     },
     {
+      "path": "Assets/Reference/glow_F8DE87.png.import",
+      "sha256": "a08d87fbd61d849596687166ee9fec10ba7f3ea8485935ebf98b3b8b4c547673"
+    },
+    {
       "path": "Assets/Reference/glow_FF97B8.png",
-      "unchanged": true,
       "sha256": "a26894ec2cc76ff794f4e885133d387d070079342f1f70fb13f12125246f480d"
     },
     {
+      "path": "Assets/Reference/glow_FF97B8.png.import",
+      "sha256": "5e16663f58d023d2358335f0bbf217456b338c96323c16a29860ee53afeff8ee"
+    },
+    {
       "path": "Assets/Reference/glow_FFAD76.png",
-      "unchanged": true,
       "sha256": "58e5d6c1076dd1f3eb2673e8873666030cb0a8b100380e2424e1d40df9af3cf1"
     },
     {
+      "path": "Assets/Reference/glow_FFAD76.png.import",
+      "sha256": "869e8217f229291d18822a5304ef2ae142e2697c487f8cd4b682b58aec5112dc"
+    },
+    {
       "path": "Assets/Reference/icons.png",
-      "unchanged": true,
       "sha256": "457d8bef52dfe186f89e425b0b26d2b180ebc9de5a8173e92bb836bac6abfcda"
     },
     {
+      "path": "Assets/Reference/icons.png.import",
+      "sha256": "6b62ab0d6e4f4eca9975504c6a2a400a08a528bfa546a8eaafa7e50dbc9bff50"
+    },
+    {
       "path": "Assets/Reference/manifest.json",
-      "unchanged": true,
       "sha256": "c975099c7ce1c1b7134f1e783410749eecbfef8e2e31d2bd4ad39edf468f27e6"
     },
     {
       "path": "Tests/Fixtures/audio_index.json",
-      "unchanged": true,
       "sha256": "2d5ab65de42239ffcf78d29d5622b4321f23acbdf58588f73654efa1d830407d"
     },
     {
       "path": "Tests/Fixtures/audio_reference.f32",
-      "unchanged": true,
       "sha256": "37fc7c52027af8fba15672ffb180932a71b1479d1b5eb579c36ee17d41724130"
     },
     {
       "path": "Tests/Fixtures/collisions.json",
-      "unchanged": true,
       "sha256": "ddc5e0bcdbadfada68f1b3541550baeda0ee1ddf535347c2fae9f0043197348d"
     },
     {
       "path": "Tests/Fixtures/effects.json",
-      "unchanged": true,
       "sha256": "de0042c7968d8d16e5ee5728bd7d8701db75668466904807d818aadd2e62f1be"
     },
     {
       "path": "Tests/Fixtures/fixture_manifest.json",
-      "unchanged": true,
       "sha256": "28aee2c4203c2ed15700b5851290bea628832582e9dfa1c22d59d0cd0b8af2e1"
     },
     {
       "path": "Tests/Fixtures/rng.json",
-      "unchanged": true,
       "sha256": "7da34fad7f94cf4a2b853261c492680644f4003201b12eb27256c7eef91555a5"
     },
     {
       "path": "Tests/Fixtures/simulation_cases.json",
-      "unchanged": true,
       "sha256": "94cd6bd866266b8f956b95bd774d4fc3bc16f8294927e085eab9fef2444912b7"
     },
     {
       "path": "Tests/Fixtures/stats.json",
-      "unchanged": true,
       "sha256": "2e7be73b831c6255a5a791b39777a2cf90dafd6676c0b92b912f1f5fa56f1309"
     },
     {
       "path": "Tests/Fixtures/traces.json",
-      "unchanged": true,
       "sha256": "9b09103375993038fc2d900e20e075edf37facbd1664da038c34298d9b669e3d"
     },
     {
       "path": "Tests/Fixtures/visual_states.json",
-      "unchanged": true,
       "sha256": "6330134c039ad50ac64846bc55986afb3cfb2354d265a3c743daa9872b8e1f10"
     },
     {
       "path": "Tests/Original/README.md",
-      "unchanged": true,
       "sha256": "7fa551276cb7346ed3ec051e103aea820d6a56ab05f612c1e908058194dc2731"
     },
     {
       "path": "Tests/Original/src/app.js",
-      "unchanged": true,
       "sha256": "c2449792ea30bb403cc612708a19fbe478c6802a4edaf26805bebf4b69209425"
     },
     {
       "path": "Tests/Original/src/audio.js",
-      "unchanged": true,
       "sha256": "4e5fbec0dca173a3fa19cd0f9aeb9f69870429e4be2a7b0cdc667daa97af8f90"
     },
     {
       "path": "Tests/Original/src/config.generated.js",
-      "unchanged": true,
       "sha256": "11109fb5a1b52f40d8fe0036a48d96a9dfc35c7d8e4fddd1ceb253875c967f3b"
     },
     {
       "path": "Tests/Original/src/math.js",
-      "unchanged": true,
       "sha256": "24a17aff71e1a8e3e8af05fd405306408a621c0d0bd99b68147f7e62aafb932c"
     },
     {
       "path": "Tests/Original/src/renderer.js",
-      "unchanged": true,
       "sha256": "dd2cafd3e772274216ef5001051d83c62e099b0c5feb943c00018c6e87e1ee9d"
     },
     {
       "path": "Tests/Original/src/simulation.js",
-      "unchanged": true,
       "sha256": "3cabfcc0a8ad9e5c06358e497307bd79c07f0b0bcad7cb849fe56ad85d66f2c7"
     },
     {
       "path": "Tests/Original/tests/simulation.test.cjs",
-      "unchanged": true,
       "sha256": "22ee9c91769816e54b1f777508924f89f3f75d80f1e07cdf51a309b6f4edd287"
     },
     {
       "path": "Tests/ReferenceScreenshots/README.txt",
-      "unchanged": true,
       "sha256": "4a433ea85f4844d726494b3f6c23051d5f5f843d1eb4c1e23c67bd2be0ce7285"
     },
     {
       "path": "Tests/ReferenceScreenshots/battle_aim.png",
-      "unchanged": true,
       "sha256": "8abef6e6de00a97eb7445158df3dd0dd65db5eab5001efa5465bed1d0101ccd1"
     },
     {
       "path": "Tests/ReferenceScreenshots/deck.png",
-      "unchanged": true,
       "sha256": "de0564d566bd2db6d871d2d5a6e23ce265c19d1a93a72428acf0334ff6e02121"
     },
     {
       "path": "Tests/ReferenceScreenshots/dice_info.png",
-      "unchanged": true,
       "sha256": "1ce657ca75e3bb5a694253d046b7bb765ffe63e15073cf59a8a04dcf4bd43947"
     },
     {
       "path": "Tests/ReferenceScreenshots/effects.png",
-      "unchanged": true,
       "sha256": "6c78cca1fd6292d782fbfe7a9fb9e22077f22d3892f18b16af8cce7548a144d3"
     },
     {
       "path": "Tests/ReferenceScreenshots/game_over.png",
-      "unchanged": true,
       "sha256": "d50851bc007921bafb9809e63fe8546d4c1638b1f93bb452f85bd9677030a71d"
     },
     {
       "path": "Tests/ReferenceScreenshots/help.png",
-      "unchanged": true,
       "sha256": "067aeec77e847c70241fe4a5900c8e05c5538b441aabde0132ed85dce6bb355a"
     },
     {
       "path": "Tests/ReferenceScreenshots/menu.png",
-      "unchanged": true,
       "sha256": "5f11b53a8e68a38e4f8e6ac30315f6288097f32ca583facdb712096f8693d634"
     },
     {
       "path": "Tests/ReferenceScreenshots/pause.png",
-      "unchanged": true,
       "sha256": "93d590f59d20b80f02f1941f93d98bb262bc2e9976fd982ccba367d0166812c6"
     },
     {
       "path": "Tests/ReferenceScreenshots/upgrade.png",
-      "unchanged": true,
       "sha256": "742e8ccfb265de9243463b22541350d6784ed3c6da3787fe40a1e1c279814c61"
     }
   ]

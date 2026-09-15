@@ -1,5 +1,5 @@
 """Local package/integrity checks. This is NOT a C# compiler or Godot runtime test.
-Optional original folder argument additionally verifies the three data files byte-for-byte.
+Optional original folder argument verifies the frozen three legacy data files byte-for-byte.
 Python 3 standard library only.
 """
 from pathlib import Path
@@ -17,7 +17,7 @@ def png_size(path):
     return struct.unpack('>II',b[16:24])
 
 def main():
-    for relative in ['Data/game.json','Data/dice.json','Data/upgrades.json','Assets/Reference/manifest.json','Tests/Fixtures/fixture_manifest.json']:
+    for relative in ['Data/game.json','Data/dice.json','Data/upgrades.json','Data/dice_skills.json','Assets/Reference/manifest.json','Tests/Fixtures/fixture_manifest.json']:
         value=json.loads((ROOT/relative).read_text(encoding='utf-8'));check('JSON '+relative,value is not None)
     project=ET.parse(ROOT/'DiceGame.csproj').getroot()
     tests=ET.parse(ROOT/'Tests/DiceGame.Tests.csproj').getroot()
@@ -26,7 +26,17 @@ def main():
     check('Tests excluded from game compilation',project.find("./ItemGroup/Compile[@Remove='Tests/**/*.cs']") is not None)
     settings=(ROOT/'project.godot').read_text(encoding='utf-8')
     check('1080p default viewport','viewport_width=1920' in settings and 'viewport_height=1080' in settings)
+    game=json.loads((ROOT/'Data/game.json').read_text(encoding='utf-8'))
+    skills=json.loads((ROOT/'Data/dice_skills.json').read_text(encoding='utf-8'))
+    check('24-slot 6-column board',game['board']['slots']==24 and game['board']['columns']==6)
+    check('Exactly six distinct deck entries required',game['rules']['minDeck']==6 and game['rules']['maxDeck']==6 and len(set(game['rules']['starterDeck']))==6)
+    check('Direct damage budget is one third',abs(game['rules']['damageScale']-1/3)<1e-12)
+    check('Opening/firepower economy compensation',len(game['rules']['startingDicePattern'])==9 and game['rules']['summonCost']==8)
+    check('Every die has A/B and C/D',{s['type'] for s in skills}=={d['id'] for d in json.loads((ROOT/'Data/dice.json').read_text(encoding='utf-8'))} and all([x['key'] for x in s['level3']]==['A','B'] and [x['key'] for x in s['level6']]==['C','D'] for s in skills))
+    check('Skill regression project and capacity analysis present',all((ROOT/p).is_file() for p in ['Tests/Skills/Skills.Tests.csproj','Tools/analyze_board_capacity.py']))
+    check('Frozen original balance copied for honest reference tests',all((ROOT/'Tests/LegacyBalanceData'/p).is_file() for p in ['game.json','dice.json','upgrades.json','campaign.json']))
     campaign=json.loads((ROOT/'Data/campaign.json').read_text(encoding='utf-8'))
+    check('Fresh campaign has enough unlocked dice to launch',len(set(campaign['initialDice']))>=game['rules']['minDeck'])
     check('Eight finite three-phase regions',len(campaign['regions'])==8 and all(len(r['phases'])==3 for r in campaign['regions']))
     check('Native UI scene templates',all((ROOT/n).is_file() for n in ['Scenes/UI/DesktopShell.tscn','Scenes/UI/DiceSlot.tscn']))
     check('Campaign independent test project',(ROOT/'Tests/Campaign/Campaign.Tests.csproj').is_file())
@@ -67,7 +77,7 @@ def main():
     if len(sys.argv)>1:
         original=Path(sys.argv[1])
         for name in ['game.json','dice.json','upgrades.json']:
-            check('Unchanged original data '+name,(ROOT/'Data'/name).read_bytes()==(original/'data'/name).read_bytes())
+            check('Unchanged original data '+name,(ROOT/'Tests/LegacyBalanceData'/name).read_bytes()==(original/'data'/name).read_bytes())
     report={'kind':'package_integrity_only','not_a_compiler_or_runtime_test':True,'passed':sum(x['status']=='passed' for x in checks),'failed':sum(x['status']=='failed' for x in checks),'checks':checks}
     (ROOT/'Artifacts').mkdir(exist_ok=True)
     (ROOT/'Artifacts/static-check.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')

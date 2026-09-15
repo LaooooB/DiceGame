@@ -1,0 +1,29 @@
+PASS format: ECMAScript rounding and compact UI labels
+PASS reference: 17 simulation replays / 179 checkpoints
+PASS reference: 72 dice stat profiles
+PASS reference: 4 x 64 xorshift32 samples
+PASS reference: swept collision edge cases
+PASS reference: aiming preview trajectories
+PASS reference: full particle / arc / ring event lifecycle
+PASS reference: 84 original float32 sound profiles
+PASS input: hold never auto-fires; release fires once
+PASS input: drag below battlefield cancels volley
+PASS input: release outside canvas cancels volley
+PASS input: focus loss cancels and pauses
+PASS input: same-type same-pip drag merges and surges
+PASS input: different types reject merging
+PASS input: click opens die panel; recycling frees slot
+PASS input: empty slots summon into selected slot
+PASS input: empty deck cannot save
+PASS rules: full board rejects summon without cost
+PASS rules: six-pip pair cannot merge
+PASS rules: source snapshots survive recycle and upgrade
+PASS rules: no retroactive mutation of exported saves
+PASS rules: invalid dt rejected
+PASS save: encoded run resumes deterministically
+PASS save: unsupported schema is rejected
+PASS save: oversized / malformed payload is rejected
+PASS effects: paused updates retain particles, advance menu clock only
+PASS effects: particles are bounded
+
+27 passed, 0 failed. /mnt/data/dice_upgrade_work/DiceGame-Godot/core-test-results.json

@@ -1,0 +1,41 @@
+{
+  "date_utc": "2026-09-15T07:12:23.830188+00:00",
+  "based_on": "DiceGame-Godot-Campaign-Complete.zip",
+  "input_zip_sha256": "0fa904662223bf08452dbd970c326d82e5ace38c3ae809b3d91c43d93a3dbdde",
+  "github_updated": false,
+  "godot_version": "4.6.stable.mono.official.89cea1439",
+  "compilation": "Real Roslyn C# 12 compiler, .NET 8 references, GodotSharp and Godot.SourceGenerators 4.6.0; successful game and test assemblies",
+  "standard_dotnet_sdk_msbuild_executed": false,
+  "editor_environment_errors": [
+    "ERROR: .NET Sdk not found. The required version is '10.0.12'.",
+    "ERROR: System.IO.FileNotFoundException: Could not load file or assembly 'Microsoft.Build, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'. The system cannot find the file specified."
+  ],
+  "checks": {
+    "frozen_original_regression": 27,
+    "campaign_regression": 45,
+    "current_board_skills_regression": 55,
+    "total_csharp": 127,
+    "native_input": 23,
+    "static_integrity": 58,
+    "native_screenshots": 14,
+    "godot_editor_import": "blocked_by_missing_sdk_msbuild; resource scan completed",
+    "godot_startup": "passed",
+    "failed": 0
+  },
+  "render_environment": "Linux x64; Xvfb 1920x1080; OpenGL Compatibility; Mesa llvmpipe; Dummy audio",
+  "capacity_experiment": {
+    "seed": 20260915,
+    "trials_per_opening": 20000,
+    "openings": 2,
+    "total_trials": 40000,
+    "not_a_win_rate": true
+  },
+  "original_assets_fixtures_js_screenshots_unchanged": 63,
+  "not_verified": [
+    "Windows executable export",
+    "Windows GPU/real speaker behavior",
+    "long-duration human difficulty and build balance",
+    "standard SDK/MSBuild",
+    "remote GitHub CI for this change"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "passed": 14,
+  "failed": 0,
+  "checks": [
+    "town button opens region selector",
+    "region button opens deck",
+    "native launch button enters battle",
+    "native field press enters aim",
+    "holding does not fire",
+    "release fires exactly once",
+    "release outside cancels",
+    "right button cancels aim",
+    "native drag enters merge gesture",
+    "native merge updates actual simulation",
+    "native empty-slot click summons there",
+    "escape pauses",
+    "native pause button resumes",
+    "native settlement button returns to town"
+  ]
+}

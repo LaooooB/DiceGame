@@ -46,7 +46,7 @@ public sealed partial class GameApp
     private bool _storageFailed;
     public GameApp(GameData data,IDesktopStorage storage,ISoundOutput audio,CampaignCatalog? campaign=null)
     {
-        Data=data;_storage=storage;Audio=audio;Effects=new(data);Deck=data.Dice.Select(d=>d.Id).ToList();
+        Data=data;_storage=storage;Audio=audio;Effects=new(data);Deck=data.DefaultDeck.ToList();
         Catalog=campaign;Progression=campaign is null?null:new CampaignProgression(campaign);
         Load();InitializeCampaign();
         Audio.Enabled=Settings.Sound;Audio.Music=Settings.Music;Effects.ReduceMotion=Settings.ReduceMotion;
@@ -56,7 +56,7 @@ public sealed partial class GameApp
         try
         {
             string? raw=_storage.Read();if(string.IsNullOrEmpty(raw)) return;
-            var saved=SaveCodec.Decode(Data,raw);Deck=saved.Deck;Settings=saved.Settings;Meta=saved.Meta;Preferences=saved.Preferences;Campaign=saved.Campaign;_hadSave=true;
+            var saved=SaveCodec.Decode(Data,raw);Deck=saved.Deck;Settings=saved.Settings;Meta=saved.Meta;Preferences=saved.Preferences;Campaign=saved.Campaign;_hadSave=true;_migratedBattle=saved.MigratedFromVersion>0;
             if(saved.Run is not null && (!saved.Run.Over || Catalog is not null)) ResumeData=saved.Run;
         }
         catch(Exception e) {ResumeData=null;LoadProblem="存档无法读取："+e.Message;Notify("存档已保留。请在设置中检查备份或明确重置。");}
@@ -72,7 +72,7 @@ public sealed partial class GameApp
         if(Catalog is not null){SaveCampaignSnapshot();return;}
         if(Sim is not null && !Sim.State.Over) {RecordRun();ResumeData=Sim.ExportSave();}
         if(Sim?.State.Over==true) ResumeData=null;
-        try {_storage.Write(SaveCodec.Encode(new SaveEnvelope {Version=Data.Game.Schema,Settings=Settings,Meta=Meta,Deck=Deck,Run=ResumeData}));}
+        try {_storage.Write(SaveCodec.Encode(new SaveEnvelope {Version=Data.Game.Rules.EnableDiceSkills?SaveCodec.CurrentVersion:Data.Game.Schema,Settings=Settings,Meta=Meta,Deck=Deck,Run=ResumeData}));}
         catch(Exception) {if(!_storageFailed){_storageFailed=true;Notify("无法保存到本地；游戏仍可继续。");}}
     }
     public void StartNew(uint? seed=null)
@@ -90,7 +90,7 @@ public sealed partial class GameApp
     public void RestoreRun(RunState state)
     {
         Effects.Clear();Sim=Simulation.Restore(Data,state);AimAngle=Sim.State.LastAim;
-        Scene=Sim.State.Over?(Catalog is null?"over":"settlement"):Sim.State.AwaitingUpgrade?"upgrade":"play";Accumulator=0;Pointer=null;
+        Scene=DecisionScene;Accumulator=0;Pointer=null;
     }
     public void Notify(string message,double duration=2)
     {
@@ -114,15 +114,17 @@ public sealed partial class GameApp
                 case "breach": Audio.Play("breach");break;
                 case "clear": Audio.Play("clear");break;
                 case "upgrade": CancelPointer();Scene="upgrade";Audio.Play("upgrade");Save();break;
-                case "upgraded": Audio.Play("upgrade");break;
+                case "upgraded": case "skill_chosen": Audio.Play("upgrade");break;
                 case "victory": case "gameover":
                     if(Catalog is not null){CancelPointer();Scene="settlement";TrySettle();}
                     else {CancelPointer();Scene="over";RecordRun();ResumeData=null;Save();}break;
             }
         }
+        if (Sim.AwaitingDiceSkill && Scene is "play" or "upgrade") { CancelPointer();Scene="diceSkill";Accumulator=0; }
     }
     public void Tick(double delta)
     {
+        if (Sim?.AwaitingDiceSkill==true && Scene is "play" or "upgrade") { CancelPointer();Scene="diceSkill";Accumulator=0; }
         double dt=MathEx.Clamp(double.IsFinite(delta)?delta:0,0,Data.Game.Limits.MaxFrameDelta);
         if(Toast is not null) {Toast.Life-=dt;if(Toast.Life<=0) Toast=null;}
         _toastCooldown=Math.Max(0,_toastCooldown-dt);bool active=Scene=="play";
@@ -157,7 +159,7 @@ public sealed partial class GameApp
     public void OnDown(double x,double y)
     {
         if(Pointer is not null) return;Audio.Unlock();
-        if(x<0 || x>Data.Game.View.Width || y<0 || y>Data.Game.View.Height) return;
+        if(!NativeUi && (x<0 || x>Data.Game.View.Width || y<0 || y>Data.Game.View.Height)) return;
         var b=NativeUi?null:FindButton(x,y);
         if(b is not null) {Pointer=new MouseGesture {Mode="button",Button=b.Id,X=x,Y=y,StartX=x,StartY=y};return;}
         if(Scene!="play" || Sim is null) return;
@@ -216,7 +218,7 @@ public sealed partial class GameApp
     public void Summon(int preferred=-1)
     {
         if(Scene!="play" || Sim is null) return;var result=Sim.Summon();
-        if(!result.Ok) {Audio.Play("error");Notify(result.Reason=="full"?"八格已满：合成配对，或单击骰子回收。":"能量不足，击破敌人或等待自然恢复。");}
+        if(!result.Ok) {Audio.Play("error");Notify(result.Reason=="full"?$"{Data.Game.Board.Slots} 格已满：合成配对，或单击骰子回收。":"能量不足，击破敌人或等待自然恢复。");}
         else
         {
             if(preferred>=0 && preferred!=result.Slot && Sim.State.Board[preferred] is null)
@@ -235,7 +237,7 @@ public sealed partial class GameApp
             case "cancelNew":Scene="menu";break;
             case "resume":Resume();break;
             case "pause":Pause();break;
-            case "continue":Scene=Sim?.State.AwaitingUpgrade==true?"upgrade":"play";Accumulator=0;Audio.Unlock();break;
+            case "continue":Scene=DecisionScene;Accumulator=0;Audio.Unlock();break;
             case "sound":Settings.Sound=!Settings.Sound;Audio.Enabled=Settings.Sound;Save();break;
             case "music":Settings.Music=!Settings.Music;Audio.Music=Settings.Music;Save();break;
             case "motion":Settings.ReduceMotion=!Settings.ReduceMotion;Effects.ReduceMotion=Settings.ReduceMotion;Save();break;
@@ -247,10 +249,12 @@ public sealed partial class GameApp
             case "editDeck":EditingDeck=Deck.ToList();Scene="deck";break;
             case "deckBack":Scene="menu";break;
             case "deckSave":
-                if(!Data.ValidDeck(EditingDeck)) {Notify("请携带一到六种不同骰子。");break;}
+                if(!Data.ValidDeck(EditingDeck)) {Notify($"请携带 {Data.Game.Rules.MinDeck}～{Data.Game.Rules.MaxDeck} 种互不重复的骰子。");break;}
                 Deck=EditingDeck.ToList();Scene="menu";Save();if(ResumeData is not null) Notify("卡组已更新，将在新的一局生效。");break;
             default:
-                if(id.StartsWith("summonAt:") && int.TryParse(id[9..],out int slot)) Summon(slot);
+                if (id.StartsWith("diceSkill:",StringComparison.Ordinal))
+                { var parts=id.Split(':'); if(parts.Length==3 && long.TryParse(parts[1],out long choiceId)) ChooseDiceSkill(choiceId,parts[2]); }
+                else if(id.StartsWith("summonAt:") && int.TryParse(id[9..],out int slot)) Summon(slot);
                 else if(id.StartsWith("recycle:") && Sim is not null && int.TryParse(id[8..],out int index))
                 {
                     var r=Sim.Recycle(index);Scene="play";SelectedSlot=-1;

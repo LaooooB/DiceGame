@@ -7,7 +7,7 @@ namespace DiceGame.Core;
 /// event order, swept collisions and seeded random sequence are deliberately retained.
 /// This is NOT delegated to Godot rigid-body physics: that would change the game.
 /// </summary>
-public sealed class Simulation
+public sealed partial class Simulation
 {
     public GameData Data { get; }
     public RunState State { get; private set; }
@@ -21,12 +21,13 @@ public sealed class Simulation
     public Simulation(GameData data, IEnumerable<string>? deck=null, uint? seed=null, ExpeditionState? expedition=null)
     {
         Data=data;
-        var selected=(deck ?? data.Dice.Select(d=>d.Id)).ToList();
-        if(!data.ValidDeck(selected)) throw new ArgumentException("A deck must contain 1–6 distinct registered dice types.",nameof(deck));
+        var selected=(deck ?? data.DefaultDeck).ToList();
+        if(!data.ValidDeck(selected)) throw new ArgumentException($"卡组必须携带 {data.Game.Rules.MinDeck}～{data.Game.Rules.MaxDeck} 种互不重复的骰子。",nameof(deck));
         Random=new SeededRandom(seed ?? unchecked((uint)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
         State=new RunState { Schema=C.Schema, Deck=selected, Seed=Random.State, Rng=Random.State,
             Health=R.MaxHealth, Energy=R.StartEnergy+(expedition?.Bonuses.StartEnergy??0), Board=new DieState?[C.Board.Slots], Expedition=expedition is null?null:CampaignCatalog.Copy(expedition) };
-        S.Board[0]=MakeDie(S.Deck[0],1); S.Board[1]=MakeDie(S.Deck[0],1); S.Board[2]=MakeDie(S.Deck.Count>1?S.Deck[1]:S.Deck[0],1);
+        if (R.EnableDiceSkills) S.SkillSets = S.Deck.ToDictionary(id => id, id => CampaignCatalog.Copy(Data.Skills[id]));
+        for (int i = 0; i < R.StartingDicePattern.Length; i++) S.Board[i] = MakeDie(S.Deck[Math.Min(S.Deck.Count - 1, R.StartingDicePattern[i])], 1);
         StartWave(1); Grid.Rebuild(S.Enemies);
     }
     public DieState MakeDie(string type,int pips) => new() { Id=S.NextId++, Type=type, Pips=pips };
@@ -52,8 +53,9 @@ public sealed class Simulation
         double multiplier=(1+0.18*UpgradeLevel("power"))*(1+(S.Expedition?.Bonuses.DamagePercent??0));
         if(die.Type=="pulse") multiplier*=1+0.2*UpgradeLevel("pulse");
         if(die.Type=="frost") multiplier*=1+0.1*UpgradeLevel("frost");
+        multiplier *= R.DamageScale * (1 + (S.Expedition?.Bonuses.DiceDamagePercent.GetValueOrDefault(die.Type) ?? 0));
         double volley=type.BaseDamage*level.VolleyPower*multiplier;
-        return new ShotStats
+        var stats = new ShotStats
         {
             Effect=type.Effect, Damage=volley/die.Pips, Volley=volley, Count=die.Pips,
             Reload=type.Reload*level.ReloadFactor*Math.Pow(0.92,UpgradeLevel("reload"))*Math.Max(.25,1-(S.Expedition?.Bonuses.ReloadPercent??0)),
@@ -64,10 +66,12 @@ public sealed class Simulation
             ChildCount=2+(die.Pips-1)/2, ChildFactor=type.ChildFactor*(1+0.25*UpgradeLevel("split")),
             WallBoost=type.WallBoost+0.15*UpgradeLevel("bank"), MaxBoost=type.MaxBoost
         };
+        ApplyDieSkills(die, stats);
+        return stats;
     }
     public ActionResult Summon()
     {
-        if(S.Over || S.AwaitingUpgrade) return new(false,"paused");
+        if(S.Over || S.AwaitingUpgrade || AwaitingDiceSkill) return new(false,"paused");
         int slot=Array.IndexOf(S.Board,null); if(slot<0) return new(false,"full");
         if(S.Energy+1e-6<R.SummonCost) return new(false,"energy");
         S.Energy-=R.SummonCost; var die=MakeDie(Random.Pick(S.Deck),1); S.Board[slot]=die;
@@ -76,25 +80,24 @@ public sealed class Simulation
     }
     public bool Move(int a,int b)
     {
-        if(S.Over || S.AwaitingUpgrade || a<0 || b<0 || a>=C.Board.Slots || b>=C.Board.Slots || S.Board[a] is null || S.Board[b] is not null) return false;
+        if(S.Over || S.AwaitingUpgrade || AwaitingDiceSkill || a<0 || b<0 || a>=C.Board.Slots || b>=C.Board.Slots || S.Board[a] is null || S.Board[b] is not null) return false;
         S.Board[b]=S.Board[a]; S.Board[a]=null; Emit(new CombatEvent {Type="move",A=a,B=b}); return true;
     }
     public ActionResult Merge(int a,int b)
     {
-        if(S.Over || S.AwaitingUpgrade) return new(false,"paused");
+        if(S.Over || S.AwaitingUpgrade || AwaitingDiceSkill) return new(false,"paused");
         if(!CanMerge(a,b)) return new(false,"mismatch");
         var old=S.Board[b]!; int pips=old.Pips+1;
-        if(S.PendingShots.Count+pips>R.MaxQueuedShots) return new(false,"busy");
+        if(S.PendingShots.Count+MergeShotReservation(pips)>R.MaxQueuedShots) return new(false,"busy");
         var die=MakeDie(Random.Pick(S.Deck),pips); S.Board[a]=null; S.Board[b]=die; S.Merges++;
         // Existing projectiles and queued snapshots do not reference either material die.
-        QueueVolley(die,b,S.LastAim,1+R.MergeSurge+0.35*UpgradeLevel("surge"),true);
-        die.Cooldown=Stats(die).Reload*0.36;
+        ResolveMergeSkills(die, old, b);
         Emit(new CombatEvent {Type="merge",A=a,B=b,OldType=old.Type,Die=die.Copy()});
         return new(true,Slot:b,Die:die);
     }
     public ActionResult Recycle(int index)
     {
-        if(S.Over || S.AwaitingUpgrade || index<0 || index>=C.Board.Slots || S.Board[index] is null) return new(false);
+        if(S.Over || S.AwaitingUpgrade || AwaitingDiceSkill || index<0 || index>=C.Board.Slots || S.Board[index] is null) return new(false);
         var die=S.Board[index]!; int amount=C.Levels[die.Pips-1].Recycle;
         S.Energy+=amount; S.Board[index]=null; Emit(new CombatEvent {Type="recycle",Slot=index,Amount=amount});
         return new(true,Amount:amount);
@@ -107,11 +110,11 @@ public sealed class Simulation
     }
     public ActionResult Fire(double angle)
     {
-        if(S.Over || S.AwaitingUpgrade) return new(false,"paused");
+        if(S.Over || S.AwaitingUpgrade || AwaitingDiceSkill) return new(false,"paused");
         S.LastAim=ClampAim(angle);
         var ready=S.Board.Select((d,i)=>(d,i)).Where(x=>x.d is not null && x.d.Cooldown<=1e-5).ToList();
         if(ready.Count==0) return new(false,"reloading");
-        int needed=ready.Sum(x=>x.d!.Pips);
+        int needed=ready.Sum(x=>Stats(x.d!).Count);
         if(S.PendingShots.Count+needed>R.MaxQueuedShots) return new(false,"busy");
         foreach(var (d,i) in ready)
         {
@@ -125,14 +128,15 @@ public sealed class Simulation
     {
         var stats=Stats(die); var captured=stats.Copy(); captured.Damage*=multiplier;
         var snapshot=new ShotSnapshot {Type=die.Type,Pips=die.Pips,Stats=captured,Source=Data.SlotPosition(slot),Surge=surge};
-        for(int k=0;k<stats.Count;k++) S.PendingShots.Add(new PendingShot {Due=S.Time+0.075+k*0.056+slot%4*0.019,Angle=angle,Snapshot=snapshot});
+        for(int k=0;k<stats.Count;k++) S.PendingShots.Add(new PendingShot {Due=S.Time+0.075+k*0.056+slot%C.Board.Columns*0.019,Angle=angle,Snapshot=snapshot});
         SortPending(); Emit(new CombatEvent {Type="conduit",Slot=slot,Color=stats.Color,Surge=surge});
     }
     public ProjectileState MakeProjectile(double x,double y,double angle,ShotSnapshot snapshot,bool child=false)
     {
         double speed=R.ProjectileSpeed*(child?1.03:1);
         return new ProjectileState {Id=S.NextId++,X=x,Y=y,Px=x,Py=y,Vx=Math.Cos(angle)*speed,Vy=Math.Sin(angle)*speed,
-            Type=snapshot.Type,Pips=snapshot.Pips,Stats=snapshot.Stats.Copy(),Life=child?3.4:R.ProjectileLife,
+            Type=snapshot.Type,Pips=snapshot.Pips,Stats=snapshot.Stats.Copy(),Life=child?Math.Min(15,3.4+snapshot.Stats.ChildLifeBonus):R.ProjectileLife,
+            PiercesLeft=child?snapshot.Stats.ChildPierces:snapshot.Stats.Pierces,
             Bounces=snapshot.Stats.Bounces,Child=child,SplitDone=child,WallPower=1,Surge=snapshot.Surge};
     }
     public void StartWave(int wave)
@@ -187,6 +191,7 @@ public sealed class Simulation
         (u.Requires is null || S.Deck.Contains(u.Requires)) && (u.Id!="repair" || S.Health<R.MaxHealth)).ToList();
     public void OfferUpgrades()
     {
+        if (S.Over || AwaitingDiceSkill || S.AwaitingUpgrade) return;
         var pool=AvailableUpgrades();
         if(pool.Count==0 && S.Expedition is not null) {S.Energy+=R.SummonCost;StartWave(S.Wave+1);return;}
         if(pool.Count<3 && S.Expedition is null) pool=Data.Upgrades.Where(u=>u.Id is "power" or "income" or "surge").ToList();
@@ -195,7 +200,7 @@ public sealed class Simulation
     }
     public bool ChooseUpgrade(string id)
     {
-        if(!S.AwaitingUpgrade || !S.Offers.Contains(id) || !Data.UpgradeTypes.ContainsKey(id)) return false;
+        if(AwaitingDiceSkill || !S.AwaitingUpgrade || !S.Offers.Contains(id) || !Data.UpgradeTypes.ContainsKey(id)) return false;
         if(S.Expedition is not null && UpgradeLevel(id)>=Data.UpgradeTypes[id].Max)return false;
         S.Upgrades[id]=UpgradeLevel(id)+1;
         if(id=="repair") S.Health=Math.Min(R.MaxHealth,S.Health+4);
@@ -203,6 +208,7 @@ public sealed class Simulation
     }
     public void AdvanceWave()
     {
+        if (S.Over || S.AwaitingUpgrade || AwaitingDiceSkill) return;
         if(S.Expedition is {LegacyRules:false} e)
         {
             if(e.BossWave(S.Wave) && !e.DefeatedBossWaves.Contains(S.Wave)) return;
@@ -243,7 +249,7 @@ public sealed class Simulation
     }
     public void Step(double dt)
     {
-        if(S.Over || S.AwaitingUpgrade) return;
+        if(S.Over || S.AwaitingUpgrade || AwaitingDiceSkill) return;
         if(!MathEx.Finite(dt,0,0.101)) throw new ArgumentOutOfRangeException(nameof(dt));
         S.Time+=dt; S.WaveTime+=dt; S.Energy=Math.Min(999999,S.Energy+(R.PassiveEnergy+(S.Expedition?.Bonuses.PassiveEnergy??0))*dt);
         S.ComboTime=Math.Max(0,S.ComboTime-dt); if(S.ComboTime==0) S.Combo=0;
@@ -302,6 +308,7 @@ public sealed class Simulation
             if(hit is null) {p.X+=dx;p.Y+=dy;remaining=0;break;}
             p.X+=dx*hit.T; p.Y+=dy*hit.T;
             double push=hit.Penetration+0.035; p.X+=hit.Nx*push; p.Y+=hit.Ny*push;
+            double incomingVx=p.Vx,incomingVy=p.Vy;
             double dot=p.Vx*hit.Nx+p.Vy*hit.Ny;
             if(dot<0) {p.Vx-=2*dot*hit.Nx;p.Vy-=2*dot*hit.Ny;}
             remaining*=Math.Max(0,1-hit.T); p.Bounces--;
@@ -312,7 +319,16 @@ public sealed class Simulation
             }
             else
             {
-                p.LastEnemy=hit.Enemy!.Id; PrimaryHit(hit.Enemy,p); FlushDamage();
+                p.LastEnemy=hit.Enemy!.Id;
+                if (p.PiercesLeft > 0)
+                {
+                    // Continue through this contact. LastEnemy suppresses duplicate hits while inside its expanded bounds.
+                    p.PiercesLeft--; p.Bounces++; p.Vx=incomingVx; p.Vy=incomingVy;
+                    p.X-=hit.Nx*push; p.Y-=hit.Ny*push;
+                    double speed=Math.Sqrt(p.Vx*p.Vx+p.Vy*p.Vy);
+                    p.X+=p.Vx/speed*.05; p.Y+=p.Vy/speed*.05;
+                }
+                PrimaryHit(hit.Enemy,p); FlushDamage();
             }
             if(p.Bounces<=0) p.Dead=true;
             if(hit.T<1e-6) remaining=Math.Max(0,remaining-1e-5);
@@ -321,13 +337,21 @@ public sealed class Simulation
     }
     public void PrimaryHit(EnemyState enemy,ProjectileState p)
     {
-        double damage=p.Stats.Damage*p.WallPower; p.WallPower=1;
-        ApplyDamage(enemy,damage,p.Stats.Color);
+        bool wasChilled=enemy.SlowUntil>S.Time && enemy.SlowFactor<1;
+        double wallExtra=p.WallPower-1;
+        double damage=p.Stats.Damage*p.WallPower;
+        p.WallPower=1+wallExtra*p.Stats.WallRetention;
+        ApplyDamage(enemy,TargetDamage(enemy,damage,p.Stats),p.Stats.Color);
         switch(p.Stats.Effect)
         {
             case "blast":
                 AreaDamage(enemy.X,enemy.Y,p.Stats.BlastRadius,damage*p.Stats.SplashFactor,p.Stats.Color,enemy.Id);
                 Emit(new CombatEvent {Type="explosion",X=enemy.X,Y=enemy.Y,Radius=p.Stats.BlastRadius,Color=p.Stats.Color});
+                if (enemy.Dead && p.Stats.KillExplosionFactor>0)
+                {
+                    AreaDamage(enemy.X,enemy.Y,p.Stats.BlastRadius,damage*p.Stats.KillExplosionFactor,p.Stats.Color,enemy.Id);
+                    Emit(new CombatEvent {Type="explosion",X=enemy.X,Y=enemy.Y,Radius=p.Stats.BlastRadius,Color=p.Stats.Color});
+                }
                 break;
             case "arc":
                 var seen=new HashSet<long>{enemy.Id}; var from=enemy;
@@ -338,12 +362,27 @@ public sealed class Simulation
                         .Where(e=>!seen.Contains(e.Id) && MathEx.Dist2(e.X,e.Y,from.X,from.Y)<=range*range)
                         .OrderBy(e=>MathEx.Dist2(e.X,e.Y,from.X,from.Y)).ThenBy(e=>e.Id).FirstOrDefault();
                     if(target is null) break; seen.Add(target.Id);
-                    ApplyDamage(target,damage*p.Stats.ChainFactor*Math.Pow(0.86,n),p.Stats.Color);
+                    ApplyDamage(target,TargetDamage(target,damage*p.Stats.ChainFactor*Math.Pow(0.86,n),p.Stats),p.Stats.Color);
                     Emit(new CombatEvent {Type="arc",X=from.X,Y=from.Y,Tx=target.X,Ty=target.Y,Color=p.Stats.Color}); from=target;
                 }
+                int unused=p.Stats.ChainCount-(seen.Count-1);
+                if (unused>0 && p.Stats.ArcReturnFactor>0) ApplyDamage(enemy,TargetDamage(enemy,damage*unused*p.Stats.ArcReturnFactor,p.Stats),p.Stats.Color);
                 break;
             case "frost":
-                if(!enemy.Dead) {enemy.SlowUntil=Math.Max(enemy.SlowUntil,S.Time+p.Stats.SlowSeconds);enemy.SlowFactor=Math.Max(0.35,p.Stats.SlowFactor);}
+                if (!R.EnableDiceSkills)
+                { if(!enemy.Dead) {enemy.SlowUntil=Math.Max(enemy.SlowUntil,S.Time+p.Stats.SlowSeconds);enemy.SlowFactor=Math.Max(0.35,p.Stats.SlowFactor);} }
+                else
+                {
+                    ApplySlow(enemy,p.Stats);
+                    if (p.Stats.SlowRadius>0)
+                        foreach(var target in Grid.Query(enemy.X-p.Stats.SlowRadius,enemy.Y-p.Stats.SlowRadius,enemy.X+p.Stats.SlowRadius,enemy.Y+p.Stats.SlowRadius))
+                            if (target.Id!=enemy.Id && MathEx.Dist2(target.X,target.Y,enemy.X,enemy.Y)<=p.Stats.SlowRadius*p.Stats.SlowRadius) ApplySlow(target,p.Stats);
+                    if (wasChilled && p.Stats.ShatterFactor>0)
+                    {
+                        AreaDamage(enemy.X,enemy.Y,p.Stats.ShatterRadius,damage*p.Stats.ShatterFactor,p.Stats.Color,enemy.Id);
+                        Emit(new CombatEvent {Type="explosion",X=enemy.X,Y=enemy.Y,Radius=p.Stats.ShatterRadius,Color=p.Stats.Color});
+                    }
+                }
                 break;
             case "split":
                 if(p.SplitDone) break;
@@ -351,16 +390,23 @@ public sealed class Simulation
                 for(int n=0;n<children;n++)
                 {
                     double angle=Math.Atan2(p.Vy,p.Vx)+(n-(children-1)/2.0)*0.38;
-                    var childStats=p.Stats.Copy(); childStats.Damage=p.Stats.Damage*p.Stats.ChildFactor; childStats.Bounces=Math.Min(6,p.Bounces);
+                    var childStats=p.Stats.Copy(); childStats.Damage=p.Stats.Damage*p.Stats.ChildFactor; childStats.Bounces=Math.Min(36,Math.Min(6,p.Bounces)+p.Stats.ChildBounceBonus);
                     var snapshot=new ShotSnapshot {Type=p.Type,Pips=p.Pips,Stats=childStats};
                     double x=p.X+Math.Cos(angle)*5,y=p.Y+Math.Sin(angle)*5;
                     if(S.Projectiles.Count<R.MaxProjectiles)
                     {
                         var child=MakeProjectile(x,y,angle,snapshot,true);child.LastEnemy=enemy.Id;S.Projectiles.Add(child);
                     }
-                    else S.PendingShots.Add(new PendingShot {Due=S.Time+1e-5,Angle=angle,Snapshot=snapshot,Child=true,X=x,Y=y,LastEnemy=enemy.Id});
+                    else if (!R.EnableDiceSkills || S.PendingShots.Count<R.MaxQueuedShots) S.PendingShots.Add(new PendingShot {Due=S.Time+1e-5,Angle=angle,Snapshot=snapshot,Child=true,X=x,Y=y,LastEnemy=enemy.Id});
                 }
                 SortPending();Emit(new CombatEvent {Type="split",X=p.X,Y=p.Y,Color=p.Stats.Color,Count=children});
+                break;
+            case "bank":
+                if (wallExtra>0 && p.Stats.BankShockFactor>0)
+                {
+                    AreaDamage(enemy.X,enemy.Y,p.Stats.BankShockRadius,p.Stats.Damage*wallExtra*p.Stats.BankShockFactor,p.Stats.Color,enemy.Id);
+                    Emit(new CombatEvent {Type="explosion",X=enemy.X,Y=enemy.Y,Radius=p.Stats.BankShockRadius,Color=p.Stats.Color});
+                }
                 break;
         }
     }
@@ -451,7 +497,7 @@ public sealed class Simulation
         if(S.Expedition is not { } e || S.Over)return;
         if(outcome is not ("victory" or "defeat" or "abandoned"))throw new ArgumentException("Invalid outcome.");
         if(outcome=="victory" && (!e.FinalBossDefeated || e.Endless))throw new InvalidOperationException("The final boss has not been defeated.");
-        e.Outcome=outcome;e.EndReason=reason;S.Over=true;S.AwaitingUpgrade=false;S.Offers.Clear();
+        e.Outcome=outcome;e.EndReason=reason;S.Over=true;S.AwaitingUpgrade=false;S.Offers.Clear();S.PendingSkills.Clear();
         Emit(new CombatEvent {Type=outcome=="victory"?"victory":"gameover",Wave=S.Wave,Score=S.Score});
     }
     public void ContinueAsEndless(ExpeditionState nextSession)
@@ -460,6 +506,7 @@ public sealed class Simulation
         S.Expedition=CampaignCatalog.Copy(nextSession);S.Over=false;S.AwaitingUpgrade=false;S.Offers.Clear();
         S.Expedition.Endless=true;S.Expedition.FinalBossDefeated=false;S.Expedition.Outcome="";S.Expedition.EndReason="";
         StartWave(S.Wave+1);
+        QueueMissingSkills();
     }
     public RunState ExportSave()
     {

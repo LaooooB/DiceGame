@@ -1,0 +1,58 @@
+PASS configuration: 24 slots / six columns / exactly six types
+PASS deck: 0–5 entries and duplicate six are all rejected
+PASS deck: future seventh registered type is selectable, not automatically carried
+PASS deck: locked die still blocks a complete six-die launch
+PASS deck UI backend: cannot save or start five-type draft
+PASS economy: nine opening dice preserve former three-die direct DPS
+PASS damage budget: triple slots retain equal base capacity at each pip
+PASS summoning: 24th slot reachable, 25th rejected without cost
+PASS input: last row accepts summon and move outside legacy 432x864 canvas
+PASS level 2: no branch prompt, surge preserved
+PASS level 3: roll result before displaying only its skills / pulse
+PASS level 3: roll result before displaying only its skills / blast
+PASS level 3: roll result before displaying only its skills / arc
+PASS level 3: roll result before displaying only its skills / frost
+PASS level 3: roll result before displaying only its skills / split
+PASS level 3: roll result before displaying only its skills / bank
+PASS instance scope: one die's branch does not upgrade another die
+PASS 4/5: inherit target A/B key and remap to random result type
+PASS 6: old branch cleared; A/B then C/D for final type
+PASS double click: old token cannot consume the next choice
+PASS pending modal: freezes enemies, projectiles, energy and all board actions
+PASS preview/choice: no reroll or mutation of random state
+PASS snapshot: pre-existing shots do not change after branch choice
+PASS queue budget: merge reservation fails before consuming RNG or material
+PASS app: choice round-trip uses save candidate before publication
+PASS app: town suspend and restart retain pending result and choice token
+PASS event overflow cannot skip pending skill modal
+PASS general wave upgrade and die choice do not overwrite each other
+PASS catalog: all 24 branches and 24 final pairings produce finite bounded stats
+PASS pulse B: extra projectiles redistribute volley, never multiply total damage
+PASS pulse C: actual swept collision pierces two enemies without reversing
+PASS pulse D: boss direct damage multiplier is 1.5
+PASS blast C: direct kill emits one extra nonrecursive explosion
+PASS arc C: unused links return damage to isolated primary
+PASS arc D: frost synergy affects primary and chain targets
+PASS frost: weaker area slow never replaces stronger slow
+PASS frost C: shatter only triggers on an already slowed target
+PASS frost D: slow reaches 60 units away but not 90
+PASS boss slow floor remains 72 percent
+PASS split C: children get pierces, remain nonrecursive
+PASS split D: child bounce and lifetime modifiers are applied
+PASS bank C: retained wall bonus is half, not repeated full multiplier
+PASS bank D: shock uses only extra wall damage and never recurses
+PASS saturation: split fallback queue is strictly bounded
+PASS save validation: wrong result ID/type/tier is rejected
+PASS save validation: missing branch or duplicate identity is rejected
+PASS save: skill and RNG continuation are deterministic
+PASS authoring: unknown modifier, missing branch and NaN fail validation
+PASS authoring: active run pins skills instead of following live edits
+PASS migration: old two-type campaign expands without losing dice, money or lead
+PASS migration: old high-level dice select skills without free merge volleys
+PASS migration: completed workshop gains mastery once only
+PASS new format: corrupt five-die deck is rejected rather than silently filled
+PASS migration: terminal high-pip dice resolve missing skills when continued as endless
+STRESS: 1200 fixed steps / 266 ms / max projectiles 236, queued 144
+PASS headless stress: 24 six-pip skilled dice stay within object budgets
+
+55 skill/board tests passed, 0 failed.

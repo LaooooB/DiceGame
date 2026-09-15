@@ -92,9 +92,11 @@ public sealed class CampaignCatalog
         ValidateResources(reward.Resources);
         Need(reward.Dice.All(Game.Types.ContainsKey) && reward.Mechanics.All(Mechanics.ContainsKey) && reward.Blueprints.All(Buildings.ContainsKey), "reward points at missing content");
         ValidateBonuses(reward.Bonuses);
+        Need(reward.Bonuses.DiceDamagePercent.Keys.All(Game.Types.ContainsKey), "unknown per-die bonus recipient");
     }
     public static void ValidateBonuses(RunBonuses b)
     {
+        Need(b.DiceDamagePercent is not null && b.DiceDamagePercent.Count<=1000 && b.DiceDamagePercent.All(p=>Regex.IsMatch(p.Key,"^[a-z][a-z0-9_]{0,63}$") && MathEx.Finite(p.Value,0,1000)), "invalid per-die bonuses");
         Need(MathEx.Finite(b.DamagePercent, 0, 1000) && MathEx.Finite(b.ReloadPercent, 0, 1000) && MathEx.Finite(b.StartEnergy, 0, 100000) && MathEx.Finite(b.PassiveEnergy, 0, 1000), "invalid persistent bonuses");
     }
     // A fixed-point unlock simulation catches circular/unreachable authoring rules before a player saves.

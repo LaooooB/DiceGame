@@ -29,16 +29,21 @@ public partial class CampaignUi
             if (ev is InputEventMouseButton b && b.ButtonIndex == MouseButton.Left && b.Pressed)
             { var p = FieldPoint(_field.GetGlobalMousePosition()); App.OnDown(p.X, p.Y); _field.AcceptEvent(); }
         };
-        var right = Column(row); right.CustomMinimumSize = new Vector2(516, 0); right.SizeFlagsHorizontal = SizeFlags.Fill;
-        Label(right, "骰子阵地 · 8 个席位", 26, Mint);
+        // Keep the full four-row board visible; large-font hints may scroll instead of expanding the whole window off-screen.
+        var rightScroll=Add(row,new ScrollContainer {CustomMinimumSize=new Vector2(686,0),SizeFlagsHorizontal=SizeFlags.Fill,
+            SizeFlagsVertical=SizeFlags.ExpandFill,HorizontalScrollMode=ScrollContainer.ScrollMode.Disabled});
+        var right = Column(rightScroll); right.CustomMinimumSize = new Vector2(664, 0); right.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        Label(right, $"骰子阵地 · {App.Data.Game.Board.Slots} 个席位", 26, Mint);
+        right.AddThemeConstantOverride("separation",8);
         Label(right, "同种类 + 同点数才能合成。拖动到空位可移动。", 18, Muted);
         var board = Add(right, new GridContainer { Name = "DiceBoard", Columns = App.Data.Game.Board.Columns });
+        board.AddThemeConstantOverride("h_separation",8); board.AddThemeConstantOverride("v_separation",8);
         var slotScene = GD.Load<PackedScene>("res://Scenes/UI/DiceSlot.tscn");
         for (int i = 0; i < App.Data.Game.Board.Slots; i++)
         {
             int slot = i; var view = slotScene.Instantiate<PanelContainer>(); Add(board, view, "Slot" + i);
             view.MouseDefaultCursorShape = CursorShape.PointingHand;
-            _slots.Add(view); _slotArt.Add(view.GetNode<TextureRect>("Layout/Art")); _slotNames.Add(view.GetNode<Label>("Layout/Name")); _reloads.Add(view.GetNode<ProgressBar>("Layout/Reload")); _slotKeys.Add("");
+            _slots.Add(view); _slotArt.Add(view.GetNode<TextureRect>("Layout/Art")); _slotNames.Add(view.GetNode<Label>("Layout/Name")); _slotBranches.Add(view.GetNode<Label>("Layout/Branches")); _reloads.Add(view.GetNode<ProgressBar>("Layout/Reload")); _slotKeys.Add("");
             view.GuiInput += ev =>
             {
                 if (ev is InputEventMouseButton b && b.ButtonIndex == MouseButton.Left && b.Pressed)
@@ -48,9 +53,8 @@ public partial class CampaignUi
         var summon = Button(right, "召唤骰子 · " + App.Data.Game.Rules.SummonCost + " 能量", () => Act("summon"));
         _live.Add(() => summon.Disabled = App.Scene != "play" || App.Sim is null || App.Sim.Count >= App.Data.Game.Board.Slots || App.Sim.State.Energy < App.Data.Game.Rules.SummonCost);
         _battleHint = Label(right, "长按战场瞄准，松手发射。", 21, Gold);
-        Label(right, "点击骰子查看详情和回收。\nSpace 召唤；Esc 暂停。按键可在设置中修改。", 19, Muted);
-        var collected = Card(right, "本局携带的物资", "胜利、失败或主动撤回后回城结算。");
-        var loot = Label(collected, "", 19, Gold);
+        Label(right, "三级选 A/B；六级重选 A/B，再选 C/D。点击骰子可查看或回收。", 18, Muted);
+        var loot = Label(right, "", 18, Gold);
         _live.Add(() => { if (App.Sim?.State.Expedition is { } ex) loot.Text = Resources(ex.Loot) + "\n蓝图 " + ex.FoundBlueprints.Count; });
         _conduits=Add(this,new BattleConduits(),"BoardChargeEffects");
         _conduits.Initialize(App,_root.Art,
@@ -71,12 +75,13 @@ public partial class CampaignUi
         bool dragging = App.Pointer?.Mode == "drag";
         for (int i = 0; i < _slots.Count; i++)
         {
-            var die = state.Board[i]; string key = die is null ? "empty" : die.Type + ":" + die.Pips;
+            var die = state.Board[i]; string key = die is null ? "empty" : die.Type + ":" + die.Pips + ":" + die.Tier3 + ":" + die.Tier6;
             if (_slotKeys[i] != key)
             {
                 _slotKeys[i] = key;
-                if (die is null) { _slotArt[i].Texture = null; _slotNames[i].Text = "+ 空位"; _slots[i].TooltipText = "单击召唤到此位置"; }
-                else { SetDice(_slotArt[i], _root.Art, die.Type, die.Pips); _slotNames[i].Text = App.Data.Types[die.Type].Name + " · " + die.Pips; _slots[i].TooltipText = App.Data.Types[die.Type].Description; }
+                if (die is null) { _slotArt[i].Texture = null; _slotNames[i].Text = "+ 空位"; _slotBranches[i].Text = ""; _slots[i].TooltipText = "单击召唤到此位置"; }
+                else { SetDice(_slotArt[i], _root.Art, die.Type, die.Pips); _slotNames[i].Text = App.Data.Types[die.Type].Name + " · " + die.Pips; _slotBranches[i].Text = die.Tier3=="" ? "3/6 强化" : die.Tier6=="" ? die.Tier3+" 分支" : die.Tier3+" + "+die.Tier6;
+                    _slots[i].TooltipText = App.Data.Types[die.Type].Description+"\n"+sim.SkillDescription(die); }
             }
             _reloads[i].Visible = die is not null;
             if (die is not null) _reloads[i].Value = 1 - MathEx.Clamp(die.Cooldown / sim.Stats(die).Reload, 0, 1);
@@ -93,7 +98,7 @@ public partial class CampaignUi
             if (dragging && state.Board[App.Pointer!.Slot] is { } d)
             { string key = d.Type + ":" + d.Pips; if (_dragArt.GetMeta("dice_key", "").AsString() != key) { SetDice(_dragArt, _root.Art, d.Type, d.Pips); _dragArt.SetMeta("dice_key", key); } _dragArt.GlobalPosition = GetGlobalMousePosition() - _dragArt.Size / 2; }
         }
-        if (_battleHint is not null) _battleHint.Text = App.Pointer?.Mode == "aim" ? "松手齐射；移出战场再松手可取消。" : sim.HasPair() ? "有可合成的骰子。现在升点，还是先保留攻击频率？" : "长按战场瞄准，松手发射。";
+        if (_battleHint is not null) _battleHint.Text = App.Pointer?.Mode == "aim" ? "松手齐射；移出战场再松手可取消。" : sim.HasPair() ? "有可合成的骰子。现在升点，还是先保留攻击频率？" : sim.Count==App.Data.Game.Board.Slots ? "阵地已满且无可合成项：点击低点骰子回收腾位。" : "长按战场瞄准，松手发射。";
     }
     private PointD FieldPoint(Vector2 position)
     {

@@ -1,0 +1,226 @@
+{
+  "passed": 55,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "configuration: 24 slots / six columns / exactly six types",
+      "passed": true
+    },
+    {
+      "name": "deck: 0\u20135 entries and duplicate six are all rejected",
+      "passed": true
+    },
+    {
+      "name": "deck: future seventh registered type is selectable, not automatically carried",
+      "passed": true
+    },
+    {
+      "name": "deck: locked die still blocks a complete six-die launch",
+      "passed": true
+    },
+    {
+      "name": "deck UI backend: cannot save or start five-type draft",
+      "passed": true
+    },
+    {
+      "name": "economy: nine opening dice preserve former three-die direct DPS",
+      "passed": true
+    },
+    {
+      "name": "damage budget: triple slots retain equal base capacity at each pip",
+      "passed": true
+    },
+    {
+      "name": "summoning: 24th slot reachable, 25th rejected without cost",
+      "passed": true
+    },
+    {
+      "name": "input: last row accepts summon and move outside legacy 432x864 canvas",
+      "passed": true
+    },
+    {
+      "name": "level 2: no branch prompt, surge preserved",
+      "passed": true
+    },
+    {
+      "name": "level 3: roll result before displaying only its skills / pulse",
+      "passed": true
+    },
+    {
+      "name": "level 3: roll result before displaying only its skills / blast",
+      "passed": true
+    },
+    {
+      "name": "level 3: roll result before displaying only its skills / arc",
+      "passed": true
+    },
+    {
+      "name": "level 3: roll result before displaying only its skills / frost",
+      "passed": true
+    },
+    {
+      "name": "level 3: roll result before displaying only its skills / split",
+      "passed": true
+    },
+    {
+      "name": "level 3: roll result before displaying only its skills / bank",
+      "passed": true
+    },
+    {
+      "name": "instance scope: one die\u0027s branch does not upgrade another die",
+      "passed": true
+    },
+    {
+      "name": "4/5: inherit target A/B key and remap to random result type",
+      "passed": true
+    },
+    {
+      "name": "6: old branch cleared; A/B then C/D for final type",
+      "passed": true
+    },
+    {
+      "name": "double click: old token cannot consume the next choice",
+      "passed": true
+    },
+    {
+      "name": "pending modal: freezes enemies, projectiles, energy and all board actions",
+      "passed": true
+    },
+    {
+      "name": "preview/choice: no reroll or mutation of random state",
+      "passed": true
+    },
+    {
+      "name": "snapshot: pre-existing shots do not change after branch choice",
+      "passed": true
+    },
+    {
+      "name": "queue budget: merge reservation fails before consuming RNG or material",
+      "passed": true
+    },
+    {
+      "name": "app: choice round-trip uses save candidate before publication",
+      "passed": true
+    },
+    {
+      "name": "app: town suspend and restart retain pending result and choice token",
+      "passed": true
+    },
+    {
+      "name": "event overflow cannot skip pending skill modal",
+      "passed": true
+    },
+    {
+      "name": "general wave upgrade and die choice do not overwrite each other",
+      "passed": true
+    },
+    {
+      "name": "catalog: all 24 branches and 24 final pairings produce finite bounded stats",
+      "passed": true
+    },
+    {
+      "name": "pulse B: extra projectiles redistribute volley, never multiply total damage",
+      "passed": true
+    },
+    {
+      "name": "pulse C: actual swept collision pierces two enemies without reversing",
+      "passed": true
+    },
+    {
+      "name": "pulse D: boss direct damage multiplier is 1.5",
+      "passed": true
+    },
+    {
+      "name": "blast C: direct kill emits one extra nonrecursive explosion",
+      "passed": true
+    },
+    {
+      "name": "arc C: unused links return damage to isolated primary",
+      "passed": true
+    },
+    {
+      "name": "arc D: frost synergy affects primary and chain targets",
+      "passed": true
+    },
+    {
+      "name": "frost: weaker area slow never replaces stronger slow",
+      "passed": true
+    },
+    {
+      "name": "frost C: shatter only triggers on an already slowed target",
+      "passed": true
+    },
+    {
+      "name": "frost D: slow reaches 60 units away but not 90",
+      "passed": true
+    },
+    {
+      "name": "boss slow floor remains 72 percent",
+      "passed": true
+    },
+    {
+      "name": "split C: children get pierces, remain nonrecursive",
+      "passed": true
+    },
+    {
+      "name": "split D: child bounce and lifetime modifiers are applied",
+      "passed": true
+    },
+    {
+      "name": "bank C: retained wall bonus is half, not repeated full multiplier",
+      "passed": true
+    },
+    {
+      "name": "bank D: shock uses only extra wall damage and never recurses",
+      "passed": true
+    },
+    {
+      "name": "saturation: split fallback queue is strictly bounded",
+      "passed": true
+    },
+    {
+      "name": "save validation: wrong result ID/type/tier is rejected",
+      "passed": true
+    },
+    {
+      "name": "save validation: missing branch or duplicate identity is rejected",
+      "passed": true
+    },
+    {
+      "name": "save: skill and RNG continuation are deterministic",
+      "passed": true
+    },
+    {
+      "name": "authoring: unknown modifier, missing branch and NaN fail validation",
+      "passed": true
+    },
+    {
+      "name": "authoring: active run pins skills instead of following live edits",
+      "passed": true
+    },
+    {
+      "name": "migration: old two-type campaign expands without losing dice, money or lead",
+      "passed": true
+    },
+    {
+      "name": "migration: old high-level dice select skills without free merge volleys",
+      "passed": true
+    },
+    {
+      "name": "migration: completed workshop gains mastery once only",
+      "passed": true
+    },
+    {
+      "name": "new format: corrupt five-die deck is rejected rather than silently filled",
+      "passed": true
+    },
+    {
+      "name": "migration: terminal high-pip dice resolve missing skills when continued as endless",
+      "passed": true
+    },
+    {
+      "name": "headless stress: 24 six-pip skilled dice stay within object budgets",
+      "passed": true
+    }
+  ]
+}

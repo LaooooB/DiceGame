@@ -17,11 +17,15 @@ public sealed class GameData
     public IReadOnlyDictionary<string, DiceDefinition> Types { get; }
     public IReadOnlyDictionary<string, UpgradeDefinition> UpgradeTypes { get; }
 
-    public GameData(string gameJson, string diceJson, string upgradesJson)
+    public IReadOnlyDictionary<string, DiceSkillSet> Skills { get; }
+    public string[] DefaultDeck => Game.Rules.StarterDeck.Length > 0 ? Game.Rules.StarterDeck : Dice.Take(Game.Rules.MaxDeck).Select(d => d.Id).ToArray();
+
+    public GameData(string gameJson, string diceJson, string upgradesJson, string? skillsJson = null)
     {
         Game = JsonSerializer.Deserialize<GameConfig>(gameJson, JsonOptions) ?? throw new InvalidDataException("game.json is empty.");
         Dice = JsonSerializer.Deserialize<DiceDefinition[]>(diceJson, JsonOptions) ?? throw new InvalidDataException("dice.json is empty.");
         Upgrades = JsonSerializer.Deserialize<UpgradeDefinition[]>(upgradesJson, JsonOptions) ?? throw new InvalidDataException("upgrades.json is empty.");
+        Skills = skillsJson is null ? new Dictionary<string, DiceSkillSet>() : DiceSkillCatalog.Parse(skillsJson);
         Types = Dice.ToDictionary(x => x.Id, StringComparer.Ordinal);
         UpgradeTypes = Upgrades.ToDictionary(x => x.Id, StringComparer.Ordinal);
         Validate();
@@ -29,19 +33,27 @@ public sealed class GameData
     public static GameData FromDirectory(string path) => new(
         File.ReadAllText(Path.Combine(path, "game.json")),
         File.ReadAllText(Path.Combine(path, "dice.json")),
-        File.ReadAllText(Path.Combine(path, "upgrades.json")));
+        File.ReadAllText(Path.Combine(path, "upgrades.json")),
+        File.Exists(Path.Combine(path, "dice_skills.json")) ? File.ReadAllText(Path.Combine(path, "dice_skills.json")) : null);
     public bool ValidDeck(IEnumerable<string>? deck)
     {
         if (deck is null) return false;
         var a = deck.ToArray();
-        return a.Length >= 1 && a.Length <= Game.Rules.MaxDeck && a.Distinct().Count() == a.Length && a.All(Types.ContainsKey);
+        return a.Length >= Game.Rules.MinDeck && a.Length <= Game.Rules.MaxDeck && a.Distinct().Count() == a.Length && a.All(Types.ContainsKey);
     }
     public PointD SlotPosition(int index) => new(Game.Board.Left + index % Game.Board.Columns * Game.Board.StepX,
         Game.Board.Top + index / Game.Board.Columns * Game.Board.StepY);
     private void Validate()
     {
-        if (Game.Board.Slots != 8 || Game.Rules.MaxDeck != 6 || Game.Rules.MaxPips != 6)
-            throw new InvalidDataException("This migration preserves the 8-slot / 6-type / 6-pip rules.");
+        if (Game.Board.Slots is < 1 or > 64 || Game.Board.Columns < 1 || Game.Board.Columns > Game.Board.Slots ||
+            Game.Rules.MaxDeck < 1 || Game.Rules.MaxDeck > Dice.Length || Game.Rules.MinDeck < 1 ||
+            Game.Rules.MinDeck > Game.Rules.MaxDeck || Game.Rules.MaxPips != 6 || !MathEx.Finite(Game.Rules.DamageScale, .01, 1))
+            throw new InvalidDataException("Invalid board, required deck size or damage budget.");
+        if (!ValidDeck(DefaultDeck) || Game.Rules.StartingDicePattern.Length is < 1 or > 64 ||
+            Game.Rules.StartingDicePattern.Length > Game.Board.Slots || Game.Rules.StartingDicePattern.Any(i => i < 0 || i >= Game.Rules.MinDeck && i != 1))
+            throw new InvalidDataException("Invalid initial dice pattern.");
+        if (Game.Rules.EnableDiceSkills && Dice.Any(d => !Skills.ContainsKey(d.Id)))
+            throw new InvalidDataException("Every registered die needs its own A/B and C/D skill definitions.");
         if (Game.Levels.Length != Game.Rules.MaxPips || Dice.Length < 1 || Game.Limits.FixedStep <= 0 ||
             Game.Arena.Left >= Game.Arena.Right || Game.Arena.Top >= Game.Arena.Bottom)
             throw new InvalidDataException("Invalid gameplay configuration.");
@@ -83,6 +95,11 @@ public sealed class BoardConfig
 }
 public sealed class RulesConfig
 {
+    public int MinDeck { get; set; } = 1;
+    public double DamageScale { get; set; } = 1;
+    public bool EnableDiceSkills { get; set; }
+    public string[] StarterDeck { get; set; } = [];
+    public int[] StartingDicePattern { get; set; } = [0, 0, 1];
     public int MaxDeck { get; set; } public int MaxPips { get; set; } public double StartEnergy { get; set; }
     public double SummonCost { get; set; } public double PassiveEnergy { get; set; } public int MaxHealth { get; set; }
     public double MergeSurge { get; set; } public double AimMaxDegrees { get; set; }

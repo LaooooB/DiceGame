@@ -1,0 +1,59 @@
+Godot Engine v4.6.stable.mono.official.89cea1439 - https://godotengine.org
+WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.
+     at: set_use_vsync (platform/linuxbsd/x11/gl_manager_x11.cpp:364)
+OpenGL API 4.5 (Core Profile) Mesa 25.0.7-2 - Compatibility - Using Device: Mesa - llvmpipe (LLVM 19.1.7, 256 bits)
+
+CAMPAIGN READY | Godot 4.6 Mono | 1920x1080 | native Control UI | 120Hz combat
+INPUT PASS: town button opens region selector
+INPUT PASS: region button opens deck
+INPUT PASS: five-die deck disables native launch
+INPUT PASS: native launch button enters battle
+INPUT PASS: native field press enters aim
+INPUT PASS: holding does not fire
+INPUT PASS: release fires exactly once
+INPUT PASS: release outside cancels
+INPUT PASS: right button cancels aim
+INPUT PASS: native drag enters merge gesture
+INPUT PASS: native merge updates actual simulation
+INPUT PASS: native empty-slot click summons there
+INPUT PASS: fourth-row slot 24 receives native summon click
+INPUT PASS: all 24 slots fit inside the actual viewport
+INPUT PASS: native merge to three opens actual result's A/B choices
+INPUT PASS: native skill modal freezes battle time
+INPUT PASS: native A button commits only the target die and resumes
+INPUT PASS: native sixth-pip result asks A/B again
+INPUT PASS: native sixth-pip first choice stays paused for C/D
+INPUT PASS: native sixth-pip final choice resumes with B+D and merge volley
+INPUT PASS: escape pauses
+INPUT PASS: native pause button resumes
+INPUT PASS: native settlement button returns to town
+NATIVE INPUT CHECKS: 23 passed, 0 failed
+CAPTURING town
+CAPTURED town
+CAPTURING regions
+CAPTURED regions
+CAPTURING deck
+CAPTURED deck
+CAPTURING battle
+CAPTURED battle
+CAPTURING battle_24_slots
+CAPTURED battle_24_slots
+CAPTURING skill_level3
+CAPTURED skill_level3
+CAPTURING skill_level6_reselect
+CAPTURED skill_level6_reselect
+CAPTURING skill_level6_final
+CAPTURED skill_level6_final
+CAPTURING battle_skilled
+CAPTURED battle_skilled
+CAPTURING battle_large_text
+CAPTURED battle_large_text
+CAPTURING upgrade
+CAPTURED upgrade
+CAPTURING pause
+CAPTURED pause
+CAPTURING settings
+CAPTURED settings
+CAPTURING settlement
+CAPTURED settlement
+CAMPAIGN CAPTURE COMPLETE

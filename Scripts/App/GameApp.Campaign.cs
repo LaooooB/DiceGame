@@ -13,7 +13,7 @@ public sealed partial class GameApp
     public string SettingsReturn { get; private set; } = "town";
     public bool SettlementSaved => Sim?.State.Expedition is { } e && Campaign?.LastResult?.RunId == e.RunId && Campaign.LastSettledSerial >= e.Serial;
     public bool StorageFailed => _storageFailed;
-    private bool _hadSave;
+    private bool _hadSave, _migratedBattle;
     private double _townSaveClock;
     private TownSimulation? _townSimulation;
     public TownSimulation TownSimulation => _townSimulation ??= new TownSimulation(Progression!);
@@ -38,12 +38,23 @@ public sealed partial class GameApp
         }
         try
         {
+            if (_migratedBattle)
+            {
+                Campaign.UnlockedDice.UnionWith(Data.DefaultDeck);
+                // Old dice-only workshops are now per-die training; grant only the new delta once during envelope migration.
+                foreach(var (id,building) in Campaign.Buildings)
+                    if(Catalog.Buildings.TryGetValue(id,out var definition))
+                        foreach(var level in definition.Levels.Take(building.Level))
+                            foreach(var (type,value) in level.Reward.Bonuses.DiceDamagePercent)
+                                Campaign.Bonuses.DiceDamagePercent[type]=Campaign.Bonuses.DiceDamagePercent.GetValueOrDefault(type)+value;
+            }
             Catalog.ValidateState(Campaign);
             if (!Progression!.CanUseDeck(Campaign, Deck))
             {
-                Deck = Deck.Where(id => Data.Types.ContainsKey(id) && Campaign.UnlockedDice.Contains(id)).Take(Data.Game.Rules.MaxDeck).ToList();
-                if (Deck.Count == 0) Deck = Data.Dice.Where(d => Campaign.UnlockedDice.Contains(d.Id)).Take(Data.Game.Rules.MaxDeck).Select(d => d.Id).ToList();
-                if (Deck.Count == 0) throw new InvalidDataException("存档中的骰子在当前内容目录里均不存在。");
+                Deck = Deck.Where(id => Data.Types.ContainsKey(id) && Campaign.UnlockedDice.Contains(id)).Distinct().Take(Data.Game.Rules.MaxDeck).ToList();
+                foreach (var type in Data.Dice.Select(d => d.Id).Where(Campaign.UnlockedDice.Contains))
+                    if (Deck.Count < Data.Game.Rules.MinDeck && !Deck.Contains(type)) Deck.Add(type);
+                if (!Progression.CanUseDeck(Campaign, Deck)) throw new InvalidDataException($"存档中不足 {Data.Game.Rules.MinDeck} 种可用骰子；请检查内容目录或迁移，原存档不会被覆盖。");
             }
             if (ResumeData?.Expedition is { } active && active.Serial > Campaign.LastSettledSerial && active.RunId != Campaign.ActiveRunId)
                 throw new InvalidDataException("远征与永久进度不属于同一次存档。");
@@ -54,7 +65,7 @@ public sealed partial class GameApp
         if (LoadProblem == "" && ResumeData?.Over == true) { RestoreRun(ResumeData); TrySettle(); }
     }
     private SaveEnvelope Envelope(CampaignState state, RunState? run, List<string>? deck = null) => new()
-    { Version = 2, Settings = Settings, Meta = Meta, Deck = deck ?? Deck, Run = run, Campaign = state, Preferences = Preferences };
+    { Version = Data.Game.Rules.EnableDiceSkills ? SaveCodec.CurrentVersion : 2, Settings = Settings, Meta = Meta, Deck = deck ?? Deck, Run = run, Campaign = state, Preferences = Preferences };
     private bool CommitCampaign(CampaignState state, RunState? run, List<string>? deck = null)
     {
         if (LoadProblem != "") { Notify("为保护原存档，写入已停止：" + LoadProblem, 4); return false; }
@@ -126,7 +137,7 @@ public sealed partial class GameApp
         candidate.ActiveRunId = next.RunId;
         var extended = Simulation.Restore(Data, Sim.ExportSave()); extended.ContinueAsEndless(next);
         if (!CommitCampaign(candidate, extended.ExportSave())) return false;
-        Sim = extended; Scene = "play"; Accumulator = 0; Pointer = null; ConsumeEvents(); return true;
+        Sim = extended; Scene = DecisionScene; Accumulator = 0; Pointer = null; ConsumeEvents(); return true;
     }
     public bool MutateTown(Action<CampaignState> mutation)
     {
@@ -146,7 +157,7 @@ public sealed partial class GameApp
     }
     public bool SaveDeck()
     {
-        if (Campaign is null || !Progression!.CanUseDeck(Campaign, EditingDeck)) { Notify("请选择 1～6 种已解锁、互不重复的骰子。"); return false; }
+        if (Campaign is null || !Progression!.CanUseDeck(Campaign, EditingDeck)) { Notify($"卡组必须携带 {Data.Game.Rules.MaxDeck} 种已解锁、互不重复的骰子。"); return false; }
         if (!CommitCampaign(Campaign, Snapshot(), EditingDeck.ToList())) return false;
         Scene = "regions"; return true;
     }
@@ -165,7 +176,7 @@ public sealed partial class GameApp
     {
         if (Campaign is null) return;
         // Terminal state is authoritative even if the presentation event budget is exhausted.
-        if (Sim?.State.Over == true && (Scene is "play" or "upgrade")) { Scene = "settlement"; CancelPointer(); TrySettle(); }
+        if (Sim?.State.Over == true && (Scene is "play" or "upgrade" or "diceSkill")) { Scene = "settlement"; CancelPointer(); TrySettle(); }
         if (Scene != "town") return;
         bool hadFlight = Campaign.Flight is not null;
         TownSimulation.Step(Campaign, dt);
@@ -197,7 +208,7 @@ public sealed partial class GameApp
             string type = id[5..];
             if (Campaign is null || !Campaign.UnlockedDice.Contains(type) || !Data.Types.ContainsKey(type)) { Notify("先在城镇解锁这颗骰子。"); return true; }
             if (!EditingDeck.Remove(type))
-            { if (EditingDeck.Count < Data.Game.Rules.MaxDeck) EditingDeck.Add(type); else Notify("卡组最多 6 种骰子。"); }
+            { if (EditingDeck.Count < Data.Game.Rules.MaxDeck) EditingDeck.Add(type); else Notify($"卡组必须为 {Data.Game.Rules.MaxDeck} 种；请先移除一种再替换。"); }
             return true;
         }
         return false;

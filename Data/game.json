@@ -1,7 +1,7 @@
 {
   "title": "骰子回响",
   "subtitle": "DICE RICOCHET",
-  "schema": 1,
+  "schema": 2,
   "view": {
     "width": 432,
     "height": 864
@@ -15,8 +15,8 @@
     "launchY": 530
   },
   "board": {
-    "slots": 8,
-    "columns": 4,
+    "slots": 24,
+    "columns": 6,
     "left": 75,
     "top": 638,
     "stepX": 94,
@@ -27,7 +27,7 @@
     "maxDeck": 6,
     "maxPips": 6,
     "startEnergy": 60,
-    "summonCost": 24,
+    "summonCost": 8,
     "passiveEnergy": 1.1,
     "maxHealth": 12,
     "mergeSurge": 0.65,
@@ -36,49 +36,71 @@
     "projectileRadius": 3.6,
     "projectileLife": 5.2,
     "baseBounces": 11,
-    "maxProjectiles": 420,
-    "maxQueuedShots": 600,
+    "maxProjectiles": 840,
+    "maxQueuedShots": 1200,
     "maxEnemies": 128,
     "waveSeconds": 15,
     "upgradeEvery": 3,
-    "bossEvery": 5
+    "bossEvery": 5,
+    "minDeck": 6,
+    "damageScale": 0.3333333333333333,
+    "enableDiceSkills": true,
+    "startingDicePattern": [
+      0,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      1
+    ],
+    "starterDeck": [
+      "pulse",
+      "blast",
+      "arc",
+      "frost",
+      "split",
+      "bank"
+    ]
   },
   "levels": [
     {
       "pips": 1,
       "volleyPower": 1.0,
       "reloadFactor": 1.0,
-      "recycle": 8
+      "recycle": 3
     },
     {
       "pips": 2,
       "volleyPower": 2.04,
       "reloadFactor": 1.12,
-      "recycle": 14
+      "recycle": 5
     },
     {
       "pips": 3,
       "volleyPower": 4.24,
       "reloadFactor": 1.26,
-      "recycle": 25
+      "recycle": 8
     },
     {
       "pips": 4,
       "volleyPower": 8.82,
       "reloadFactor": 1.43,
-      "recycle": 45
+      "recycle": 15
     },
     {
       "pips": 5,
       "volleyPower": 18.6,
       "reloadFactor": 1.61,
-      "recycle": 81
+      "recycle": 27
     },
     {
       "pips": 6,
       "volleyPower": 39.5,
       "reloadFactor": 1.82,
-      "recycle": 146
+      "recycle": 49
     }
   ],
   "waves": {

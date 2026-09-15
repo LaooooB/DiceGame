@@ -10,5 +10,6 @@
     <Compile Include="../../Scripts/Presentation/EffectSystem.cs" Link="Presentation/EffectSystem.cs" />
     <Compile Include="../../Scripts/Presentation/SoundSynth.cs" Link="Presentation/SoundSynth.cs" />
     <None Include="../../Data/*.json" Link="Data/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  <None Include="../LegacyBalanceData/*.json" Link="LegacyBalanceData/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

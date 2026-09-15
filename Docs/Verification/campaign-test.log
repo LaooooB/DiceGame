@@ -1,0 +1,47 @@
+PASS catalog: eight finite regions and reachable unlock graph
+PASS fresh profile: town, initial dice, one open region
+PASS gates: locked dice and locked regions reject launch without spending
+PASS launch: one immutable main die and configured slots
+PASS launch save failure: no run published and no attempt consumed
+PASS one active expedition: second launch is rejected
+PASS real battle: all stages, two minibosses and final boss, then victory
+PASS boss cannot be skipped by the wave timer
+PASS approach wave must clear before spawning a boss
+PASS boss breach: defeat even with spare health, no victory flag
+PASS victory requires actual final-boss kill
+PASS victory: fixed rewards, first-clear blueprint, one lead-die gear
+PASS settlement idempotency: duplicate callback cannot double rewards
+PASS settlement write failure: wallet unchanged until retry succeeds
+PASS crash after terminal snapshot: load retries unconfirmed settlement
+PASS crash after confirmed settlement: reload does not pay twice
+PASS repeat same lead: reward resources, no duplicate gear / first clear
+PASS different lead: exactly one extra gear, not all carried dice
+PASS defeat keeps collected resource / blueprint, no region clear
+PASS abandon at t=0 cannot farm dispatch supplies
+PASS endless lock is effective at the terminal boundary
+PASS endless: keeps build, uses new journal identity, pays only new loot
+PASS endless final stage wraps and never grants another normal victory
+PASS blueprint RNG is independent of combat RNG
+PASS boss blueprint draws are deduplicated within the run
+PASS pinned region definition and bonuses survive authoring changes
+PASS resume: exact battle and reward RNG continuation
+PASS suspend to town: building prohibited and resume keeps offer
+PASS building construction: cost once, rewards only on completion
+PASS building write failure does not spend funds or publish construction
+PASS construction rejects resource tiles, occupied plots and locked blueprints
+PASS relocation preserves level and work without replaying reward
+PASS town bounce advances construction and reaches a finite end
+PASS town state checkpoint: no repeated resource on reload
+PASS town dispatch cannot overlap expedition or another dispatch
+PASS new cycle uses configured gate and preserves permanent unlocks
+PASS legacy save migration: retain previously usable six-dice deck
+PASS legacy active run migration: not replaced or restarted
+PASS invalid save: no silent overwrite
+PASS mismatched active session is rejected on load
+PASS catalog validation rejects unknown region / blueprint references
+PASS catalog detects circular building prerequisites
+PASS upgrade exhaustion: no invalid three-choice modal or capped upgrade
+PASS terminal callback flood cannot block settlement
+PASS configuration: no character-unlock state or six-die clear multiplication
+
+45 campaign tests passed, 0 failed.

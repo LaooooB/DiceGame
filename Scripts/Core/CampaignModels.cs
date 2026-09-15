@@ -86,12 +86,13 @@ public sealed class RewardDefinition
 }
 public sealed class RunBonuses
 {
+    public Dictionary<string, double> DiceDamagePercent { get; set; } = [];
     public double DamagePercent { get; set; }
     public double ReloadPercent { get; set; }
     public double StartEnergy { get; set; }
     public double PassiveEnergy { get; set; }
     public void Add(RunBonuses b)
-    { DamagePercent += b.DamagePercent; ReloadPercent += b.ReloadPercent; StartEnergy += b.StartEnergy; PassiveEnergy += b.PassiveEnergy; }
+    { foreach(var (id,amount) in b.DiceDamagePercent) DiceDamagePercent[id]=DiceDamagePercent.GetValueOrDefault(id)+amount; DamagePercent += b.DamagePercent; ReloadPercent += b.ReloadPercent; StartEnergy += b.StartEnergy; PassiveEnergy += b.PassiveEnergy; }
 }
 public sealed class BuildingDefinition
 {

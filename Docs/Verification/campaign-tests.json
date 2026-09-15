@@ -15,7 +15,7 @@
       "passed": true
     },
     {
-      "name": "launch: one immutable main die and eight slots",
+      "name": "launch: one immutable main die and configured slots",
       "passed": true
     },
     {

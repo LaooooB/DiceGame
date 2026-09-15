@@ -31,7 +31,7 @@ public partial class GameRoot : Node
         try
         {
             _window = GetWindow(); _window.MinSize = new Vector2I(960, 640); GetTree().AutoAcceptQuit = false;
-            var data = new GameData(Read("game"), Read("dice"), Read("upgrades"));
+            var data = new GameData(Read("game"), Read("dice"), Read("upgrades"), Read("dice_skills"));
             var catalog = new CampaignCatalog(data, Read("campaign"));
             Art = new NativeArt(); Audio = new NativeAudio { Name = "NativeAudio" }; AddChild(Audio);
             Storage = new DesktopStorage(data); _capture = OS.GetCmdlineUserArgs().Contains("--capture-campaign");
@@ -192,22 +192,46 @@ public partial class GameRoot : Node
         try
         {
             string path = ProjectSettings.GlobalizePath("res://Artifacts/CampaignScreenshots"); Directory.CreateDirectory(path);
-            await CheckNativeInput(path);
+            bool layoutOnly=OS.GetCmdlineUserArgs().Contains("--layout-only");
+            if(!layoutOnly) await CheckNativeInput(path);
             async Task Capture(string name)
             {
+                if(layoutOnly && name!="battle_large_text") return;
                 GD.Print("CAPTURING " + name);
                 _ui.Invalidate(); _ui.Refresh(); foreach (var layer in _layers) layer.QueueRedraw();
                 for (int i = 0; i < 4; i++) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
-                _ui.AssertLayout(); using var image = GetViewport().GetTexture().GetImage();
+                using var image = GetViewport().GetTexture().GetImage();
                 if (image.SavePng(Path.Combine(path, name + ".png")) != Error.Ok) throw new IOException("Capture failed: " + name);
-                GD.Print("CAPTURED " + name);
+                _ui.AssertLayout(); GD.Print("CAPTURED " + name);
             }
             await Capture("town"); App.Scene = "regions"; await Capture("regions"); App.Action("editDeck"); await Capture("deck");
-            App.Scene = "town"; App.StartExpedition(24137); await Capture("battle"); App.Sim!.OfferUpgrades(); App.ConsumeEvents(); await Capture("upgrade");
+            App.Scene = "town"; App.StartExpedition(24137); await Capture("battle");
+            var simulation=App.Sim!;
+            for(int i=0;i<App.Data.Game.Board.Slots;i++)
+            {
+                int pip=1+i/6;var die=simulation.MakeDie(App.Data.DefaultDeck[i%6],pip);
+                if(pip>=3)die.Tier3=i%2==0?"A":"B";simulation.State.Board[i]=die;
+            }
+            simulation.Fire(-1.68);for(int i=0;i<50;i++)simulation.Step(1d/120);App.ConsumeEvents();await Capture("battle_24_slots");
+            async Task CapturePair(int pips,string name)
+            {
+                simulation=App.Sim!;simulation.State.PendingShots.Clear();simulation.State.Projectiles.Clear();
+                simulation.State.Board[0]=simulation.MakeDie("pulse",pips);simulation.State.Board[1]=simulation.MakeDie("pulse",pips);
+                if(pips>=3){simulation.State.Board[0]!.Tier3="A";simulation.State.Board[1]!.Tier3="B";}
+                if(!simulation.Merge(0,1).Ok)throw new InvalidOperationException("Capture merge rejected");App.ConsumeEvents();await Capture(name);
+            }
+            await CapturePair(2,"skill_level3");App.ChooseDiceSkill(App.Sim!.CurrentSkillChoice!.ChoiceId,"A");
+            await CapturePair(5,"skill_level6_reselect");App.ChooseDiceSkill(App.Sim!.CurrentSkillChoice!.ChoiceId,"B");
+            await Capture("skill_level6_final");App.ChooseDiceSkill(App.Sim!.CurrentSkillChoice!.ChoiceId,"D");
+            await Capture("battle_skilled");
+            var standardPreferences=CampaignCatalog.Copy(App.Preferences);var largePreferences=CampaignCatalog.Copy(standardPreferences);largePreferences.UiScale=1.3;
+            App.SetPreferences(largePreferences);ApplyPreferences(largePreferences);await Capture("battle_large_text");
+            App.SetPreferences(standardPreferences);ApplyPreferences(standardPreferences);
+            App.Sim!.OfferUpgrades(); App.ConsumeEvents(); await Capture("upgrade");
             App.Scene = "paused"; await Capture("pause"); App.OpenSettings(); await Capture("settings"); App.CloseSettings();
             App.AbandonExpedition(); await Capture("settlement"); App.ReturnToTown();
-            File.WriteAllText(Path.Combine(path, "capture_result.json"), JsonSerializer.Serialize(new { completed = true, screens = 8, engine = Engine.GetVersionInfo()["string"].AsString() }));
+            File.WriteAllText(Path.Combine(path, "capture_result.json"), JsonSerializer.Serialize(new { completed = true, screens = layoutOnly?1:14, layout_only=layoutOnly, engine = Engine.GetVersionInfo()["string"].AsString() }));
             Audio.Shutdown();
             for(int i=0;i<3;i++) await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
             GD.Print("CAMPAIGN CAPTURE COMPLETE"); GetTree().CallDeferred(SceneTree.MethodName.Quit, 0);

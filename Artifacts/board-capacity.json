@@ -1,0 +1,191 @@
+{
+  "method": "eager same-type/same-pip merge, uniform result and summon, six types; stop first six",
+  "limitations": "Unlimited energy, no combat, no recycling. Not win rate or an all-run no-jam guarantee.",
+  "no_pair_bucket_count_below_six": 30,
+  "sufficient_slots_for_first_six_without_jam": 31,
+  "chosen_slots": 24,
+  "legacy_opening": {
+    "trials": 20000,
+    "seed": 20260915,
+    "opening_type_indices": [
+      0,
+      0,
+      1
+    ],
+    "mean_peak": 18.92035,
+    "max_peak_observed": 28,
+    "mean_additional_summons": 94.05095,
+    "peak_percentiles": {
+      "50": 19,
+      "90": 22,
+      "95": 23,
+      "99": 24
+    },
+    "capacity_results": [
+      {
+        "slots": 8,
+        "first_six_before_jam": 0,
+        "success_fraction": 0.0
+      },
+      {
+        "slots": 12,
+        "first_six_before_jam": 41,
+        "success_fraction": 0.00205
+      },
+      {
+        "slots": 16,
+        "first_six_before_jam": 2860,
+        "success_fraction": 0.143
+      },
+      {
+        "slots": 18,
+        "first_six_before_jam": 8578,
+        "success_fraction": 0.4289
+      },
+      {
+        "slots": 20,
+        "first_six_before_jam": 15139,
+        "success_fraction": 0.75695
+      },
+      {
+        "slots": 22,
+        "first_six_before_jam": 18812,
+        "success_fraction": 0.9406
+      },
+      {
+        "slots": 24,
+        "first_six_before_jam": 19857,
+        "success_fraction": 0.99285
+      },
+      {
+        "slots": 26,
+        "first_six_before_jam": 19997,
+        "success_fraction": 0.99985
+      },
+      {
+        "slots": 28,
+        "first_six_before_jam": 20000,
+        "success_fraction": 1.0
+      },
+      {
+        "slots": 31,
+        "first_six_before_jam": 20000,
+        "success_fraction": 1.0
+      }
+    ],
+    "peak_histogram": {
+      "9": 1,
+      "10": 1,
+      "11": 6,
+      "12": 33,
+      "13": 110,
+      "14": 366,
+      "15": 810,
+      "16": 1533,
+      "17": 2476,
+      "18": 3242,
+      "19": 3463,
+      "20": 3098,
+      "21": 2270,
+      "22": 1403,
+      "23": 743,
+      "24": 302,
+      "25": 107,
+      "26": 33,
+      "27": 1,
+      "28": 2
+    }
+  },
+  "new_opening": {
+    "trials": 20000,
+    "seed": 20260915,
+    "opening_type_indices": [
+      0,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      1
+    ],
+    "mean_peak": 18.9224,
+    "max_peak_observed": 28,
+    "mean_additional_summons": 88.16505,
+    "peak_percentiles": {
+      "50": 19,
+      "90": 22,
+      "95": 23,
+      "99": 24
+    },
+    "capacity_results": [
+      {
+        "slots": 12,
+        "first_six_before_jam": 39,
+        "success_fraction": 0.00195
+      },
+      {
+        "slots": 16,
+        "first_six_before_jam": 2897,
+        "success_fraction": 0.14485
+      },
+      {
+        "slots": 18,
+        "first_six_before_jam": 8449,
+        "success_fraction": 0.42245
+      },
+      {
+        "slots": 20,
+        "first_six_before_jam": 15146,
+        "success_fraction": 0.7573
+      },
+      {
+        "slots": 22,
+        "first_six_before_jam": 18879,
+        "success_fraction": 0.94395
+      },
+      {
+        "slots": 24,
+        "first_six_before_jam": 19871,
+        "success_fraction": 0.99355
+      },
+      {
+        "slots": 26,
+        "first_six_before_jam": 19995,
+        "success_fraction": 0.99975
+      },
+      {
+        "slots": 28,
+        "first_six_before_jam": 20000,
+        "success_fraction": 1.0
+      },
+      {
+        "slots": 31,
+        "first_six_before_jam": 20000,
+        "success_fraction": 1.0
+      }
+    ],
+    "peak_histogram": {
+      "10": 1,
+      "11": 6,
+      "12": 32,
+      "13": 119,
+      "14": 342,
+      "15": 824,
+      "16": 1573,
+      "17": 2404,
+      "18": 3148,
+      "19": 3509,
+      "20": 3188,
+      "21": 2323,
+      "22": 1410,
+      "23": 715,
+      "24": 277,
+      "25": 94,
+      "26": 30,
+      "27": 4,
+      "28": 1
+    }
+  }
+}

@@ -7,6 +7,7 @@ public sealed class DieState
 {
     public long Id { get; set; } public string Type { get; set; } = "pulse"; public int Pips { get; set; } = 1;
     public double Cooldown { get; set; } public double Flash { get; set; }
+    public string Tier3 { get; set; } = ""; public string Tier6 { get; set; } = "";
     public DieState Copy() => (DieState)MemberwiseClone();
 }
 public sealed class ShotStats
@@ -17,6 +18,12 @@ public sealed class ShotStats
     public double ChainRange { get; set; } public double ChainFactor { get; set; } public double SlowFactor { get; set; }
     public double SlowSeconds { get; set; } public int ChildCount { get; set; } public double ChildFactor { get; set; }
     public double WallBoost { get; set; } public double MaxBoost { get; set; }
+    public int Pierces { get; set; } public int ChildPierces { get; set; }
+    public int ChildBounceBonus { get; set; } public double ChildLifeBonus { get; set; }
+    public double SlowRadius { get; set; } public double BossDamageMultiplier { get; set; } = 1;
+    public double ChilledDamageMultiplier { get; set; } = 1; public double KillExplosionFactor { get; set; }
+    public double ArcReturnFactor { get; set; } public double ShatterRadius { get; set; } public double ShatterFactor { get; set; }
+    public double WallRetention { get; set; } public double BankShockRadius { get; set; } public double BankShockFactor { get; set; }
     public ShotStats Copy() => (ShotStats)MemberwiseClone();
 }
 public sealed class ShotSnapshot
@@ -42,6 +49,7 @@ public sealed class ProjectileState
     public double Px { get; set; } public double Py { get; set; } public double Vx { get; set; } public double Vy { get; set; }
     public string Type { get; set; } = "pulse"; public int Pips { get; set; } = 1; public ShotStats Stats { get; set; } = new();
     public double Life { get; set; } public int Bounces { get; set; } public bool Child { get; set; } public bool SplitDone { get; set; }
+    public int PiercesLeft { get; set; }
     public double WallPower { get; set; } = 1; public long LastEnemy { get; set; } public bool Surge { get; set; } public bool Dead { get; set; }
     public List<PointD> Trail { get; set; } = [];
 }
@@ -73,7 +81,9 @@ public sealed class RunState
     public long Merges { get; set; } public long Shots { get; set; } public int Combo { get; set; } public double ComboTime { get; set; }
     public int BestCombo { get; set; } public bool ClearRewarded { get; set; } public double NextWaveIn { get; set; } = -1;
     public double LastAim { get; set; } = -Math.PI / 2;
-    public DieState?[] Board { get; set; } = new DieState?[8];
+    public DieState?[] Board { get; set; } = [];
+    public Dictionary<string, DiceSkillSet> SkillSets { get; set; } = [];
+    public List<DiceSkillChoice> PendingSkills { get; set; } = [];
     public List<EnemyState> Enemies { get; set; } = [];
     public List<ProjectileState> Projectiles { get; set; } = [];
     public List<PendingShot> PendingShots { get; set; } = [];

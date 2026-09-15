@@ -1,0 +1,261 @@
+[
+  {
+    "type": "pulse",
+    "level3": [
+      {
+        "key": "A",
+        "name": "重弹",
+        "description": "齐射伤害 +30%，装填时间 +10%。少量重弹更适合稳定命中。",
+        "modifiers": {
+          "damageMultiplier": 1.3,
+          "reloadMultiplier": 1.1
+        }
+      },
+      {
+        "key": "B",
+        "name": "连射",
+        "description": "每轮多发 2 颗弹丸；总齐射伤害 +12%，装填时间 -10%。伤害均分到全部弹丸。",
+        "modifiers": {
+          "damageMultiplier": 1.12,
+          "reloadMultiplier": 0.9,
+          "extraProjectiles": 2
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "穿阵",
+        "description": "每颗弹丸前 2 次命中穿透敌人而不反弹；穿透不消耗反弹次数。",
+        "modifiers": {
+          "pierces": 2
+        }
+      },
+      {
+        "key": "D",
+        "name": "猎首",
+        "description": "对头目的直接命中伤害 +50%。",
+        "modifiers": {
+          "bossDamageMultiplier": 1.5
+        }
+      }
+    ]
+  },
+  {
+    "type": "blast",
+    "level3": [
+      {
+        "key": "A",
+        "name": "广域爆破",
+        "description": "爆炸半径 +35%，溅射系数 -15%。覆盖更分散的敌群。",
+        "modifiers": {
+          "blastRadiusMultiplier": 1.35,
+          "splashMultiplier": 0.85
+        }
+      },
+      {
+        "key": "B",
+        "name": "聚能爆破",
+        "description": "爆炸半径 -20%，溅射系数 +40%，齐射伤害 +8%。",
+        "modifiers": {
+          "blastRadiusMultiplier": 0.8,
+          "splashMultiplier": 1.4,
+          "damageMultiplier": 1.08
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "殉爆",
+        "description": "直接命中击杀敌人时，追加一次相当于该弹丸伤害 45% 的范围爆炸；追加爆炸不会再触发殉爆。",
+        "modifiers": {
+          "killExplosionFactor": 0.45
+        }
+      },
+      {
+        "key": "D",
+        "name": "破城弹",
+        "description": "对头目的直接命中伤害 +50%，基础爆炸溅射系数 +15%。",
+        "modifiers": {
+          "bossDamageMultiplier": 1.5,
+          "splashMultiplier": 1.15
+        }
+      }
+    ]
+  },
+  {
+    "type": "arc",
+    "level3": [
+      {
+        "key": "A",
+        "name": "分流",
+        "description": "连锁目标 +2，每次连锁伤害系数 -15%。",
+        "modifiers": {
+          "extraChains": 2,
+          "chainDamageMultiplier": 0.85
+        }
+      },
+      {
+        "key": "B",
+        "name": "远距电弧",
+        "description": "连锁距离 +40%，连锁伤害系数 +25%，连锁目标 -1（至少 1 个）。",
+        "modifiers": {
+          "chainRangeMultiplier": 1.4,
+          "chainDamageMultiplier": 1.25,
+          "extraChains": -1
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "回流",
+        "description": "没有找到目标的每一跳，将 20% 弹丸伤害返还给最初命中的敌人；不会生成新电弧。",
+        "modifiers": {
+          "arcReturnFactor": 0.2
+        }
+      },
+      {
+        "key": "D",
+        "name": "霜雷共振",
+        "description": "直接命中和连锁对已减速目标造成的伤害 +45%。与冰霜骰子配合。",
+        "modifiers": {
+          "chilledDamageMultiplier": 1.45
+        }
+      }
+    ]
+  },
+  {
+    "type": "frost",
+    "level3": [
+      {
+        "key": "A",
+        "name": "深寒",
+        "description": "减速后的移动速度降为原速的 38%，持续时间 -10%。头目仍保留至少 72% 移速。",
+        "modifiers": {
+          "slowFactorOverride": 0.38,
+          "slowDurationMultiplier": 0.9
+        }
+      },
+      {
+        "key": "B",
+        "name": "冻雾",
+        "description": "减速传播到半径 34 内的敌人；持续时间 +50%，减速后的移动速度为原速的 62%。",
+        "modifiers": {
+          "slowRadius": 34,
+          "slowFactorOverride": 0.62,
+          "slowDurationMultiplier": 1.5
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "碎冰",
+        "description": "命中已减速的敌人时，直接伤害 +35%，并对半径 40 内的其他敌人造成 30% 弹丸伤害。",
+        "modifiers": {
+          "chilledDamageMultiplier": 1.35,
+          "shatterRadius": 40,
+          "shatterFactor": 0.3
+        }
+      },
+      {
+        "key": "D",
+        "name": "寒潮",
+        "description": "减速传播半径至少为 64，持续时间 +25%。扩散不会触发额外命中或伤害。",
+        "modifiers": {
+          "slowRadius": 64,
+          "slowDurationMultiplier": 1.25
+        }
+      }
+    ]
+  },
+  {
+    "type": "split",
+    "level3": [
+      {
+        "key": "A",
+        "name": "繁星",
+        "description": "分裂子弹 +2，每颗子弹的伤害系数 -20%。子弹仍不递归分裂。",
+        "modifiers": {
+          "extraChildren": 2,
+          "childDamageMultiplier": 0.8
+        }
+      },
+      {
+        "key": "B",
+        "name": "重型碎片",
+        "description": "分裂子弹 -1（至少 1 颗），子弹伤害系数 +60%，子弹寿命 +0.8 秒。",
+        "modifiers": {
+          "extraChildren": -1,
+          "childDamageMultiplier": 1.6,
+          "childLifeBonus": 0.8
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "穿透碎片",
+        "description": "分裂子弹获得 2 次穿透；母弹不获得穿透。",
+        "modifiers": {
+          "childPierces": 2
+        }
+      },
+      {
+        "key": "D",
+        "name": "回旋碎片",
+        "description": "分裂子弹反弹上限 +4，寿命 +1.5 秒，伤害系数 +15%。",
+        "modifiers": {
+          "childBounceBonus": 4,
+          "childLifeBonus": 1.5,
+          "childDamageMultiplier": 1.15
+        }
+      }
+    ]
+  },
+  {
+    "type": "bank",
+    "level3": [
+      {
+        "key": "A",
+        "name": "强折射",
+        "description": "每次撞墙增伤增量 +40%，撞墙增伤上限 +0.4。",
+        "modifiers": {
+          "wallBoostMultiplier": 1.4,
+          "maxBoostBonus": 0.4
+        }
+      },
+      {
+        "key": "B",
+        "name": "长线蓄能",
+        "description": "反弹上限 +4，撞墙增伤上限 +1.0，每次撞墙增伤增量 -15%。",
+        "modifiers": {
+          "extraBounces": 4,
+          "maxBoostBonus": 1.0,
+          "wallBoostMultiplier": 0.85
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "余辉",
+        "description": "命中后保留本次撞墙额外增伤的 50%，而不是全部归零。",
+        "modifiers": {
+          "wallRetention": 0.5
+        }
+      },
+      {
+        "key": "D",
+        "name": "震荡折射",
+        "description": "带有撞墙增伤时命中，对半径 48 内其他敌人造成“本次撞墙额外伤害”的 45%。不递归触发。",
+        "modifiers": {
+          "bankShockRadius": 48,
+          "bankShockFactor": 0.45
+        }
+      }
+    ]
+  }
+]

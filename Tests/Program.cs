@@ -8,7 +8,7 @@ namespace DiceGame.Tests;
 internal static class Program
 {
     private static readonly string Root=AppContext.BaseDirectory;
-    private static readonly GameData Data=GameData.FromDirectory(Path.Combine(Root,"Data"));
+    private static readonly GameData Data=GameData.FromDirectory(Path.Combine(Root,"LegacyBalanceData"));
     private static readonly List<object> Results=[];
     private static int _passed,_failed;
     private static void Main()
