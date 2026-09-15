@@ -24,18 +24,19 @@ jobs:
         id: bootstrap
         shell: bash
         run: |
-          if [ -f bootstrap/project-source.tar.gz.b64 ]; then
+          if [ -f bootstrap/READY ]; then
             echo "needed=true" >> "$GITHUB_OUTPUT"
           else
             echo "needed=false" >> "$GITHUB_OUTPUT"
-            echo "Project is already materialized."
+            echo "Bootstrap is incomplete or the project is already materialized."
           fi
 
       - name: Expand source project
         if: steps.bootstrap.outputs.needed == 'true'
         shell: bash
         run: |
-          base64 --decode bootstrap/project-source.tar.gz.b64 > /tmp/project-source.tar.gz
+          cat bootstrap/chunks/*.part > /tmp/project-source.tar.gz.b64
+          base64 --decode /tmp/project-source.tar.gz.b64 > /tmp/project-source.tar.gz
           tar -xzf /tmp/project-source.tar.gz -C .
           rm -rf bootstrap
 
