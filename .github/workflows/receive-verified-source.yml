@@ -1,0 +1,184 @@
+name: Receive and validate complete source
+on:
+  push:
+    branches: [work/zip-campaign-integration]
+    paths: [.github/workflows/receive-verified-source.yml]
+permissions:
+  contents: write
+concurrency:
+  group: dicegame-verified-source-delivery
+  cancel-in-progress: false
+jobs:
+  receive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      EXPECTED_BASE: 933627aa0c0a893a5404ee04517e029fb1e029c6
+      ARCHIVE_SHA256: 0fa904662223bf08452dbd970c326d82e5ace38c3ae809b3d91c43d93a3dbdde
+      SOURCE_BRANCH: work/verified-campaign-20260915
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Publish ephemeral encryption key
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:4096 -out "$RUNNER_TEMP/source-private.pem" 2>/dev/null
+          openssl pkey -in "$RUNNER_TEMP/source-private.pem" -pubout -out "$RUNNER_TEMP/source-public.pem"
+          mkdir -p .transfer
+          python3 - <<'PY'
+          import json, os, pathlib, secrets
+          info = {'run_id': os.environ['GITHUB_RUN_ID'], 'nonce': secrets.token_hex(24), 'archive_sha256': os.environ['ARCHIVE_SHA256'], 'public_key': pathlib.Path(os.environ['RUNNER_TEMP'], 'source-public.pem').read_text()}
+          pathlib.Path('.transfer/public.json').write_text(json.dumps(info, indent=2))
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .transfer/public.json
+          git commit -m 'Publish one-use source transfer public key'
+          git push origin HEAD:work/zip-campaign-integration
+      - name: Receive encrypted location and verify archive bytes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64, hashlib, json, os, pathlib, stat, subprocess, time, urllib.error, urllib.parse, urllib.request, zipfile
+          root = pathlib.Path(os.environ['RUNNER_TEMP'])
+          key = json.loads(pathlib.Path('.transfer/public.json').read_text())
+          endpoint = 'https://api.github.com/repos/LaooooB/DiceGame/contents/.transfer/request.json?ref=work%2Fzip-campaign-integration'
+          payload = None
+          deadline = time.monotonic() + 720
+          while time.monotonic() < deadline:
+              request = urllib.request.Request(endpoint, headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'], 'Accept': 'application/vnd.github+json', 'Cache-Control': 'no-cache'})
+              try:
+                  with urllib.request.urlopen(request, timeout=20) as response:
+                      item = json.load(response)
+                  candidate = json.loads(base64.b64decode(item['content']))
+                  if candidate.get('nonce') == key['nonce'] and candidate.get('run_id') == key['run_id']:
+                      payload = candidate
+                      break
+              except urllib.error.HTTPError as error:
+                  if error.code != 404:
+                      raise SystemExit('Cannot read transfer request, HTTP ' + str(error.code)) from None
+              time.sleep(4)
+          if payload is None:
+              raise SystemExit('No matching encrypted transfer request before timeout')
+          if payload.get('archive_sha256') != os.environ['ARCHIVE_SHA256']:
+              raise SystemExit('Archive identity does not match the pinned workflow')
+          blocks = payload.get('encrypted_url_blocks', [])
+          if not 1 <= len(blocks) <= 32:
+              raise SystemExit('Invalid encrypted location')
+          decrypted = []
+          for block in blocks:
+              decrypted.append(subprocess.check_output(['openssl', 'pkeyutl', '-decrypt', '-inkey', str(root / 'source-private.pem'), '-pkeyopt', 'rsa_padding_mode:oaep', '-pkeyopt', 'rsa_oaep_md:sha256', '-pkeyopt', 'rsa_mgf1_md:sha256'], input=base64.b64decode(block, validate=True), stderr=subprocess.DEVNULL))
+          location = b''.join(decrypted).decode('utf-8')
+          parsed = urllib.parse.urlparse(location)
+          if parsed.scheme != 'https' or not (parsed.hostname or '').endswith('.oaiusercontent.com'):
+              raise SystemExit('Unexpected transfer host')
+          archive_path = root / 'source.zip'
+          digest = hashlib.sha256()
+          total = 0
+          try:
+              with urllib.request.urlopen(location, timeout=90) as response, archive_path.open('wb') as output:
+                  while True:
+                      chunk = response.read(1024 * 1024)
+                      if not chunk:
+                          break
+                      total += len(chunk)
+                      if total > 100 * 1024 * 1024:
+                          raise ValueError('size')
+                      digest.update(chunk)
+                      output.write(chunk)
+          except Exception:
+              raise SystemExit('Source download failed or expired; no source was executed') from None
+          finally:
+              (root / 'source-private.pem').unlink(missing_ok=True)
+          if digest.hexdigest() != os.environ['ARCHIVE_SHA256']:
+              raise SystemExit('Source archive checksum mismatch')
+          destination = root / 'expanded-source'
+          destination.mkdir()
+          with zipfile.ZipFile(archive_path) as archive:
+              members = archive.infolist()
+              if len(members) != 190 or sum(m.file_size for m in members) > 150 * 1024 * 1024:
+                  raise SystemExit('Unexpected archive structure')
+              for member in members:
+                  path = pathlib.PurePosixPath(member.filename)
+                  if path.is_absolute() or '..' in path.parts or not path.parts or path.parts[0] != 'DiceGame-Godot' or '.git' in path.parts or stat.S_ISLNK(member.external_attr >> 16):
+                      raise SystemExit('Unsafe archive entry')
+              archive.extractall(destination)
+          print('Verified complete source ZIP:', digest.hexdigest(), 'bytes:', total, 'files:', len(members))
+          PY
+      - name: Prepare candidate without changing main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          test "$(git rev-parse origin/main)" = "$EXPECTED_BASE"
+          git worktree add --detach "$RUNNER_TEMP/candidate" "$EXPECTED_BASE"
+          cp -a "$RUNNER_TEMP/expanded-source/DiceGame-Godot/." "$RUNNER_TEMP/candidate/"
+          rm -rf "$RUNNER_TEMP/candidate/bootstrap"
+          rm -f "$RUNNER_TEMP/candidate/.github/workflows/materialize-project.yml"
+      - name: Execute original and campaign regression, build, import and launch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/candidate"
+          python3 Tools/verify_source_manifest.py
+          python3 Tools/static_check.py
+          dotnet run --project Tests/DiceGame.Tests.csproj --configuration Release | tee "$RUNNER_TEMP/core-validation.log"
+          dotnet run --project Tests/Campaign/Campaign.Tests.csproj --configuration Release | tee "$RUNNER_TEMP/campaign-validation.log"
+          dotnet build DiceGame.csproj --configuration Debug | tee "$RUNNER_TEMP/native-build.log"
+          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6-stable/Godot_v4.6-stable_mono_linux_x86_64.zip' -o "$RUNNER_TEMP/godot.zip"
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          GODOT="$RUNNER_TEMP/godot/Godot_v4.6-stable_mono_linux_x86_64/Godot_v4.6-stable_mono_linux.x86_64"
+          "$GODOT" --version | tee "$RUNNER_TEMP/engine-version.txt"
+          "$GODOT" --headless --editor --import --path "$PWD" --quit > "$RUNNER_TEMP/import.log" 2>&1
+          "$GODOT" --headless --path "$PWD" --quit-after 6 > "$RUNNER_TEMP/smoke.log" 2>&1
+          cat "$RUNNER_TEMP/smoke.log"
+          grep -q 'CAMPAIGN READY' "$RUNNER_TEMP/smoke.log"
+          ! grep -E 'SCRIPT ERROR:|^ERROR:' "$RUNNER_TEMP/smoke.log"
+          python3 Tools/verify_source_manifest.py
+          python3 - <<'PY'
+          import json, os, pathlib, subprocess
+          root = pathlib.Path(os.environ['RUNNER_TEMP'])
+          report = {'status': 'passed', 'archive_sha256': os.environ['ARCHIVE_SHA256'], 'expected_base': os.environ['EXPECTED_BASE'], 'workflow_run': os.environ['GITHUB_RUN_ID'], 'dotnet_sdk': subprocess.check_output(['dotnet', '--version'], text=True).strip(), 'godot_version': (root / 'engine-version.txt').read_text().strip(), 'source_manifest': '189 authored files verified before and after validation', 'combat_tests': json.loads(pathlib.Path('core-test-results.json').read_text()), 'campaign_tests': json.loads(pathlib.Path('campaign-test-results.json').read_text()), 'native_build': 'dotnet build DiceGame.csproj --configuration Debug: passed', 'godot_import': 'passed', 'godot_startup': 'CAMPAIGN READY; no script errors'}
+          pathlib.Path('Docs/Verification/github-verification.json').write_text(json.dumps(report, ensure_ascii=False, indent=2))
+          PY
+      - name: Publish tested source branch only
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/candidate"
+          # The connector applies workflow-file changes in the final reviewed tree.
+          # The Actions token publishes only source; main is not changed by this job.
+          rm -rf .github
+          git restore --source="$EXPECTED_BASE" -- .github
+          git config core.autocrlf false
+          git add -A
+          git commit -m 'Implement complete town-region campaign loop from verified uploaded Godot source'
+          git push origin "HEAD:refs/heads/$SOURCE_BRANCH"
+          echo "VERIFIED_SOURCE_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
+          echo "Main was not modified by this job." >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: complete-source-validation
+          path: |
+            ${{ runner.temp }}/core-validation.log
+            ${{ runner.temp }}/campaign-validation.log
+            ${{ runner.temp }}/native-build.log
+            ${{ runner.temp }}/engine-version.txt
+            ${{ runner.temp }}/import.log
+            ${{ runner.temp }}/smoke.log
+            ${{ runner.temp }}/candidate/Docs/Verification/github-verification.json
+          retention-days: 7
+      - name: Remove ephemeral transfer material
+        if: always()
+        shell: bash
+        run: rm -f "$RUNNER_TEMP/source-private.pem" "$RUNNER_TEMP/source.zip"
