@@ -1,26 +1,28 @@
-name: Source snapshot
+name: Apply UI refactor
 on:
   push:
     branches: [main]
+    paths:
+      - '.github/ui-refactor-ready'
 permissions:
-  contents: read
+  contents: write
 jobs:
-  snapshot:
+  apply:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/upload-artifact@v4
         with:
-          name: source-snapshot
-          path: |
-            Data/
-            Scenes/
-            Scripts/
-            Tests/
-            Tools/
-            Shaders/
-            .github/workflows/verify.yml
-            project.godot
-            DiceGame.csproj
-            export_presets.cfg
-          retention-days: 1
+          fetch-depth: 0
+      - name: Apply authored UI and combat pacing patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .github/ui-refactor-*.diff > /tmp/ui-refactor.patch
+          git apply --check /tmp/ui-refactor.patch
+          git apply /tmp/ui-refactor.patch
+          rm .github/ui-refactor-*.diff .github/ui-refactor-ready
+          git config user.name 'DiceGame UI Refactor'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A
+          git commit -m 'Rebuild combat pacing and fully node-author UI'
+          git push origin HEAD:main
