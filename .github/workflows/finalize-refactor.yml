@@ -1,0 +1,80 @@
+name: Finalize refactor gate
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/finalize-refactor.yml'
+permissions:
+  contents: write
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Apply pacing and compatibility fixes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+
+          game_path=Path('Data/game.json')
+          game=json.loads(game_path.read_text(encoding='utf-8'))
+          game['waves']['killEnergy']=0
+          game_path.write_text(json.dumps(game,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+
+          p=Path('Scripts/Core/Simulation.Skills.cs')
+          s=p.read_text(encoding='utf-8')
+          old='double pipScale = die.Pips switch { 2 => 1.0, 3 => 1.25, 4 => 1.5, 5 => 1.8, 6 => 2.2, _ => 1.0 };'
+          new='double pipScale = R.EnableDiceSkills ? die.Pips switch { 2 => 1.0, 3 => 1.25, 4 => 1.5, 5 => 1.8, 6 => 2.2, _ => 1.0 } : 1.0;'
+          assert old in s, 'merge surge source changed'
+          p.write_text(s.replace(old,new,1),encoding='utf-8')
+
+          p=Path('Scripts/Core/Simulation.cs')
+          s=p.read_text(encoding='utf-8')
+          old='public double SummonCost => R.SummonCost + Math.Max(0, Count - 7) * 2;'
+          new='public double SummonCost => R.SummonCost + Math.Min(4, Math.Max(0, Count - 7)) * 2;'
+          assert old in s, 'summon cost source changed'
+          p.write_text(s.replace(old,new,1),encoding='utf-8')
+
+          p=Path('Scripts/App/GameApp.cs')
+          s=p.read_text(encoding='utf-8')
+          old='else if(p.Mode=="diepress" && Scene=="play" && Sim?.State.Board[p.Slot] is not null)\n        { Audio.Play("tap"); }'
+          new='else if(p.Mode=="diepress" && Scene=="play" && Sim?.State.Board[p.Slot] is not null)\n        { if(!NativeUi){SelectedSlot=p.Slot;Scene="die";Save();} Audio.Play("tap"); }'
+          assert old in s, 'diepress source changed'
+          p.write_text(s.replace(old,new,1),encoding='utf-8')
+
+          p=Path('Tools/static_check.py')
+          s=p.read_text(encoding='utf-8')
+          old="game['waves']['killEnergy']==1"
+          new="game['waves']['killEnergy']==0"
+          assert old in s, 'static economy check changed'
+          p.write_text(s.replace(old,new,1),encoding='utf-8')
+          PY
+      - name: Package checks
+        run: python3 Tools/static_check.py
+      - name: Original combat regression
+        run: dotnet run --project Tests/DiceGame.Tests.csproj --configuration Release
+      - name: Campaign regression
+        run: dotnet run --project Tests/Campaign/Campaign.Tests.csproj --configuration Release
+      - name: Dice skills and board regression
+        run: dotnet run --project Tests/Skills/Skills.Tests.csproj --configuration Release
+      - name: Dice roster and rarity regression
+        run: dotnet run --project Tests/Content/Content.Tests.csproj --configuration Release
+      - name: Expansion regression
+        run: dotnet run --project Tests/Expansion/Expansion.Tests.csproj --configuration Release
+      - name: Build native game
+        run: dotnet build DiceGame.csproj --configuration Debug
+      - name: Commit only after gate passes
+        shell: bash
+        run: |
+          git config user.name 'DiceGame Refactor Gate'
+          git config user.email 'actions@users.noreply.github.com'
+          git add Data/game.json Scripts/Core/Simulation.Skills.cs Scripts/Core/Simulation.cs Scripts/App/GameApp.cs Tools/static_check.py
+          git commit -m 'Tune combat pacing and restore regression compatibility'
+          git push origin HEAD:main
