@@ -1,0 +1,76 @@
+name: Inspect bootstrap integrity
+on:
+  push:
+    branches: [work/town-region-loop]
+    paths: ['.github/workflows/inspect-bootstrap.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Inspect archives without executing or replacing source
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import base64, binascii, hashlib, io, json, lzma, pathlib, re, tarfile, zlib
+          root = pathlib.Path('bootstrap')
+          print('MANIFEST:', (root / 'READY').read_text())
+          for folder in ('slimchunks', 'xzchunks', 'chunks'):
+              paths = sorted((root / folder).glob('*.part'))
+              raw = b''.join(p.read_bytes() for p in paths)
+              print('\nARCHIVE', folder, 'parts', len(paths), 'bytes', len(raw))
+              print('PARTS:', [(p.name, p.stat().st_size) for p in paths])
+              print('RAW SHA256:', hashlib.sha256(raw).hexdigest())
+              compact = re.sub(rb'\s+', b'', raw)
+              invalid = [(m.start(), repr(m.group())) for m in re.finditer(rb'[^A-Za-z0-9+/=]', compact)]
+              print('BASE64: bytes', len(compact), 'mod4', len(compact) % 4, 'invalid', invalid[:10])
+              candidates = [('raw', raw)]
+              try:
+                  candidates.append(('base64-strict', base64.b64decode(compact, validate=True)))
+              except (ValueError, binascii.Error) as error:
+                  print('BASE64 ERROR:', str(error))
+                  prefix = re.match(rb'[A-Za-z0-9+/]*', compact).group()
+                  if len(prefix) >= 16:
+                      candidates.append(('base64-prefix-unverified', base64.b64decode(prefix[:len(prefix)//4*4])))
+              for encoding, data in candidates:
+                  if data.startswith(b'\xfd7zXZ\x00'):
+                      decoder = lzma.LZMADecompressor()
+                  elif data.startswith(b'\x1f\x8b'):
+                      decoder = zlib.decompressobj(31)
+                  else:
+                      print(encoding, 'not xz/gzip; header', data[:12].hex())
+                      continue
+                  output = bytearray()
+                  error_text = None
+                  offset = 0
+                  try:
+                      for offset in range(0, len(data), 256):
+                          if decoder.eof:
+                              break
+                          output.extend(decoder.decompress(data[offset:offset+256]))
+                          if len(output) > 64 * 1024 * 1024:
+                              raise ValueError('decompression safety limit')
+                  except (ValueError, lzma.LZMAError, zlib.error) as error:
+                      error_text = str(error)
+                  print('DECODE', encoding, 'input', len(data), 'output', len(output), 'eof', decoder.eof, 'error_offset', offset, 'error', error_text)
+                  print('DECODED SHA256:', hashlib.sha256(output).hexdigest())
+                  try:
+                      with tarfile.open(fileobj=io.BytesIO(output), mode='r:') as archive:
+                          for member in archive:
+                              if not member.isfile():
+                                  continue
+                              complete = member.offset_data + member.size <= len(output)
+                              print('MEMBER', json.dumps(member.name), member.size, 'complete', complete)
+                              if complete and member.name.endswith(('project.godot', '.csproj')) and member.size < 12000:
+                                  print('CONFIG BEGIN', member.name)
+                                  print(archive.extractfile(member).read().decode('utf-8', errors='replace'))
+                                  print('CONFIG END')
+                  except (tarfile.TarError, EOFError, OSError) as error:
+                      print('TAR ERROR:', str(error))
+          PY
