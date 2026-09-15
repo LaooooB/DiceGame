@@ -31,6 +31,8 @@ dotnet build DiceGame.csproj
 dotnet run --project Tests/DiceGame.Tests.csproj
 dotnet run --project Tests/Campaign/Campaign.Tests.csproj
 dotnet run --project Tests/Skills/Skills.Tests.csproj
+dotnet run --project Tests/Content/Content.Tests.csproj
+dotnet run --project Tests/Expansion/Expansion.Tests.csproj
 ```
 
 Windows 可运行 `Verify.cmd`，或：
@@ -85,6 +87,10 @@ python Tools/static_check.py
 
 ## 骰子内容与稀有度
 
-当前收录22种骰子：20种扩展构想全部覆盖，同时保留原有分裂、回弹；每种均有3点A/B、6点C/D，共88项强化。6点先重选A/B，再选择C/D。固定6种卡组、24个阵地席位与手动松手齐射规则不变。
+当前收录 **47种骰子、188项强化**：原22种全部保留，新增25种、100项强化。普通11、稀有13、史诗10、传说8、神话5。每种均有3点A/B、6点C/D；6点先重选A/B，再选择C/D。固定6种卡组、24个阵地席位与手动松手齐射规则不变。
+
+卡组最多携带1种神话，后端、选牌界面和读档同时校验；场上可有多颗同种神话，但同名全局规则不叠加。命运改变受祝福点数，因果记录并一次结算实际受伤，虚无奖励空位，轮回允许六点主动转世，秩序只把**合成**改为六骰洗牌袋，召唤仍等概率随机。裁定与转世先写盘再发布，存档失败不消耗骰子或阶段次数。
 
 完整机制、分支说明、可配置解锁入口和验证命令见 [骰子内容目录](Docs/DICE_CONTENT.md)。扩展内容自动回归位于 `Tests/Content/`，原生界面检查使用 `-- --capture-content`。
+
+新增完整规则、100项技能数值、兼容与触发边界见 [25种新增骰子及神话实现](Docs/DICE_EXPANSION_47.md)。自动测试包含原战斗27项、循环45项、棋盘与强化55项、内容139项，以及扩展131项（其中100项分别验证本批每项强化的实际效果），共397项。测试通过不代表长期玩家数值平衡或Windows显卡实测通过。

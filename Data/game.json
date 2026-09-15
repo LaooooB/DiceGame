@@ -64,7 +64,8 @@
       "split",
       "bank"
     ],
-    "enableDiceContent": true
+    "enableDiceContent": true,
+    "maxMythicTypes": 1
   },
   "levels": [
     {

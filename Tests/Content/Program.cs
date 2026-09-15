@@ -16,12 +16,12 @@ internal static class Program
     }
     static int Main()
     {
-        MainTest("catalog: twenty concepts plus two retained dice / 88 branches / four rarities", () =>
+        MainTest("catalog: 47 dice / 188 branches / five rarities", () =>
         {
-            Eq(Data.Dice.Length, 22); Eq(Data.Skills.Values.Sum(s => s.Level3.Length + s.Level6.Length), 88);
-            Eq(Data.Dice.Count(d => d.Rarity == "common"), 6); Eq(Data.Dice.Count(d => d.Rarity == "rare"), 8);
-            Eq(Data.Dice.Count(d => d.Rarity == "epic"), 5); Eq(Data.Dice.Count(d => d.Rarity == "legendary"), 3);
-            Eq(Data.Dice.Count(d => d.AvailableFromStart), 16);
+            Eq(Data.Dice.Length, 47); Eq(Data.Skills.Values.Sum(s => s.Level3.Length + s.Level6.Length), 188);
+            Eq(Data.Dice.Count(d => d.Rarity == "common"), 11); Eq(Data.Dice.Count(d => d.Rarity == "rare"), 13);
+            Eq(Data.Dice.Count(d => d.Rarity == "epic"), 10); Eq(Data.Dice.Count(d => d.Rarity == "legendary"), 8); Eq(Data.Dice.Count(d => d.Rarity == "mythic"), 5);
+            Eq(Data.Dice.Count(d => d.AvailableFromStart), 41);
         });
         MainTest("authoring: malformed rarity, trait, negative resolved profile and probability sum rejected", () =>
         {
@@ -35,9 +35,9 @@ internal static class Program
         {
             var catalog = new CampaignCatalog(Data, File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Data/campaign.json")));
             var store = new Store(); var app = new GameApp(Data, store, new Silent(), catalog) { NativeUi = true };
-            Eq(app.Campaign!.UnlockedDice.Count, 22); Eq(app.Deck.Count, 6); app.Save();
+            Eq(app.Campaign!.UnlockedDice.Count, 47); Eq(app.Deck.Count, 6); app.Save();
             var save = SaveCodec.Decode(Data, store.Value!); save.Campaign!.UnlockedDice = Data.DefaultDeck.ToHashSet(); store.Value = SaveCodec.Encode(save);
-            var loaded = new GameApp(Data, store, new Silent(), catalog); Eq(loaded.Campaign!.UnlockedDice.Count, 22); Eq(loaded.Deck.Count, 6);
+            var loaded = new GameApp(Data, store, new Silent(), catalog); Eq(loaded.Campaign!.UnlockedDice.Count, 47); Eq(loaded.Deck.Count, 6);
             Check(!Data.ValidDeck(Data.Dice.Select(d => d.Id)));
         });
         foreach (var type in Data.Dice.Select(d => d.Id))

@@ -407,5 +407,518 @@
       "evolutionPeriod": 20,
       "evolutionScale": 0.5
     }
+  },
+  {
+    "id": "scatter",
+    "name": "散射",
+    "rarity": "common",
+    "baseDamage": 14,
+    "reload": 0.95,
+    "tag": "中弹与侧弹",
+    "description": "每轮在原有中弹之外增加左右各一枚侧弹，夹角为12°；总齐射伤害均分，不凭空翻倍。",
+    "traits": {
+      "scatterSides": 2,
+      "scatterAngle": 0.20943951
+    },
+    "effect": "pulse",
+    "icon": "scatter",
+    "availableFromStart": true,
+    "copyable": true,
+    "color": "#F4CD80",
+    "shade": "#243A4B",
+    "glyphPath": "M3 18L12 3L21 18 M12 3V21 M3 18L7 17 M21 18L17 17"
+  },
+  {
+    "id": "flywheel",
+    "name": "飞轮",
+    "rarity": "common",
+    "baseDamage": 11,
+    "reload": 0.85,
+    "tag": "长航增伤",
+    "description": "弹丸每飞行1秒，直接命中伤害提高18%，最多提高120%；飞行时间不包含待发队列。",
+    "traits": {
+      "flightRate": 0.18,
+      "flightCap": 1.2
+    },
+    "effect": "pulse",
+    "icon": "flywheel",
+    "availableFromStart": true,
+    "copyable": true,
+    "color": "#A6DDD0",
+    "shade": "#243A4B",
+    "glyphPath": "M12 2L18 5L22 12L18 19L12 22L5 18L2 12L5 5Z M12 6V18 M6 12H18 M8 8L16 16"
+  },
+  {
+    "id": "execution",
+    "name": "处刑",
+    "rarity": "common",
+    "baseDamage": 11,
+    "reload": 1.0,
+    "tag": "低血收割",
+    "description": "敌人生命低于45%时开始增伤，生命越低增伤越高，最多提高120%；不会直接抹杀首领。",
+    "traits": {
+      "executeThreshold": 0.45,
+      "executeGain": 1.2
+    },
+    "effect": "pulse",
+    "icon": "execution",
+    "availableFromStart": true,
+    "copyable": true,
+    "color": "#E6A3A1",
+    "shade": "#243A4B",
+    "glyphPath": "M4 3H20V7H4Z M7 7V21 M17 7V21 M7 12L17 8V13L7 17Z M4 21H20"
+  },
+  {
+    "id": "trajectory",
+    "name": "定轨",
+    "rarity": "common",
+    "baseDamage": 12,
+    "reload": 0.92,
+    "tag": "固定角度连射",
+    "description": "正常齐射方向与上一轮相差不超过5°时积累1层校准，每层增伤6%，最多8层；大幅转向清空。合成齐射不影响校准。",
+    "traits": {
+      "aimTolerance": 0.087266463,
+      "aimStep": 0.06,
+      "aimCap": 8
+    },
+    "effect": "pulse",
+    "icon": "trajectory",
+    "availableFromStart": true,
+    "copyable": true,
+    "color": "#BEDDE8",
+    "shade": "#243A4B",
+    "glyphPath": "M5 21V3 M12 21V3 M19 21V3 M9 7L12 3L15 7 M3 15H21"
+  },
+  {
+    "id": "rhythm",
+    "name": "节拍",
+    "rarity": "common",
+    "baseDamage": 11,
+    "reload": 0.84,
+    "tag": "固定强化轮",
+    "description": "每第4次正常齐射伤害翻倍；计数绑定这颗骰子，回响与合成齐射不增加计数。",
+    "traits": {
+      "beatPeriod": 4,
+      "beatPower": 1.0
+    },
+    "effect": "pulse",
+    "icon": "rhythm",
+    "availableFromStart": true,
+    "copyable": true,
+    "color": "#EBBF8D",
+    "shade": "#243A4B",
+    "glyphPath": "M2 13H6L9 4L13 20L16 9L19 13H22"
+  },
+  {
+    "id": "sunder",
+    "name": "破甲",
+    "rarity": "rare",
+    "baseDamage": 8,
+    "reload": 0.85,
+    "tag": "叠层剥甲",
+    "description": "命中叠加破甲，持续4秒，最多6层。每层使装甲敌人承伤提高6%，其他敌人提高2%；同类破甲统一计算，不相乘。",
+    "traits": {
+      "sunderCap": 6,
+      "sunderDuration": 4,
+      "sunderArmor": 0.06,
+      "sunderOther": 0.02
+    },
+    "effect": "pulse",
+    "icon": "sunder",
+    "availableFromStart": true,
+    "copyable": true,
+    "color": "#AFDAE9",
+    "shade": "#243A4B",
+    "glyphPath": "M12 2L21 6V12L12 22L3 12V6Z M14 4L9 11L15 12L10 20"
+  },
+  {
+    "id": "magnetic",
+    "name": "磁导",
+    "rarity": "rare",
+    "baseDamage": 12,
+    "reload": 1.0,
+    "tag": "撞墙校准",
+    "description": "第一次撞墙后，在100距离内寻找目标，最多转向30°进行一次校准；没有目标则保留机会，不持续追踪。",
+    "traits": {
+      "magnetRange": 100,
+      "magnetTurn": 0.523598776
+    },
+    "effect": "pulse",
+    "icon": "magnetic",
+    "availableFromStart": true,
+    "copyable": true,
+    "color": "#8ECAD9",
+    "shade": "#243A4B",
+    "glyphPath": "M4 3H9V13Q9 17 12 17Q15 17 15 13V3H20V13Q20 22 12 22Q4 22 4 13Z M4 7H9 M15 7H20"
+  },
+  {
+    "id": "barrier",
+    "name": "屏障",
+    "rarity": "rare",
+    "baseDamage": 7,
+    "reload": 1.1,
+    "tag": "命中积盾",
+    "description": "每24次有效命中产生1点共享屏障，上限3点；抵消敌人突破造成的防线伤害。每颗骰子每0.1秒最多计1次命中，残留弹不能给已移除的骰子充能。",
+    "traits": {
+      "barrierHits": 24,
+      "barrierCapacity": 3,
+      "barrierGrant": 1
+    },
+    "effect": "pulse",
+    "icon": "barrier",
+    "availableFromStart": true,
+    "copyable": false,
+    "color": "#8FCFEE",
+    "shade": "#243A4B",
+    "glyphPath": "M12 2L21 6V13Q18 20 12 22Q6 20 3 13V6Z M7 12H17 M12 7V17"
+  },
+  {
+    "id": "spree",
+    "name": "连杀",
+    "rarity": "rare",
+    "baseDamage": 10,
+    "reload": 0.92,
+    "tag": "齐射滚雪球",
+    "description": "同一轮直接齐射每击杀一个敌人，使该轮剩余弹丸增伤15%，最多8层。每轮独立记录；回响属于原轮，间接爆炸不增加连杀。",
+    "traits": {
+      "spreeStep": 0.15,
+      "spreeCap": 8
+    },
+    "effect": "pulse",
+    "icon": "spree",
+    "availableFromStart": true,
+    "copyable": true,
+    "color": "#A7BFF1",
+    "shade": "#243A4B",
+    "glyphPath": "M3 20L9 14L6 11L15 2L22 9L13 18L10 15L4 21 M14 7L17 10"
+  },
+  {
+    "id": "formation",
+    "name": "编队",
+    "rarity": "rare",
+    "baseDamage": 10,
+    "reload": 0.9,
+    "tag": "异种邻位",
+    "description": "四向邻位每有一种不同的骰子，自身齐射伤害提高14%。只统计邻位种类，不要求同点；不会跨越行尾。",
+    "traits": {
+      "formationStep": 0.14
+    },
+    "effect": "pulse",
+    "icon": "formation",
+    "availableFromStart": true,
+    "copyable": true,
+    "color": "#96DAB8",
+    "shade": "#243A4B",
+    "glyphPath": "M9 9H15V15H9Z M9 2H15V6H9Z M9 18H15V22H9Z M2 9H6V15H2Z M18 9H22V15H18Z"
+  },
+  {
+    "id": "reactor",
+    "name": "反应堆",
+    "rarity": "epic",
+    "baseDamage": 9,
+    "reload": 1.15,
+    "tag": "邻骰装填协作",
+    "description": "四向邻骰每完成一次正常齐射提供1点堆芯能量。积满8点后，自身下一次正常齐射增伤140%。同次松手的邻骰贡献统一在齐射结束后到账。",
+    "traits": {
+      "reactorNeed": 8,
+      "reactorPower": 1.4
+    },
+    "effect": "pulse",
+    "icon": "reactor",
+    "availableFromStart": true,
+    "copyable": false,
+    "color": "#C5A5E9",
+    "shade": "#243A4B",
+    "glyphPath": "M12 2L21 7V17L12 22L3 17V7Z M8 7L16 17 M16 7L8 17 M7 12H17"
+  },
+  {
+    "id": "catalyst",
+    "name": "催化",
+    "rarity": "epic",
+    "baseDamage": 10,
+    "reload": 0.98,
+    "tag": "负面状态组合",
+    "description": "目标每有一种毒液、减速、标记、破甲或质量状态，本骰直接伤害提高25%，最多计4种；同状态多层只算1种。",
+    "traits": {
+      "catalystStep": 0.25,
+      "catalystCap": 4
+    },
+    "effect": "pulse",
+    "icon": "catalyst",
+    "availableFromStart": true,
+    "copyable": true,
+    "color": "#C9B1EF",
+    "shade": "#243A4B",
+    "glyphPath": "M8 2H16 M10 2V9L3 20Q3 22 6 22H18Q21 22 21 20L14 9V2 M7 15H17 M9 18H11 M14 19H16"
+  },
+  {
+    "id": "phase",
+    "name": "相位",
+    "rarity": "epic",
+    "baseDamage": 12,
+    "reload": 1.04,
+    "tag": "自身穿墙",
+    "description": "弹丸第一次撞墙时，从对面同位置穿出并沿原方向飞行；左右互通，上墙通向场地下沿。穿越仍消耗一次反弹额度。",
+    "traits": {
+      "phaseUses": 1
+    },
+    "effect": "pulse",
+    "icon": "phase",
+    "availableFromStart": true,
+    "copyable": true,
+    "color": "#B1B8FA",
+    "shade": "#243A4B",
+    "glyphPath": "M3 3V21 M21 3V21 M6 12H18 M10 8L6 12L10 16 M14 8L18 12L14 16"
+  },
+  {
+    "id": "soul",
+    "name": "魂匣",
+    "rarity": "epic",
+    "baseDamage": 9,
+    "reload": 1.05,
+    "tag": "助攻收魂",
+    "description": "主弹命中施加3秒灵魂标记。标记敌人被任何来源击杀，本骰获得1魂；积满8魂后，下一次正常齐射额外释放3枚追踪魂弹，每枚造成该轮总伤害的20%。",
+    "traits": {
+      "soulNeed": 8,
+      "soulMark": 3,
+      "soulCount": 3,
+      "soulDamage": 0.2
+    },
+    "effect": "pulse",
+    "icon": "soul",
+    "availableFromStart": true,
+    "copyable": false,
+    "color": "#C0ABEC",
+    "shade": "#243A4B",
+    "glyphPath": "M5 8L12 3L19 8V20H5Z M8 10Q12 6 16 10V15L12 18L8 15Z M10 12H10 M14 12H14"
+  },
+  {
+    "id": "gravity",
+    "name": "重力",
+    "rarity": "epic",
+    "baseDamage": 9,
+    "reload": 1.0,
+    "tag": "叠质量回拉",
+    "description": "主弹命中叠加4秒质量；达到5层后消耗质量，将普通敌人向后拉4距离并追加50%单发伤害。首领位移为20%；同目标触发间隔2秒，与其他击退共享限制。",
+    "traits": {
+      "massNeed": 5,
+      "massPull": 4,
+      "massPower": 0.5,
+      "massBoss": 0.2
+    },
+    "effect": "pulse",
+    "icon": "gravity",
+    "availableFromStart": true,
+    "copyable": true,
+    "color": "#B2A8E5",
+    "shade": "#243A4B",
+    "glyphPath": "M3 5H21 M6 10H18 M9 15H15 M12 10V22 M8 18L12 22L16 18"
+  },
+  {
+    "id": "blackhole",
+    "name": "黑洞",
+    "rarity": "legendary",
+    "baseDamage": 8,
+    "reload": 1.45,
+    "tag": "聚集敌阵",
+    "description": "每轮第一枚主弹首次命中生成1.4秒黑洞，半径60，牵引普通敌人并持续造成每秒20%齐射伤害；首领不位移，仅承受10%减速。全场最多8个黑洞，同目标只受最强牵引。",
+    "traits": {
+      "holeRadius": 60,
+      "holeDuration": 1.4,
+      "holeDamage": 0.2,
+      "holePull": 22
+    },
+    "effect": "pulse",
+    "icon": "blackhole",
+    "availableFromStart": true,
+    "copyable": false,
+    "color": "#E8CE88",
+    "shade": "#243A4B",
+    "glyphPath": "M12 2Q22 2 22 12Q22 22 12 22Q2 22 2 12Q2 2 12 2 M12 6Q18 6 18 12Q18 18 12 18Q6 18 6 12Q6 6 12 6 M9 12H15"
+  },
+  {
+    "id": "forge",
+    "name": "锻炉",
+    "rarity": "legendary",
+    "baseDamage": 10,
+    "reload": 1.2,
+    "tag": "合成蓄锻",
+    "description": "四向邻格成为合成结果时获得1点锻造值；积满4点后，下一次正常齐射增伤180%。一次合成只计一次，自动进化不算合成。",
+    "traits": {
+      "forgeNeed": 4,
+      "forgePower": 1.8
+    },
+    "effect": "pulse",
+    "icon": "forge",
+    "availableFromStart": true,
+    "copyable": false,
+    "color": "#F0B87D",
+    "shade": "#243A4B",
+    "glyphPath": "M3 8H21L17 13H15V18H20V22H4V18H9V13H6Z M10 2H14L16 6H8Z"
+  },
+  {
+    "id": "swarm",
+    "name": "蜂群",
+    "rarity": "legendary",
+    "baseDamage": 8,
+    "reload": 0.95,
+    "tag": "共享追踪蜂群",
+    "description": "每枚主弹首次命中有18%概率产生一架追踪无人机，造成60%单发伤害。所有蜂群骰共用10架容量，包含待发无人机；无人机命中一次即消失，不触发主弹效果。",
+    "traits": {
+      "swarmChance": 0.18,
+      "swarmCapacity": 10,
+      "swarmDamage": 0.6
+    },
+    "effect": "pulse",
+    "icon": "swarm",
+    "availableFromStart": true,
+    "copyable": false,
+    "color": "#E6D187",
+    "shade": "#243A4B",
+    "glyphPath": "M12 2L17 5V11L12 14L7 11V5Z M3 12L8 15V21L3 23 M21 12L16 15V21L21 23 M10 18H14"
+  },
+  {
+    "id": "throne",
+    "name": "王座",
+    "rarity": "legendary",
+    "baseDamage": 11,
+    "reload": 1.1,
+    "tag": "唯一最高点",
+    "description": "作为全场唯一最高点骰子时，齐射伤害提高90%。出现另一颗同点或更高点骰子即失去王冠；不会主动降低其他骰子的点数。",
+    "traits": {
+      "thronePower": 0.9
+    },
+    "effect": "pulse",
+    "icon": "throne",
+    "availableFromStart": true,
+    "copyable": true,
+    "color": "#F1D077",
+    "shade": "#243A4B",
+    "glyphPath": "M3 5L8 10L12 2L16 10L21 5L19 16H5Z M5 20H19 M8 16V20 M16 16V20"
+  },
+  {
+    "id": "rift",
+    "name": "裂隙",
+    "rarity": "legendary",
+    "baseDamage": 8,
+    "reload": 1.25,
+    "tag": "全队墙面入口",
+    "description": "每轮主弹第一次撞墙在墙上留下2秒裂隙，入口半径18。之后撞中入口的友方主弹从对面穿出并增伤20%；每枚弹丸只通过一次。全场最多8处裂隙，不会制造新弹丸。",
+    "traits": {
+      "riftDuration": 2,
+      "riftWidth": 18,
+      "riftPower": 0.2
+    },
+    "effect": "pulse",
+    "icon": "rift",
+    "availableFromStart": true,
+    "copyable": false,
+    "color": "#DCD1A5",
+    "shade": "#243A4B",
+    "glyphPath": "M8 2L3 7V17L8 22 M16 2L21 7V17L16 22 M13 3L9 10L15 13L11 21"
+  },
+  {
+    "id": "fate",
+    "name": "命运",
+    "rarity": "mythic",
+    "baseDamage": 8,
+    "reload": 1.25,
+    "tag": "命运点数",
+    "description": "在场时每8秒生成1个命运数字（1至6），相同点数的友方骰子齐射增伤50%。多个命运骰共用同一计时与数字；移除后暂停，重新上场不会免费重掷。",
+    "traits": {
+      "fatePeriod": 8,
+      "fateCount": 1,
+      "fatePower": 0.5
+    },
+    "effect": "pulse",
+    "icon": "fate",
+    "availableFromStart": true,
+    "copyable": false,
+    "color": "#FF95D0",
+    "shade": "#243A4B",
+    "glyphPath": "M12 1L15 8L23 9L17 14L19 22L12 18L5 22L7 14L1 9L9 8Z M10 11H14V15H10Z"
+  },
+  {
+    "id": "causality",
+    "name": "因果",
+    "rarity": "mythic",
+    "baseDamage": 8,
+    "reload": 1.2,
+    "tag": "伤害记录回放",
+    "description": "命中存活敌人种下2秒因果，记录之后实际受到的伤害，到期回放25%。每个敌人只容纳一份因果，记录上限为施法时齐射伤害的12倍；因果回放及其直接派生爆炸不会再被记录。",
+    "traits": {
+      "causalWindow": 2,
+      "causalRatio": 0.25,
+      "causalCap": 12
+    },
+    "effect": "pulse",
+    "icon": "causality",
+    "availableFromStart": true,
+    "copyable": false,
+    "color": "#FFB2CF",
+    "shade": "#243A4B",
+    "glyphPath": "M4 6Q4 2 9 3L17 13Q23 21 17 22Q14 22 12 18L7 10Q2 4 4 6 M20 6Q20 2 15 3L7 13Q1 21 7 22"
+  },
+  {
+    "id": "void",
+    "name": "虚无",
+    "rarity": "mythic",
+    "baseDamage": 10,
+    "reload": 1.25,
+    "tag": "空位成为资源",
+    "description": "在场时，每个空阵位使虚无骰自身增伤6%、其他骰子增伤0.8%，最多计12个空位。多个虚无骰的全队规则不叠加。",
+    "traits": {
+      "voidCap": 12,
+      "voidSelf": 0.06,
+      "voidTeam": 0.008
+    },
+    "effect": "pulse",
+    "icon": "void",
+    "availableFromStart": true,
+    "copyable": false,
+    "color": "#D1A5FB",
+    "shade": "#243A4B",
+    "glyphPath": "M4 4H20V20H4Z M8 4V20 M16 4V20 M4 8H20 M4 16H20 M9 9H15V15H9Z"
+  },
+  {
+    "id": "reincarnation",
+    "name": "轮回",
+    "rarity": "mythic",
+    "baseDamage": 10,
+    "reload": 1.12,
+    "tag": "六点主动转世",
+    "description": "六点时主动回收会原位转世为一点轮回，不返还能量、不发合成齐射，并为本局增加5%全队齐射伤害，最多4次。转世重建实例，旧弹丸不会把成长转给新骰子。",
+    "traits": {
+      "rebirth": 1,
+      "rebirthGain": 0.05,
+      "rebirthCap": 4,
+      "rebirthStart": 1
+    },
+    "effect": "pulse",
+    "icon": "reincarnation",
+    "availableFromStart": true,
+    "copyable": false,
+    "color": "#F2A8CF",
+    "shade": "#243A4B",
+    "glyphPath": "M5 5Q14 0 20 8L23 5V13H15L18 10Q13 4 7 8 M19 19Q10 24 4 16L1 19V11H9L6 14Q11 20 17 16"
+  },
+  {
+    "id": "order",
+    "name": "秩序",
+    "rarity": "mythic",
+    "baseDamage": 7,
+    "reload": 1.3,
+    "tag": "六骰洗牌袋",
+    "description": "在场时，成功合成从包含卡组六种骰子各一张的洗牌袋取结果，抽完才重新洗牌。召唤仍独立随机；移除不重置剩余袋，预览与读档不会重洗。",
+    "traits": {
+      "orderLaw": 1
+    },
+    "effect": "pulse",
+    "icon": "order",
+    "availableFromStart": true,
+    "copyable": false,
+    "color": "#FFD1A7",
+    "shade": "#243A4B",
+    "glyphPath": "M3 3H9V9H3Z M15 3H21V9H15Z M3 15H9V21H3Z M15 15H21V21H15Z M9 6H15 M6 9V15 M18 9V15 M9 18H15"
   }
 ]

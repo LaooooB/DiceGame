@@ -35,10 +35,11 @@ public partial class GameRoot
                     throw new InvalidOperationException("Missing dice face " + type.Id + ":" + pips);
                 faces++;
             }
-            var ids = App.Data.Dice.Select(d => d.Id).ToArray();
-            for (int group = 0; group < (ids.Length + 5) / 6; group++)
+            var ordinary=App.Data.Dice.Where(d=>d.Rarity!="mythic").Select(d=>d.Id).ToArray();
+            var groups=ordinary.Chunk(6).Concat(App.Data.Dice.Where(d=>d.Rarity=="mythic").Select(d=>new[]{d.Id})).ToArray();
+            for (int group = 0; group < groups.Length; group++)
             {
-                var deck = ids.Skip(group * 6).Take(6).Concat(App.Data.DefaultDeck).Distinct().Take(6).ToArray();
+                var deck = groups[group].Concat(App.Data.DefaultDeck).Distinct().Take(6).ToArray();
                 App.Action("editDeck"); App.EditingDeck.Clear(); App.EditingDeck.AddRange(deck);
                 if (!App.SaveDeck() || !App.StartExpedition(24137)) throw new InvalidOperationException("Content deck failed to launch.");
                 var sim = App.Sim!;
@@ -52,9 +53,10 @@ public partial class GameRoot
                 await Capture("roster_" + (group + 1));
                 App.AbandonExpedition(); App.ReturnToTown();
             }
-            foreach (string id in new[] { "poison", "mirror", "evolution" })
+            screens += await CheckExpansionControls(path);
+            App.Action("editDeck"); await Frames();
+            foreach (string id in new[] { "poison", "mirror", "evolution", "scatter", "blackhole", "reincarnation", "order" })
             {
-                App.Action("editDeck"); await Frames();
                 var dialog = _ui.ShowDiceCatalog(id);
                 for (int i = 0; i < 4; i++) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);

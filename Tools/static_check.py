@@ -37,7 +37,7 @@ def main():
     check('Frozen original balance copied for honest reference tests',all((ROOT/'Tests/LegacyBalanceData'/p).is_file() for p in ['game.json','dice.json','upgrades.json','campaign.json']))
     dice=json.loads((ROOT/'Data/dice.json').read_text(encoding='utf-8'))
     check('Content enabled without changing six-card random deck',game['rules'].get('enableDiceContent') is True and game['rules']['starterDeck']==['pulse','blast','arc','frost','split','bank'])
-    check('Every die has a supported rarity',all(d.get('rarity') in ['common','rare','epic','legendary'] for d in dice))
+    check('Every die has a supported rarity',all(d.get('rarity') in ['common','rare','epic','legendary','mythic'] for d in dice))
     check('Expanded faces have authored native glyphs',all(d.get('glyphPath') for d in dice if d['id'] not in ['pulse','blast','arc','frost','split','bank']))
     check('Content regression and player catalogue present',all((ROOT/p).is_file() for p in ['Tests/Content/Content.Tests.csproj','Tests/Content/Program.cs','Docs/DICE_CONTENT.md']))
     check('Content regression participates in CI','Tests/Content/Content.Tests.csproj' in (ROOT/'.github/workflows/verify.yml').read_text(encoding='utf-8'))

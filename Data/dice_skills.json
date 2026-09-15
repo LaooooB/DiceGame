@@ -1045,5 +1045,1234 @@
         }
       }
     ]
+  },
+  {
+    "type": "scatter",
+    "level3": [
+      {
+        "key": "A",
+        "name": "广角",
+        "description": "侧弹由2枚增加至4枚，展开角增至22°；齐射总伤害提高12%。",
+        "modifiers": {
+          "damageMultiplier": 1.12,
+          "contentAdd": {
+            "scatterSides": 2,
+            "scatterAngle": 0.174532926
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "收束",
+        "description": "侧弹夹角缩至5°；同轮每枚弹丸对同一敌人的首次命中，按此前命中数增伤10%，最多40%。",
+        "modifiers": {
+          "contentAdd": {
+            "scatterAngle": -0.122173047,
+            "scatterFocus": 0.1
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "翼弹",
+        "description": "侧弹额外获得4次反弹；中弹不受影响。",
+        "modifiers": {
+          "contentAdd": {
+            "scatterSideBounces": 4
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "枪尖",
+        "description": "每轮第一枚中弹伤害提高80%，额外获得3次穿透；回响也保留弹型，但不产生新一轮。",
+        "modifiers": {
+          "contentAdd": {
+            "scatterCenterDamage": 0.8,
+            "scatterCenterPierce": 3
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "flywheel",
+    "level3": [
+      {
+        "key": "A",
+        "name": "长航",
+        "description": "飞行增伤上限提高至180%，主弹寿命延长3秒，仍受20秒寿命上限约束。",
+        "modifiers": {
+          "contentAdd": {
+            "flightCap": 0.6,
+            "flightLife": 3
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "急旋",
+        "description": "每秒飞行增伤改为40%，上限改为80%。",
+        "modifiers": {
+          "contentAdd": {
+            "flightRate": 0.22,
+            "flightCap": -0.4
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "满速贯穿",
+        "description": "飞行满3秒时，弹丸一次性获得2次穿透；不会每帧重复补充。",
+        "modifiers": {
+          "contentAdd": {
+            "flightPierce": 2,
+            "flightThreshold": 3
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "终点冲击",
+        "description": "飞行满3秒后的首次命中，额外产生半径42的冲击，造成该次直接命中基础伤害的40%；每枚弹丸一次。",
+        "modifiers": {
+          "contentAdd": {
+            "flightShock": 0.4,
+            "flightThreshold": 3
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "execution",
+    "level3": [
+      {
+        "key": "A",
+        "name": "扩大处刑区",
+        "description": "增伤起点改为65%生命，最大增伤改为90%。",
+        "modifiers": {
+          "contentAdd": {
+            "executeThreshold": 0.2,
+            "executeGain": -0.3
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "极刑",
+        "description": "增伤起点改为25%生命，最大增伤提高至220%。",
+        "modifiers": {
+          "contentAdd": {
+            "executeThreshold": -0.2,
+            "executeGain": 1.0
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "连斩",
+        "description": "这颗骰子每次取得击杀，为下一次正常齐射积累12%增伤，最多5层；发射后消耗，合成齐射不消耗。",
+        "modifiers": {
+          "contentAdd": {
+            "executeNext": 0.12
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "巨兽处刑",
+        "description": "对首领改用整段生命曲线：增伤为已损生命比例的平方×240%，不受处刑起点限制。",
+        "modifiers": {
+          "contentAdd": {
+            "executeBoss": 2.4
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "trajectory",
+    "level3": [
+      {
+        "key": "A",
+        "name": "稳定器",
+        "description": "容许误差扩大至12°，每层增伤改为5%。",
+        "modifiers": {
+          "contentAdd": {
+            "aimTolerance": 0.122173047,
+            "aimStep": -0.01
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "精密校准",
+        "description": "容许误差缩至2°，每层增伤提高至10%。",
+        "modifiers": {
+          "contentAdd": {
+            "aimTolerance": -0.052359878,
+            "aimStep": 0.04
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "贯线",
+        "description": "校准达到上限时，齐射额外获得3次穿透。",
+        "modifiers": {
+          "contentAdd": {
+            "aimPierce": 3
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "肌肉记忆",
+        "description": "大幅转向时保留一半校准层数，向下取整；仍以新方向为下一次比较基准。",
+        "modifiers": {
+          "contentAdd": {
+            "aimKeep": 0.5
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "rhythm",
+    "level3": [
+      {
+        "key": "A",
+        "name": "三拍",
+        "description": "改为每3次正常齐射触发，强化轮增伤65%。",
+        "modifiers": {
+          "contentAdd": {
+            "beatPeriod": -1,
+            "beatPower": -0.35
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "重拍",
+        "description": "改为每5次正常齐射触发，强化轮增伤180%。",
+        "modifiers": {
+          "contentAdd": {
+            "beatPeriod": 1,
+            "beatPower": 0.8
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "强拍贯穿",
+        "description": "强化轮额外获得3次穿透。",
+        "modifiers": {
+          "contentAdd": {
+            "beatPierce": 3
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "余韵",
+        "description": "强化轮之后的两次正常齐射，装填时间缩短25%；回响不消耗余韵次数。",
+        "modifiers": {
+          "contentAdd": {
+            "beatHaste": 0.25
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "sunder",
+    "level3": [
+      {
+        "key": "A",
+        "name": "剥甲",
+        "description": "破甲上限提高到10层，持续时间延长至6秒。",
+        "modifiers": {
+          "contentAdd": {
+            "sunderCap": 4,
+            "sunderDuration": 2
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "粉碎",
+        "description": "破甲上限改为4层，单层对装甲/其他敌人的承伤增幅改为10%/3.5%。",
+        "modifiers": {
+          "contentAdd": {
+            "sunderCap": -2,
+            "sunderArmor": 0.04,
+            "sunderOther": 0.015
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "崩甲",
+        "description": "叠满破甲时追加80%单发伤害，同一目标每2秒最多触发一次。",
+        "modifiers": {
+          "contentAdd": {
+            "sunderBurst": 0.8
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "腐蚀扩散",
+        "description": "叠满时向70距离内最多3个敌人传播3层破甲；同一目标每2秒一次，传播不会继续传播。",
+        "modifiers": {
+          "contentAdd": {
+            "sunderSpread": 3
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "magnetic",
+    "level3": [
+      {
+        "key": "A",
+        "name": "强磁",
+        "description": "捕获距离提高到165，最大校准转角提高至45°。",
+        "modifiers": {
+          "contentAdd": {
+            "magnetRange": 65,
+            "magnetTurn": 0.261799388
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "前置制导",
+        "description": "飞行满0.15秒后，撞墙前也可进行一次最多10°的弱校准；不消耗撞墙校准。",
+        "modifiers": {
+          "contentAdd": {
+            "magnetEarly": 0.174532925
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "磁击",
+        "description": "每枚弹丸首次成功校准后的下一次命中增伤60%；最多领取一次。",
+        "modifiers": {
+          "contentAdd": {
+            "magnetDamage": 0.6
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "二次锁定",
+        "description": "撞墙校准后首次命中，可再转向附近目标一次；此后弹丸伤害保留70%。",
+        "modifiers": {
+          "contentAdd": {
+            "magnetRelock": 0.7
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "barrier",
+    "level3": [
+      {
+        "key": "A",
+        "name": "高频护盾",
+        "description": "每16次命中产生1点屏障，容量改为2点。",
+        "modifiers": {
+          "contentAdd": {
+            "barrierHits": -8,
+            "barrierCapacity": -1
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "重型护盾",
+        "description": "每40次命中产生2点屏障，容量改为5点。",
+        "modifiers": {
+          "contentAdd": {
+            "barrierHits": 16,
+            "barrierCapacity": 2,
+            "barrierGrant": 1
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "反应屏障",
+        "description": "屏障被消耗至0时，全场装填加快25%，持续2秒；多个屏障骰不叠加。",
+        "modifiers": {
+          "contentAdd": {
+            "barrierReaction": 0.25
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "满载火力",
+        "description": "共享屏障达到本骰容量时，自身齐射伤害提高50%。",
+        "modifiers": {
+          "contentAdd": {
+            "barrierFullDamage": 0.5
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "spree",
+    "level3": [
+      {
+        "key": "A",
+        "name": "屠群",
+        "description": "同轮连杀上限提高到12层。",
+        "modifiers": {
+          "contentAdd": {
+            "spreeCap": 4
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "余杀",
+        "description": "发射新一轮时，继承上一轮当前连杀层数的35%，向下取整；之后的旧轮击杀不会改写新轮。",
+        "modifiers": {
+          "contentAdd": {
+            "spreeKeep": 0.35
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "血路",
+        "description": "该轮达到5层后，仍在飞行的弹丸各一次性获得2次穿透。",
+        "modifiers": {
+          "contentAdd": {
+            "spreePierce": 2
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "强敌赏金",
+        "description": "直接击杀装甲敌人或首领计3层；本轮直接伤害首次打穿首领75%/50%/25%生命线时各计2层，同一生命线全场只算一次。",
+        "modifiers": {
+          "contentAdd": {
+            "spreeElite": 3
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "formation",
+    "level3": [
+      {
+        "key": "A",
+        "name": "宽阵",
+        "description": "改为统计八方向邻位，每种增伤8%，最多计6种。",
+        "modifiers": {
+          "contentAdd": {
+            "formationDiagonal": 1,
+            "formationStep": -0.06
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "精编",
+        "description": "仍只统计四向邻位，每种增伤提高至20%。",
+        "modifiers": {
+          "contentAdd": {
+            "formationStep": 0.06
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "协同火力",
+        "description": "被本骰计入的邻骰获得8%齐射增伤；同类辅助增伤取最高，不叠加。",
+        "modifiers": {
+          "contentAdd": {
+            "formationAura": 0.08
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "完整编队",
+        "description": "四个正交邻位全部占用且四种互不相同时，每第3次正常齐射额外增伤80%；宽阵仍使用这四个邻位检查完整编队。",
+        "modifiers": {
+          "contentAdd": {
+            "formationBurst": 0.8
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "reactor",
+    "level3": [
+      {
+        "key": "A",
+        "name": "高频堆芯",
+        "description": "阈值降为5点，超载齐射增伤降为80%。",
+        "modifiers": {
+          "contentAdd": {
+            "reactorNeed": -3,
+            "reactorPower": -0.6
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "重型堆芯",
+        "description": "阈值提高至12点，超载齐射增伤提高至240%。",
+        "modifiers": {
+          "contentAdd": {
+            "reactorNeed": 4,
+            "reactorPower": 1
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "能量回流",
+        "description": "超载齐射后，四向邻骰剩余装填减少0.4秒；同一次松手多次回流对同一邻骰只取最大值。",
+        "modifiers": {
+          "contentAdd": {
+            "reactorReturn": 0.4
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "核爆弹",
+        "description": "超载轮第一枚主弹首次命中，产生半径76的爆炸，造成超载后齐射总伤害的35%；不递归触发。",
+        "modifiers": {
+          "contentAdd": {
+            "reactorBlast": 0.35
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "catalyst",
+    "level3": [
+      {
+        "key": "A",
+        "name": "广谱催化",
+        "description": "所有已注册负面状态都能计入，包括灵魂标记和因果；最多6种，每种增伤18%。",
+        "modifiers": {
+          "contentAdd": {
+            "catalystAll": 1,
+            "catalystCap": 2,
+            "catalystStep": -0.07
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "高纯催化",
+        "description": "存在任意可计入状态时先增伤60%，每种状态的额外增伤改为5%。",
+        "modifiers": {
+          "contentAdd": {
+            "catalystBase": 0.6,
+            "catalystStep": -0.2
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "延迟反应",
+        "description": "命中延长目标剩余时间最短的一个负面状态0.35秒；同一目标每0.5秒一次，整段存活期间合计最多延长2秒。",
+        "modifiers": {
+          "contentAdd": {
+            "catalystExtend": 0.35
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "临界反应",
+        "description": "目标有至少3种可计入状态时，追加80%单发基础伤害；同一目标每1秒最多一次。",
+        "modifiers": {
+          "contentAdd": {
+            "catalystBurst": 0.8
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "phase",
+    "level3": [
+      {
+        "key": "A",
+        "name": "双重相位",
+        "description": "每枚主弹最多穿墙2次。",
+        "modifiers": {
+          "contentAdd": {
+            "phaseUses": 1
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "相位增压",
+        "description": "完成自身相位穿越后，弹丸伤害提高40%。",
+        "modifiers": {
+          "contentAdd": {
+            "phasePower": 0.4
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "相位穿透",
+        "description": "每次自身穿墙后补充2次穿透，总剩余穿透不超过8次。",
+        "modifiers": {
+          "contentAdd": {
+            "phasePierce": 2
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "裂像",
+        "description": "第一次自身穿墙时，产生两枚25%伤害的侧弹；裂像不能穿墙或再次产生裂像。",
+        "modifiers": {
+          "contentAdd": {
+            "phaseChildren": 2
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "soul",
+    "level3": [
+      {
+        "key": "A",
+        "name": "摄魂",
+        "description": "标记延长至6秒，释魂阈值降为5魂。",
+        "modifiers": {
+          "contentAdd": {
+            "soulMark": 3,
+            "soulNeed": -3
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "恶魂",
+        "description": "只释放1枚魂弹，伤害提高为该轮总伤害的85%。",
+        "modifiers": {
+          "contentAdd": {
+            "soulCount": -2,
+            "soulDamage": 0.65
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "储魂",
+        "description": "释魂只消耗阈值的65%，向上取整；剩余灵魂保留。",
+        "modifiers": {
+          "contentAdd": {
+            "soulKeep": 0.35
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "传魂",
+        "description": "魂弹也能施加灵魂标记；魂弹不会自行释放更多魂弹，必须等下一次正常齐射。",
+        "modifiers": {
+          "contentAdd": {
+            "soulTransfer": 1
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "gravity",
+    "level3": [
+      {
+        "key": "A",
+        "name": "轻坍缩",
+        "description": "阈值降为3层，回拉降为2距离，追加伤害改为35%。",
+        "modifiers": {
+          "contentAdd": {
+            "massNeed": -2,
+            "massPull": -2,
+            "massPower": -0.15
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "重坍缩",
+        "description": "阈值提高到8层，回拉提高至7距离，追加伤害提高至110%。",
+        "modifiers": {
+          "contentAdd": {
+            "massNeed": 3,
+            "massPull": 3,
+            "massPower": 0.6
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "引力波",
+        "description": "坍缩时向70距离内最多3个其他敌人附加2层质量；扩散本身不引爆或继续扩散。",
+        "modifiers": {
+          "contentAdd": {
+            "massSpread": 2
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "巨物牵引",
+        "description": "首领承受的回拉比例由20%提高至45%；仍保留2秒触发限制。",
+        "modifiers": {
+          "contentAdd": {
+            "massBoss": 0.25
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "blackhole",
+    "level3": [
+      {
+        "key": "A",
+        "name": "巨型奇点",
+        "description": "半径提高至90，持续时间延长至2.2秒，伤害不变。",
+        "modifiers": {
+          "contentAdd": {
+            "holeRadius": 30,
+            "holeDuration": 0.8
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "致密奇点",
+        "description": "半径缩至40，每秒伤害提高为55%齐射伤害。",
+        "modifiers": {
+          "contentAdd": {
+            "holeRadius": -20,
+            "holeDamage": 0.35
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "弹道弯曲",
+        "description": "黑洞附近的友方主弹受到有限角速度牵引，朝黑洞中心弯曲；不重置寿命、穿透或反弹。",
+        "modifiers": {
+          "contentAdd": {
+            "holeSteer": 0.7
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "事件视界",
+        "description": "黑洞内敌人承受的伤害提高20%；多个黑洞只取最高值，因果回放不重复计算此增幅。",
+        "modifiers": {
+          "contentAdd": {
+            "holeVulnerable": 0.2
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "forge",
+    "level3": [
+      {
+        "key": "A",
+        "name": "快锻",
+        "description": "阈值降低至2点，锻造齐射增伤降低至100%。",
+        "modifiers": {
+          "contentAdd": {
+            "forgeNeed": -2,
+            "forgePower": -0.8
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "重锻",
+        "description": "阈值提高至6点，锻造齐射增伤提高至300%。",
+        "modifiers": {
+          "contentAdd": {
+            "forgeNeed": 2,
+            "forgePower": 1.2
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "淬火",
+        "description": "锻造齐射后，四向邻骰获得18%齐射增伤，持续3秒；同类辅助增伤取最高。",
+        "modifiers": {
+          "contentAdd": {
+            "forgeBlessing": 0.18
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "神兵",
+        "description": "锻造齐射额外获得6次穿透及6次反弹；总穿透仍不超过8次。",
+        "modifiers": {
+          "contentAdd": {
+            "forgePierce": 6,
+            "forgeBounces": 6
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "swarm",
+    "level3": [
+      {
+        "key": "A",
+        "name": "蜂巢",
+        "description": "产蜂概率提高至28%，共享容量提高至16架；不同蜂群骰容量取最大值，不相加。",
+        "modifiers": {
+          "contentAdd": {
+            "swarmChance": 0.1,
+            "swarmCapacity": 6
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "胡蜂",
+        "description": "共享容量为6架，无人机伤害提高至140%单发伤害。",
+        "modifiers": {
+          "contentAdd": {
+            "swarmCapacity": -4,
+            "swarmDamage": 0.8
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "增殖",
+        "description": "第一代无人机击杀后可产生1架75%伤害的后代；后代不能继续增殖，仍受共享容量限制。",
+        "modifiers": {
+          "contentAdd": {
+            "swarmDuplicate": 0.75
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "女王",
+        "description": "场上每多一颗其他蜂群骰，本骰产出的无人机伤害提高8%，最多计5颗。",
+        "modifiers": {
+          "contentAdd": {
+            "swarmQueen": 0.08
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "throne",
+    "level3": [
+      {
+        "key": "A",
+        "name": "共王",
+        "description": "允许并列最高，但王冠增伤降低为40%。",
+        "modifiers": {
+          "contentAdd": {
+            "throneTies": 1,
+            "thronePower": -0.5
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "独裁",
+        "description": "仍要求唯一最高，王冠增伤提高至140%。",
+        "modifiers": {
+          "contentAdd": {
+            "thronePower": 0.5
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "王令",
+        "description": "持有王冠时，四向邻骰获得18%齐射增伤；同类辅助增伤只取最大值。",
+        "modifiers": {
+          "contentAdd": {
+            "throneAura": 0.18
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "御驾亲征",
+        "description": "持有王冠时每第4次正常齐射再增伤160%，并获得3次穿透；失冠不重置正常齐射计数。",
+        "modifiers": {
+          "contentAdd": {
+            "throneBurst": 1.6
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "rift",
+    "level3": [
+      {
+        "key": "A",
+        "name": "稳定裂隙",
+        "description": "裂隙持续时间提高至3.5秒，入口半径提高至28。",
+        "modifiers": {
+          "contentAdd": {
+            "riftDuration": 1.5,
+            "riftWidth": 10
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "高能裂隙",
+        "description": "入口半径缩至10，穿越增伤提高至60%。",
+        "modifiers": {
+          "contentAdd": {
+            "riftWidth": -8,
+            "riftPower": 0.4
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "裂隙贯穿",
+        "description": "经过裂隙的主弹额外获得2次穿透；每枚弹丸只领取一次。",
+        "modifiers": {
+          "contentAdd": {
+            "riftPierce": 2
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "空间震荡",
+        "description": "主弹通过裂隙时在出口产生半径38的冲击，造成通过后单发伤害的30%；冲击不会触发任何入口。",
+        "modifiers": {
+          "contentAdd": {
+            "riftShock": 0.3
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "fate",
+    "level3": [
+      {
+        "key": "A",
+        "name": "双重命运",
+        "description": "每次生成2个不同命运数字，每个数字提供的增伤降为30%。",
+        "modifiers": {
+          "contentAdd": {
+            "fateCount": 1,
+            "fatePower": -0.2
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "绝对命运",
+        "description": "命运持续12秒，命运点数增伤提高至75%。",
+        "modifiers": {
+          "contentAdd": {
+            "fatePeriod": 4,
+            "fatePower": 0.25
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "天命降临",
+        "description": "命运变化时，若包含负责规则的命运骰自身点数，全场获得3秒的15%齐射增伤；不因换位反复触发。",
+        "modifiers": {
+          "contentAdd": {
+            "fateBlessing": 0.15
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "逆天改命",
+        "description": "每次命运变化时，额外祝福当时场上最低点数的骰子，直到下一次变化；只影响命运加成，不改真实点数。",
+        "modifiers": {
+          "contentAdd": {
+            "fateMinimum": 1
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "causality",
+    "level3": [
+      {
+        "key": "A",
+        "name": "长因",
+        "description": "记录窗口延长到3.5秒，回放比例降为20%。",
+        "modifiers": {
+          "contentAdd": {
+            "causalWindow": 1.5,
+            "causalRatio": -0.05
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "恶果",
+        "description": "记录窗口缩为1秒，回放比例提高至40%。",
+        "modifiers": {
+          "contentAdd": {
+            "causalWindow": -1,
+            "causalRatio": 0.15
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "因果转移",
+        "description": "目标提前死亡时，把已记录伤害的50%转为附近另一敌人的封存伤害债，在原定时间结算；每份因果最多转移一次。",
+        "modifiers": {
+          "contentAdd": {
+            "causalTransfer": 0.5
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "宿命",
+        "description": "对首领的因果回放提高60%，仍受记录上限约束；不额外重复计算易伤。",
+        "modifiers": {
+          "contentAdd": {
+            "causalBoss": 0.6
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "void",
+    "level3": [
+      {
+        "key": "A",
+        "name": "空域",
+        "description": "每空位的自身增伤降为2.5%，其他骰子增伤提高至1.8%。",
+        "modifiers": {
+          "contentAdd": {
+            "voidSelf": -0.035,
+            "voidTeam": 0.01
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "独存",
+        "description": "每空位自身增伤提高至14%，取消对其他骰子的空位增伤。",
+        "modifiers": {
+          "contentAdd": {
+            "voidSelf": 0.08,
+            "voidTeam": -0.008
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "真空弹道",
+        "description": "至少8个空位时，全场主弹额外获得1次穿透；只在发射时结算。",
+        "modifiers": {
+          "contentAdd": {
+            "voidPierce": 1,
+            "voidThreshold": 8
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "归零",
+        "description": "至少12个空位时积累湮灭，每8秒蓄满一次；下一次正常齐射的第一枚主弹首次命中释放半径90、180%齐射伤害的冲击，不会自动发射。",
+        "modifiers": {
+          "contentAdd": {
+            "voidPeriod": 8,
+            "voidBurst": 1.8,
+            "voidBurstThreshold": 12
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "reincarnation",
+    "level3": [
+      {
+        "key": "A",
+        "name": "今生",
+        "description": "自身齐射伤害提高35%；保留高点轮回时也有效。",
+        "modifiers": {
+          "damageMultiplier": 1.35
+        }
+      },
+      {
+        "key": "B",
+        "name": "来世",
+        "description": "自身齐射伤害降低15%，本次成功轮回的全队永久增伤额外提高2个百分点。",
+        "modifiers": {
+          "damageMultiplier": 0.85,
+          "contentAdd": {
+            "rebirthGain": 0.02
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "厚生轮回",
+        "description": "轮回次数上限改为3，每次全队增伤额外提高4个百分点；已有层数和奖励不重算。",
+        "modifiers": {
+          "contentAdd": {
+            "rebirthCap": -1,
+            "rebirthGain": 0.04
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "生生不息",
+        "description": "轮回次数上限提高至6，每次基础增伤降低1个百分点；转世从2点开始。全队轮回总增伤上限36%。",
+        "modifiers": {
+          "contentAdd": {
+            "rebirthCap": 2,
+            "rebirthGain": -0.01,
+            "rebirthStart": 1
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "order",
+    "level3": [
+      {
+        "key": "A",
+        "name": "可预测秩序",
+        "description": "显示下一次合成的骰种；仅预览，不消耗或改变随机数。",
+        "modifiers": {
+          "contentAdd": {
+            "orderPreview": 1
+          }
+        }
+      },
+      {
+        "key": "B",
+        "name": "绝对均衡",
+        "description": "新袋第一张不会与上一袋最后一张同种；袋内仍各有一张。",
+        "modifiers": {
+          "contentAdd": {
+            "orderNoRepeat": 1
+          }
+        }
+      }
+    ],
+    "level6": [
+      {
+        "key": "C",
+        "name": "神谕",
+        "description": "显示接下来3次合成骰种，跨袋预览同样不改变随机数。",
+        "modifiers": {
+          "contentAdd": {
+            "orderPreview": 3
+          }
+        }
+      },
+      {
+        "key": "D",
+        "name": "裁定",
+        "description": "每阶段可主动将下一结果移至袋尾一次；袋内只剩1张时不可使用，保证袋内六种不被丢弃。使用后立即保存。",
+        "modifiers": {
+          "contentAdd": {
+            "orderSkip": 1
+          }
+        }
+      }
+    ]
   }
 ]

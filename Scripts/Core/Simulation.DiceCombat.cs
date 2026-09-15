@@ -102,7 +102,7 @@ public sealed partial class Simulation
         if (progress < q.Trait("dangerThreshold")) damage *= q.Trait("safeDamage", 1);
         if (S.RageUntil > S.Time) damage *= 1 + q.Trait("breachBoost");
         damage *= 1 + Math.Min(8, p.Pierced) * q.Trait("pierceGain");
-        return damage;
+        return ExpansionHitDamage(e,p,damage);
     }
     private void OnContentHit(EnemyState enemy, ProjectileState p, double damage)
     {

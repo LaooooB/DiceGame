@@ -158,7 +158,7 @@ public sealed partial class GameApp
     }
     public bool SaveDeck()
     {
-        if (Campaign is null || !Progression!.CanUseDeck(Campaign, EditingDeck)) { Notify($"卡组必须携带 {Data.Game.Rules.MaxDeck} 种已解锁、互不重复的骰子。"); return false; }
+        if (Campaign is null || !Progression!.CanUseDeck(Campaign, EditingDeck)) { Notify($"卡组必须携带 {Data.Game.Rules.MaxDeck} 种已解锁、互不重复的骰子；最多 {Data.Game.Rules.MaxMythicTypes} 种神话。"); return false; }
         if (!CommitCampaign(Campaign, Snapshot(), EditingDeck.ToList())) return false;
         Scene = "regions"; return true;
     }

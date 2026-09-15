@@ -72,10 +72,10 @@ public sealed partial class RunState
 /// <summary>Authorable traits supplement the existing typed projectile modifiers. Unknown keys fail loading.</summary>
 public static class DiceContent
 {
-    public const int Version = 1;
-    public static readonly string[] Rarities = ["common", "rare", "epic", "legendary"];
-    public static string RarityName(string id) => id switch { "rare" => "稀有", "epic" => "史诗", "legendary" => "传说", _ => "普通" };
-    public static string RarityColor(string id) => id switch { "rare" => "#87D6FF", "epic" => "#CBA7FF", "legendary" => "#F8DE87", _ => "#C2D4DA" };
+    public const int Version = 2;
+    public static readonly string[] Rarities = ["common", "rare", "epic", "legendary", "mythic"];
+    public static string RarityName(string id) => id switch { "mythic" => "神话", "rare" => "稀有", "epic" => "史诗", "legendary" => "传说", _ => "普通" };
+    public static string RarityColor(string id) => id switch { "mythic" => "#FF95D0", "rare" => "#87D6FF", "epic" => "#CBA7FF", "legendary" => "#F8DE87", _ => "#C2D4DA" };
     public static readonly HashSet<string> Keys = new((
         "pipHaste pierce pipPierce pierceRetention pierceGain pierceEnergy armorBonus bossBonus aftershock " +
         "deathBurst chilledBonus seekCone finisher mark rampHaste rampDamage rampMax rampKeep rampBurst " +
@@ -88,6 +88,7 @@ public static class DiceContent
         "mirror mirrorFactor mirrorRow mirrorBranch mirrorEcho timePeriod timeDuration timeHaste timeKick " +
         "evolutionPeriod evolutionScale evolutionDamage evolutionGift finalDamage finalReload " +
         "wallEnergy").Split(' ', StringSplitOptions.RemoveEmptyEntries), StringComparer.Ordinal);
+    static DiceContent() { Keys.UnionWith(DiceExpansion.Keys); }
     public static void Apply(Dictionary<string, double> values, DiceSkillModifiers modifier)
     {
         foreach (var (key, value) in modifier.ContentAdd) values[key] = values.GetValueOrDefault(key, Default(key)) + value;
@@ -107,6 +108,7 @@ public static class DiceContent
             throw new InvalidDataException("Extended dice content requires instance skills.");
         foreach (var d in data.Dice)
         {
+            if (d.Rarity == "mythic" && d.Copyable) throw new InvalidDataException("Mythic laws cannot be mirrored: " + d.Id);
             if (!Rarities.Contains(d.Rarity) || d.GlyphPath is null || d.GlyphPath.Length > 4000)
                 throw new InvalidDataException("Invalid rarity / glyph: " + d.Id);
             CheckModifiers(d.Traits);
@@ -129,9 +131,10 @@ public static class DiceContent
     }
     public static void ValidateRuntime(RunState s)
     {
+        DiceExpansion.ValidateRuntime(s);
         static void Check(bool condition) { if (!condition) throw new InvalidDataException("Invalid saved dice content state."); }
         static bool Number(double v, double min = 0, double max = 1e9) => MathEx.Finite(v, min, max);
-        Check(s.ContentVersion is 0 or Version && s.TimedHits is not null && s.TimedHits.Count <= 256);
+        Check(s.ContentVersion is 0 or 1 or Version && s.TimedHits is not null && s.TimedHits.Count <= 256);
         Check(Number(s.RageUntil) && Number(s.LastTimeKick, -10) && Number(s.LastEvolutionGift, -100));
         foreach (var d in s.Board.OfType<DieState>())
             Check(Number(d.Charge, 0, 10) && Number(d.Age) && Number(d.AbilityClock, 0, 1e6) && Number(d.PulseUntil) && Number(d.LastHitTime) &&

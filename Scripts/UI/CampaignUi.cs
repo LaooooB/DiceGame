@@ -259,8 +259,9 @@ public partial class CampaignUi : Control
     private void BuildDeck()
     {
         _title.Text = "配置骰子 · " + Catalog.Regions[State.SelectedRegion].Name;
-        Label(_content, "必须携带 6 种不同骰子。首位是主骰，决定通关记录归属；召唤和合成从六种骰子中等概率随机。", 20, Muted);
-        var grid = Add(Scroll(_content), new GridContainer { Columns = 3, SizeFlagsHorizontal = SizeFlags.ExpandFill });
+        Label(_content, "必须携带6种不同骰子，最多1种神话。首位主骰决定通关记录；召唤等概率，秩序在场时合成使用洗牌袋。", 20, Muted);
+        var gridParent = Scroll(_content);
+        var grid = new GridContainer { Columns = 3, SizeFlagsHorizontal = SizeFlags.ExpandFill };
         foreach (var die in App.Data.Dice.OrderBy(d => Array.IndexOf(DiceContent.Rarities,d.Rarity)))
         {
             bool unlocked = State.UnlockedDice.Contains(die.Id), selected = App.EditingDeck.Contains(die.Id);
@@ -273,11 +274,12 @@ public partial class CampaignUi : Control
                 var source = Catalog.Buildings.Values.Where(b => b.Levels.Any(l => l.Reward.Dice.Contains(die.Id))).Select(b => b.Name);
                 Label(box, "解锁来源：" + string.Join("、", source), 18, Gold);
             }
-            Button(box, selected ? "移出卡组" : "加入卡组", () => Act("deck:" + die.Id), !unlocked);
+            Button(box, selected ? "移出卡组" : "加入卡组", () => Act("deck:" + die.Id), !unlocked || !selected && !App.CanAddMythic(die.Id));
             Button(box, App.EditingDeck.FirstOrDefault() == die.Id ? "本次主骰" : "设为主骰", () => Do(() => App.SetLeadDice(die.Id)), !selected || App.EditingDeck.FirstOrDefault() == die.Id);
         }
+        Add(gridParent, grid);
         string lead = App.EditingDeck.Count == 0 ? "未选择" : App.Data.Types[App.EditingDeck[0]].Name;
-        Label(_content, $"已携带 {App.EditingDeck.Count}/6 · 主骰 {lead}" + (App.EditingDeck.Count > 0 ? $" · 每种骰子出现概率 {100.0 / App.EditingDeck.Count:0.#}%" : ""), 22, Mint);
+        Label(_content, $"已携带 {App.EditingDeck.Count}/6 · 主骰 {lead}" + (App.EditingDeck.Count > 0 ? $" · 每种召唤概率 {100.0 / App.EditingDeck.Count:0.#}%" : ""), 22, Mint);
         var bottom = Row(_content); Button(bottom, "返回区域", () => Act("deckBack"));
         Button(bottom, "保存卡组", () => Act("deckSave"), !App.Data.ValidDeck(App.EditingDeck));
         Button(bottom, "开始远征", () => Do(() => { if (App.SaveDeck()) App.StartExpedition(); }), !App.Data.ValidDeck(App.EditingDeck) || State.ActiveRunId != "" || State.Flight is not null);
@@ -327,7 +329,7 @@ public partial class CampaignUi : Control
     private void BuildDie()
     {
         if (App.Sim is null || App.SelectedSlot < 0 || App.Sim.State.Board[App.SelectedSlot] is not { } die) { App.Scene = "play"; Invalidate(); return; }
-        var definition = App.Data.Types[die.Type]; var stats = App.Sim.Stats(die); var box = Card(_content, definition.Name + $" · {die.Pips} 点", definition.Description);
+        var definition = App.Data.Types[die.Type]; var stats = App.Sim.Stats(die); var box = Card(Scroll(_content), definition.Name + $" · {die.Pips} 点", definition.Description);
         Label(box,DiceContent.RarityName(definition.Rarity),22,DiceContent.RarityColor(definition.Rarity));
         Dice(box, _root.Art, die.Type, die.Pips, 180);
         string contentStatus=App.Sim.ContentStatus(die);if(contentStatus!="")Label(box,contentStatus,22,Mint);
@@ -337,7 +339,9 @@ public partial class CampaignUi : Control
         if (die.Pips is 3 or 4) Label(box, "下一次合成会继承落点骰子的 A/B 分支编号，但技能按随机结果种类切换。", 19, Muted);
         if (die.Pips == 5) Label(box, "合成六级后：按最终种类重新选择 A/B，再选择 C/D。", 21, Mint);
         Button(box, "返回战斗", () => Act("closeDie"));
-        Button(box, "回收此骰子 · +" + App.Sim.RecycleValue(die) + " 能量", () => Act("recycle:" + App.SelectedSlot));
+        if(App.Sim.CanReincarnate(die))
+            Button(box,"主动转世 · 不返还能量",()=>Confirm("这颗六点轮回将重建为低点轮回，失去本次强化选择。\n"+App.Sim.ExpansionStatus(die),()=>Act("recycle:"+App.SelectedSlot)));
+        else Button(box, "回收此骰子 · +" + App.Sim.RecycleValue(die) + " 能量", () => Act("recycle:" + App.SelectedSlot));
     }
     private void BuildHelp()
     {
@@ -345,6 +349,8 @@ public partial class CampaignUi : Control
         Label(box, "城镇与区域", 27, Mint);
         Label(box, "从区域中带回金币、建材、蓝图与补给。蓝图需要放置工地，再用城镇弹射推进施工。建成后立即获得骰子、机制或永久加成；下一次远征应用这些变化。", 23);
         Label(box, "每场远征只进入一个区域，经过普通波、小头目和最终头目。头目逃出防线算失败，不能靠拖时间跳过。胜利、失败与撤回均回城结算；失败不清空已经获得的物资。", 23);
+        Label(box, "神话规则", 27, Mint);
+        Label(box,"每套卡组最多1种神话，但场上可以有多颗同种神话；全局规则由最高点、同点最早的实例负责，不按数量叠加。秩序的预言显示在阵地下方，六点D可用裁定按钮；六点轮回在详情中主动转世。",23);
         Label(box, "骰子战斗", 27, Mint);
         Label(box, "长按战场瞄准，松手发射；移出战场再松手取消。卡组必须携带六种不同骰子，棋盘有 24 个席位。拖动可移动骰子；只有同种、同点骰子才能合成。合成产生的类型从本局卡组随机选取，点数上升一级。", 23);
         Label(box, "点击骰子查看数值或回收。合成会减少当前火力席位，所以高点数并不总比保留更多攻击频率更合适。", 23);

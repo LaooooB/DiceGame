@@ -7,7 +7,7 @@ namespace DiceGame.UI;
 
 public partial class CampaignUi
 {
-    private Label? _battleStatus, _battleStats, _battleHint;
+    private Label? _battleStatus, _battleStats, _battleHint, _expansionStatus;
     private ProgressBar? _health, _progress;
     private void BuildBattle()
     {
@@ -53,6 +53,9 @@ public partial class CampaignUi
         var summon = Button(right, "召唤骰子 · " + App.Data.Game.Rules.SummonCost + " 能量", () => Act("summon"));
         _live.Add(() => summon.Disabled = App.Scene != "play" || App.Sim is null || App.Sim.Count >= App.Data.Game.Board.Slots || App.Sim.State.Energy < App.Data.Game.Rules.SummonCost);
         _battleHint = Label(right, "长按战场瞄准，松手发射。", 21, Gold);
+        _expansionStatus=Label(right,"",18,Mint);
+        var adjudicate=Button(right,"裁定 · 下一结果移至袋尾",()=>Act("orderSkip"));
+        _live.Add(()=>{adjudicate.Visible=App.Sim?.State.Deck.Any(id=>App.Data.Types[id].Traits.GetValueOrDefault("orderLaw")>0)==true;adjudicate.Disabled=App.Scene!="play" || App.Sim?.CanSkipOrder!=true;});
         Label(right, "三级选 A/B；六级重选 A/B，再选 C/D。点击骰子可查看或回收。", 18, Muted);
         var loot = Label(right, "", 18, Gold);
         _live.Add(() => { if (App.Sim?.State.Expedition is { } ex) loot.Text = Resources(ex.Loot) + "\n蓝图 " + ex.FoundBlueprints.Count; });
@@ -72,6 +75,7 @@ public partial class CampaignUi
         if (_progress is not null) _progress.Value = (double)(e.LocalWave(state.Wave) - 1) / e.Region.TotalWaves;
         if (_battleStats is not null) _battleStats.Text = $"用时 {TimeText(state.Time)}\n能量 {state.Energy:0}\n防线 {state.Health}/{App.Data.Game.Rules.MaxHealth}\n击破 {state.Kills}\n场上敌人 {state.Enemies.Count(x => x.Hp > 0)}";
         if (_health is not null) _health.Value = state.Health;
+        if(_expansionStatus is not null)_expansionStatus.Text=sim.GlobalExpansionStatus();
         bool dragging = App.Pointer?.Mode == "drag";
         for (int i = 0; i < _slots.Count; i++)
         {

@@ -6,7 +6,7 @@ using P=DiceGame.Presentation.Palette;
 namespace DiceGame.Presentation;
 
 /// <summary>Native CanvasItem port of renderer.js. Coordinates are reference-canvas units, not window pixels.</summary>
-public sealed class NativeRenderer(GameApp app)
+public sealed partial class NativeRenderer(GameApp app)
 {
     private GameData D=>app.Data;
     private EffectSystem F=>app.Effects;
@@ -32,7 +32,8 @@ public sealed class NativeRenderer(GameApp app)
         (double,string)[] wall=[(0,"rgba(114,234,200,.13)"),(.6,"rgba(114,234,200,.5)"),(1,"rgba(114,234,200,.85)")];
         c.GradientBox(28,136,1.5,399,0,wall,0,0,0,399);c.GradientBox(402.5,136,1.5,399,0,wall,0,0,0,399);
         for(int y=153;y<510;y+=34){c.Line(30,y,34,y,"#496E78");c.Line(398,y,402,y,"#496E78");}
-        foreach(var e in State.Enemies)Enemy(c,e);
+        DrawExpansionFields(c);
+        foreach(var e in State.Enemies){Enemy(c,e);DrawExpansionMarkers(c,e);}
         if(app.Pointer?.Mode=="aim" && (!app.NativeUi || app.Preferences.ShowAim))Aim(c);
     }
     private void Shake(NativeCanvas c)
@@ -48,12 +49,13 @@ public sealed class NativeRenderer(GameApp app)
             c.Alpha=p.Child ? .65:1;double size=p.Surge?34:p.Child?18:25;c.Glow(color,p.X,p.Y,size);
             c.Circle(p.X,p.Y,p.Child?2:3.5,color);c.Circle(p.X,p.Y,p.Child?1:1.8,"#FFFFFF");
             if(p.Stats.Effect=="bank" && p.WallPower>1)c.Circle(p.X,p.Y,6,null,color);
+            DrawExpansionProjectile(c,p);
         }
         c.Alpha=1;
     }
     public void FieldAbove(NativeCanvas c)
     {
-        if(!ShowsBattle)return;Shake(c);DrawEffects(c);
+        if(!ShowsBattle)return;Shake(c);DrawEffects(c);DrawExpansionShield(c);
         string shield=State.Health<=4?P.Pink:P.Mint;
         c.GradientBox(31,487,370,35,0,[(0,shield+"00"),(1,shield+"15")],0,0,0,34);
         c.Line(34,519,398,519,shield+"77",1.2);for(int x=42;x<400;x+=24)c.Line(x,526,x+7,526,shield+"44");

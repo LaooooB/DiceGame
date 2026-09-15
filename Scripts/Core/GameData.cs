@@ -40,13 +40,13 @@ public sealed class GameData
     {
         if (deck is null) return false;
         var a = deck.ToArray();
-        return a.Length >= Game.Rules.MinDeck && a.Length <= Game.Rules.MaxDeck && a.Distinct().Count() == a.Length && a.All(Types.ContainsKey);
+        return a.Length >= Game.Rules.MinDeck && a.Length <= Game.Rules.MaxDeck && a.Distinct().Count() == a.Length && a.All(Types.ContainsKey) && a.Count(id => DiceExpansion.IsMythic(this, id)) <= Game.Rules.MaxMythicTypes;
     }
     public PointD SlotPosition(int index) => new(Game.Board.Left + index % Game.Board.Columns * Game.Board.StepX,
         Game.Board.Top + index / Game.Board.Columns * Game.Board.StepY);
     private void Validate()
     {
-        if (Game.Board.Slots is < 1 or > 64 || Game.Board.Columns < 1 || Game.Board.Columns > Game.Board.Slots ||
+        if (Game.Rules.MaxMythicTypes is < 0 or > 6 || Game.Board.Slots is < 1 or > 64 || Game.Board.Columns < 1 || Game.Board.Columns > Game.Board.Slots ||
             Game.Rules.MaxDeck < 1 || Game.Rules.MaxDeck > Dice.Length || Game.Rules.MinDeck < 1 ||
             Game.Rules.MinDeck > Game.Rules.MaxDeck || Game.Rules.MaxPips != 6 || !MathEx.Finite(Game.Rules.DamageScale, .01, 1))
             throw new InvalidDataException("Invalid board, required deck size or damage budget.");
@@ -96,6 +96,7 @@ public sealed class BoardConfig
 }
 public sealed class RulesConfig
 {
+    public int MaxMythicTypes { get; set; } = 1;
     public int MinDeck { get; set; } = 1;
     public double DamageScale { get; set; } = 1;
     public bool EnableDiceSkills { get; set; }

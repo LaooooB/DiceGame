@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><LangVersion>12</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="*.cs" />
+    <Compile Include="../../Scripts/Core/*.cs" Link="Core/%(Filename)%(Extension)" />
+    <Compile Include="../../Scripts/App/GameApp*.cs" Link="App/%(Filename)%(Extension)" />
+    <Compile Include="../../Scripts/App/UiLayout.cs" Link="App/UiLayout.cs" />
+    <Compile Include="../../Scripts/Presentation/EffectSystem.cs" Link="Presentation/EffectSystem.cs" />
+    <Compile Include="../../Scripts/Presentation/SoundSynth.cs" Link="Presentation/SoundSynth.cs" />
+    <None Include="../../Data/*.json" Link="Data/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../LegacyBalanceData/*.json" Link="LegacyBalanceData/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

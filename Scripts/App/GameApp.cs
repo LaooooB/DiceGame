@@ -243,6 +243,7 @@ public sealed partial class GameApp
             case "motion":Settings.ReduceMotion=!Settings.ReduceMotion;Effects.ReduceMotion=Settings.ReduceMotion;Save();break;
             case "home":Save();Sim=null;Scene="menu";Pointer=null;Effects.Clear();break;
             case "summon":Summon();break;
+            case "orderSkip":UseOrderSkip();break;
             case "help":HelpReturn=Scene=="menu"?"menu":Scene;Scene="help";Save();break;
             case "closeHelp":Scene=HelpReturn;Accumulator=0;break;
             case "closeDie":Scene="play";SelectedSlot=-1;Accumulator=0;break;
@@ -257,6 +258,7 @@ public sealed partial class GameApp
                 else if(id.StartsWith("summonAt:") && int.TryParse(id[9..],out int slot)) Summon(slot);
                 else if(id.StartsWith("recycle:") && Sim is not null && int.TryParse(id[8..],out int index))
                 {
+                    if(TryRebirthAction(index))break;
                     var r=Sim.Recycle(index);Scene="play";SelectedSlot=-1;
                     if(r.Ok) {Notify("已回收，获得 "+r.Amount+" 能量。");ConsumeEvents();Save();}
                 }
@@ -266,7 +268,7 @@ public sealed partial class GameApp
                 {
                     string type=id[5..];if(!Data.Types.ContainsKey(type)) break;
                     int i=EditingDeck.IndexOf(type);
-                    if(i>=0) EditingDeck.RemoveAt(i);else if(EditingDeck.Count<Data.Game.Rules.MaxDeck) EditingDeck.Add(type);else Notify("一个卡组最多携带六种骰子。");
+                    if(i>=0) EditingDeck.RemoveAt(i);else if(!CanAddMythic(type))Notify($"每套卡组最多携带 {Data.Game.Rules.MaxMythicTypes} 种神话骰子。");else if(EditingDeck.Count<Data.Game.Rules.MaxDeck) EditingDeck.Add(type);else Notify("一个卡组最多携带六种骰子。");
                 }
                 break;
         }
