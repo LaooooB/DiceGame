@@ -10,4 +10,7 @@ public partial class CampaignUi
     {
         if (ReferenceEquals(_dragArt, _uxDragArt)) _dragArt = null;
     }
+
+    internal bool UxCanSkipOrder => App.Scene == "play" && App.Sim?.CanSkipOrder == true;
+    internal void UxSkipOrder() => Act("orderSkip");
 }
