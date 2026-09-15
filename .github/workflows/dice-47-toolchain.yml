@@ -10,19 +10,27 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 56aa65e02e04c8d75f3d63c86ccada7353f942c5
+          persist-credentials: false
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.408'
-        env:
-          DOTNET_INSTALL_DIR: /tmp/dice-dotnet
-      - name: Package isolated compiler for offline regression
+      - name: Package pinned source and build dependencies
         run: |
           set -euo pipefail
-          tar -C /tmp/dice-dotnet -czf /tmp/dice-dotnet8.tar.gz .
-          sha256sum /tmp/dice-dotnet8.tar.gz
+          git archive --format=tar.gz -o /tmp/dice-source.tar.gz HEAD
+          dotnet restore DiceGame.csproj
+          tar -C "$HOME/.nuget/packages" -czf /tmp/dice-nuget.tar.gz .
+          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6-stable/Godot_v4.6-stable_mono_linux_x86_64.zip' -o /tmp/dice-godot.zip
+          sha256sum /tmp/dice-source.tar.gz /tmp/dice-nuget.tar.gz /tmp/dice-godot.zip
       - uses: actions/upload-artifact@v4
         with:
-          name: dice-47-offline-compiler
-          path: /tmp/dice-dotnet8.tar.gz
+          name: dice-47-source-and-native-dependencies
+          path: |
+            /tmp/dice-source.tar.gz
+            /tmp/dice-nuget.tar.gz
+            /tmp/dice-godot.zip
           retention-days: 1
           compression-level: 0
