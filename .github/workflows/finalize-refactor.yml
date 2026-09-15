@@ -37,10 +37,18 @@ jobs:
 
           p=Path('Scripts/Core/Simulation.cs')
           s=p.read_text(encoding='utf-8')
-          old='public double SummonCost => R.SummonCost + Math.Max(0, Count - 7) * 2;'
-          new='public double SummonCost => R.SummonCost + Math.Min(4, Math.Max(0, Count - 7)) * 2;'
-          assert old in s, 'summon cost source changed'
-          p.write_text(s.replace(old,new,1),encoding='utf-8')
+          pairs=[
+            ('public double SummonCost => R.SummonCost + Math.Max(0, Count - 7) * 2;',
+             'public double SummonCost => R.SummonCost + Math.Min(4, Math.Max(0, Count - 7)) * 2;'),
+            ('S.ClearRewarded=true; S.NextWaveIn=2.8;\n            int reward=C.Waves.ClearEnergy+Math.Min(12,(int)Math.Floor(S.Wave*.5))+2*UpgradeLevel("income");',
+             'S.ClearRewarded=true; S.NextWaveIn=R.EnableDiceSkills?2.8:1.35;\n            int reward=R.EnableDiceSkills ? C.Waves.ClearEnergy+Math.Min(12,(int)Math.Floor(S.Wave*.5))+2*UpgradeLevel("income") : C.Waves.ClearEnergy+Math.Min(25,S.Wave);'),
+            ('int reward=C.Waves.KillEnergy+(enemy.Kind=="boss"?6:0);',
+             'int reward=R.EnableDiceSkills ? C.Waves.KillEnergy+(enemy.Kind=="boss"?6:0) : C.Waves.KillEnergy+UpgradeLevel("income")+(enemy.Kind=="boss"?16:0);')
+          ]
+          for old,new in pairs:
+            assert old in s, 'simulation pacing source changed: '+old[:32]
+            s=s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
 
           p=Path('Scripts/App/GameApp.cs')
           s=p.read_text(encoding='utf-8')
@@ -78,4 +86,4 @@ jobs:
           git add Data/game.json Scripts/Core/Simulation.Skills.cs Scripts/Core/Simulation.cs Scripts/App/GameApp.cs Tools/static_check.py
           git commit -m 'Tune combat pacing and restore regression compatibility'
           git push origin HEAD:main
-# trigger contents-api push
+# trigger legacy-isolation gate
