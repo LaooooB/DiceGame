@@ -1,0 +1,28 @@
+name: Dice 47 isolated validation toolchain
+on:
+  push:
+    branches: [work/dice-47-mythic-20260915]
+    paths: [.github/workflows/dice-47-toolchain.yml]
+permissions:
+  contents: read
+jobs:
+  toolchain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.408'
+        env:
+          DOTNET_INSTALL_DIR: /tmp/dice-dotnet
+      - name: Package isolated compiler for offline regression
+        run: |
+          set -euo pipefail
+          tar -C /tmp/dice-dotnet -czf /tmp/dice-dotnet8.tar.gz .
+          sha256sum /tmp/dice-dotnet8.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dice-47-offline-compiler
+          path: /tmp/dice-dotnet8.tar.gz
+          retention-days: 1
+          compression-level: 0
