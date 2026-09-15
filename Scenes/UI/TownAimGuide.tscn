@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[node name="TownAimGuide" type="ColorRect"]
+visible = false
+mouse_filter = 2
+color = Color(0.4471, 0.9176, 0.7843, 0.95)
+z_index = 8
