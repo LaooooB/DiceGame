@@ -1,0 +1,49 @@
+PASS JSON Data/game.json
+PASS JSON Data/dice.json
+PASS JSON Data/upgrades.json
+PASS JSON Assets/Reference/manifest.json
+PASS JSON Tests/Fixtures/fixture_manifest.json
+PASS Godot SDK pinned to 4.6.0
+PASS Both projects target .NET 8
+PASS Tests excluded from game compilation
+PASS Main scene exists
+PASS Main C# entry exists
+PASS Mouse-only platform switches
+PASS Desktop-only export preset
+PASS Test and tool files excluded from exports
+PASS Non-runtime folders ignored by Godot
+PASS No duplicate texture multiplication in round mask
+PASS Background image size
+PASS Icon atlas size
+PASS Dice atlas 22
+PASS Dice atlas 41
+PASS Dice atlas 46
+PASS Dice atlas 49
+PASS Dice atlas 53
+PASS Dice atlas 60
+PASS Dice atlas 64
+PASS Dice atlas 92
+PASS Dice atlas 125
+PASS Glow atlas 72EAC8
+PASS Glow atlas FFAD76
+PASS Glow atlas CBA7FF
+PASS Glow atlas 87D6FF
+PASS Glow atlas F8DE87
+PASS Glow atlas FF97B8
+PASS Original source hash math.js
+PASS Original source hash simulation.js
+PASS Original source hash renderer.js
+PASS Original source hash audio.js
+PASS Art source hash
+PASS 17 reference cases / 179 checkpoints
+PASS 72 stat profiles
+PASS 84 audio profiles / 670677 samples
+PASS All reference audio samples finite
+PASS Nine original reference screenshots
+PASS No font files redistributed
+PASS No placeholder implementation exceptions
+PASS No JavaScript engine or embedded browser dependency
+PASS Unchanged original data game.json
+PASS Unchanged original data dice.json
+PASS Unchanged original data upgrades.json
+48 integrity checks passed; 0 failed. C# and Godot were NOT executed.

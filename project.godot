@@ -1,0 +1,33 @@
+; Godot 4.6 stable .NET desktop project. Native C#, no browser or mobile adapter.
+config_version=5
+
+[application]
+config/name="骰子回响 · Dice Ricochet"
+config/description="骰子弹射、城镇建设、区域远征与永久解锁。Godot 4.6 .NET 桌面版。"
+run/main_scene="res://Scenes/Main.tscn"
+config/features=PackedStringArray("4.6", "C#", "GL Compatibility")
+config/use_custom_user_dir=true
+config/custom_user_dir_name="DiceRicochetGodot"
+
+[display]
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/window_width_override=1920
+window/size/window_height_override=1080
+window/size/resizable=true
+window/stretch/mode="canvas_items"
+window/vsync/vsync_mode=1
+
+[dotnet]
+project/assembly_name="DiceGame"
+
+[input_devices]
+pointing/emulate_touch_from_mouse=false
+pointing/emulate_mouse_from_touch=false
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+environment/defaults/default_clear_color=Color(0.03137255, 0.05882353, 0.09803922, 1)
+
+[audio]
+driver/output_latency=20

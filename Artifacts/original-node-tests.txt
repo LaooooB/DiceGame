@@ -1,0 +1,190 @@
+TAP version 13
+# Subtest: deck is 1–6 distinct registered types; board is exactly eight slots
+ok 1 - deck is 1–6 distinct registered types; board is exactly eight slots
+  ---
+  duration_ms: 1.564533
+  type: 'test'
+  ...
+# Subtest: a legal merge consumes precisely two dice and creates one higher random in-deck die
+ok 2 - a legal merge consumes precisely two dice and creates one higher random in-deck die
+  ---
+  duration_ms: 0.742968
+  type: 'test'
+  ...
+# Subtest: different types, different pips, invalid indices, and self merge are rejected without mutation
+ok 3 - different types, different pips, invalid indices, and self merge are rejected without mutation
+  ---
+  duration_ms: 2.155247
+  type: 'test'
+  ...
+# Subtest: six-point dice cannot merge past the configured cap
+ok 4 - six-point dice cannot merge past the configured cap
+  ---
+  duration_ms: 0.41289
+  type: 'test'
+  ...
+# Subtest: full board and insufficient energy summons are atomic; recycling restores room
+ok 5 - full board and insufficient energy summons are atomic; recycling restores room
+  ---
+  duration_ms: 0.354033
+  type: 'test'
+  ...
+# Subtest: moving a die does not merge or replace an occupied target
+ok 6 - moving a die does not merge or replace an occupied target
+  ---
+  duration_ms: 0.181238
+  type: 'test'
+  ...
+# Subtest: simulation never auto-fires on time advancement
+ok 7 - simulation never auto-fires on time advancement
+  ---
+  duration_ms: 11.655832
+  type: 'test'
+  ...
+# Subtest: a release fires all ready dice once and respects per-die cooldown
+ok 8 - a release fires all ready dice once and respects per-die cooldown
+  ---
+  duration_ms: 2.677869
+  type: 'test'
+  ...
+# Subtest: two-to-one upgrades trade 5–12% sustained direct fire for stronger volleys and freed capacity
+ok 9 - two-to-one upgrades trade 5–12% sustained direct fire for stronger volleys and freed capacity
+  ---
+  duration_ms: 0.45298
+  type: 'test'
+  ...
+# Subtest: in-flight and queued bullets preserve snapshots when source is merged or recycled
+ok 10 - in-flight and queued bullets preserve snapshots when source is merged or recycled
+  ---
+  duration_ms: 0.795355
+  type: 'test'
+  ...
+# Subtest: swept collision hits a block even when displacement crosses it in one tick
+ok 11 - swept collision hits a block even when displacement crosses it in one tick
+  ---
+  duration_ms: 0.287665
+  type: 'test'
+  ...
+# Subtest: contact does not deal repeated damage every frame
+ok 12 - contact does not deal repeated damage every frame
+  ---
+  duration_ms: 0.173928
+  type: 'test'
+  ...
+# Subtest: wall reflection is finite and consumes the bounce budget
+ok 13 - wall reflection is finite and consumes the bounce budget
+  ---
+  duration_ms: 0.15542
+  type: 'test'
+  ...
+# Subtest: a zero-displacement slab query and corner contacts cannot produce NaN
+ok 14 - a zero-displacement slab query and corner contacts cannot produce NaN
+  ---
+  duration_ms: 0.302918
+  type: 'test'
+  ...
+# Subtest: returning bullets are reclaimed by the open bottom boundary
+ok 15 - returning bullets are reclaimed by the open bottom boundary
+  ---
+  duration_ms: 0.118015
+  type: 'test'
+  ...
+# Subtest: split children cannot recursively split
+ok 16 - split children cannot recursively split
+  ---
+  duration_ms: 0.293284
+  type: 'test'
+  ...
+# Subtest: secondary explosion damage cannot trigger projectile effects; volatile enemies die once
+ok 17 - secondary explosion damage cannot trigger projectile effects; volatile enemies die once
+  ---
+  duration_ms: 0.336788
+  type: 'test'
+  ...
+# Subtest: lightning selects different nearby targets and never itself creates another lightning proc
+ok 18 - lightning selects different nearby targets and never itself creates another lightning proc
+  ---
+  duration_ms: 0.276348
+  type: 'test'
+  ...
+# Subtest: frost preserves a movement floor, including for bosses
+ok 19 - frost preserves a movement floor, including for bosses
+  ---
+  duration_ms: 0.177232
+  type: 'test'
+  ...
+# Subtest: lane queues prevent frozen blocks from being overlapped by followers
+ok 20 - lane queues prevent frozen blocks from being overlapped by followers
+  ---
+  duration_ms: 0.143232
+  type: 'test'
+  ...
+# Subtest: bank shots accumulate bounded wall power and consume it on the next hit
+ok 21 - bank shots accumulate bounded wall power and consume it on the next hit
+  ---
+  duration_ms: 0.159836
+  type: 'test'
+  ...
+# Subtest: damage cannot reward the same dead enemy more than once
+ok 22 - damage cannot reward the same dead enemy more than once
+  ---
+  duration_ms: 0.106347
+  type: 'test'
+  ...
+# Subtest: upgrade offers match the deck, are unique, and pause time until a legal choice
+ok 23 - upgrade offers match the deck, are unique, and pause time until a legal choice
+  ---
+  duration_ms: 0.445058
+  type: 'test'
+  ...
+# Subtest: wave difficulty grows and every fifth wave includes a boss
+ok 24 - wave difficulty grows and every fifth wave includes a boss
+  ---
+  duration_ms: 0.190682
+  type: 'test'
+  ...
+# Subtest: seeded save and restore continue bit-for-bit with active projectiles
+ok 25 - seeded save and restore continue bit-for-bit with active projectiles
+  ---
+  duration_ms: 23.564909
+  type: 'test'
+  ...
+# Subtest: corrupt saves are rejected instead of inserting bad values into collision or board state
+ok 26 - corrupt saves are rejected instead of inserting bad values into collision or board state
+  ---
+  duration_ms: 1.040749
+  type: 'test'
+  ...
+# Subtest: invalid dt cannot destabilize simulation and all capped effects stay bounded
+ok 27 - invalid dt cannot destabilize simulation and all capped effects stay bounded
+  ---
+  duration_ms: 32.362786
+  type: 'test'
+  ...
+# Subtest: death is terminal and restart state is clean
+ok 28 - death is terminal and restart state is clean
+  ---
+  duration_ms: 0.272503
+  type: 'test'
+  ...
+# Subtest: late-game upgrades still offer three useful choices without uncapping fire frequency
+ok 29 - late-game upgrades still offer three useful choices without uncapping fire frequency
+  ---
+  duration_ms: 0.253435
+  type: 'test'
+  ...
+# Subtest: projectile saturation defers split children instead of erasing their damage
+ok 30 - projectile saturation defers split children instead of erasing their damage
+  ---
+  duration_ms: 6.132396
+  type: 'test'
+  ...
+1..30
+# tests 30
+# suites 0
+# pass 30
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 146.852038

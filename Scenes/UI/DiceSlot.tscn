@@ -1,0 +1,31 @@
+[gd_scene format=3]
+
+[node name="DiceSlot" type="PanelContainer"]
+custom_minimum_size = Vector2(100, 156)
+mouse_filter = 0
+
+[node name="Layout" type="VBoxContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Art" type="TextureRect" parent="Layout"]
+custom_minimum_size = Vector2(88, 100)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="Layout"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+text = "空位"
+
+[node name="Reload" type="ProgressBar" parent="Layout"]
+custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
+mouse_filter = 2
+max_value = 1.0
+show_percentage = false

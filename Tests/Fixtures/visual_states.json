@@ -1,0 +1,885 @@
+{
+  "battle": {
+    "schema": 1,
+    "deck": [
+      "pulse",
+      "blast",
+      "arc",
+      "frost",
+      "split",
+      "bank"
+    ],
+    "rng": 4286497441,
+    "seed": 24137,
+    "time": 10,
+    "nextId": 45,
+    "wave": 3,
+    "waveTime": 0,
+    "health": 9,
+    "energy": 68,
+    "score": 2450,
+    "kills": 0,
+    "merges": 0,
+    "shots": 0,
+    "combo": 7,
+    "comboTime": 1.5,
+    "bestCombo": 0,
+    "clearRewarded": false,
+    "nextWaveIn": -1,
+    "lastAim": -1.5707963267948966,
+    "board": [
+      {
+        "id": 13,
+        "type": "pulse",
+        "pips": 1,
+        "cooldown": 0,
+        "flash": 0
+      },
+      {
+        "id": 14,
+        "type": "blast",
+        "pips": 2,
+        "cooldown": 0,
+        "flash": 0
+      },
+      {
+        "id": 15,
+        "type": "arc",
+        "pips": 3,
+        "cooldown": 0,
+        "flash": 0
+      },
+      {
+        "id": 16,
+        "type": "frost",
+        "pips": 1,
+        "cooldown": 0,
+        "flash": 0
+      },
+      {
+        "id": 17,
+        "type": "split",
+        "pips": 2,
+        "cooldown": 0,
+        "flash": 0
+      },
+      {
+        "id": 18,
+        "type": "bank",
+        "pips": 3,
+        "cooldown": 0,
+        "flash": 0
+      },
+      {
+        "id": 19,
+        "type": "pulse",
+        "pips": 1,
+        "cooldown": 0,
+        "flash": 0
+      },
+      {
+        "id": 20,
+        "type": "blast",
+        "pips": 2,
+        "cooldown": 0,
+        "flash": 0
+      }
+    ],
+    "enemies": [
+      {
+        "id": 21,
+        "maxHp": 35,
+        "slowUntil": 0,
+        "slowFactor": 1,
+        "flash": 0,
+        "dead": false,
+        "x": 66,
+        "y": 179,
+        "w": 39,
+        "h": 39,
+        "hp": 35,
+        "speed": 0,
+        "kind": "normal",
+        "wave": 3
+      },
+      {
+        "id": 22,
+        "maxHp": 42,
+        "slowUntil": 0,
+        "slowFactor": 1,
+        "flash": 0,
+        "dead": false,
+        "x": 116,
+        "y": 179,
+        "w": 39,
+        "h": 39,
+        "hp": 42,
+        "speed": 0,
+        "kind": "volatile",
+        "wave": 3
+      },
+      {
+        "id": 23,
+        "maxHp": 49,
+        "slowUntil": 0,
+        "slowFactor": 1,
+        "flash": 0,
+        "dead": false,
+        "x": 166,
+        "y": 179,
+        "w": 39,
+        "h": 39,
+        "hp": 49,
+        "speed": 0,
+        "kind": "normal",
+        "wave": 3
+      },
+      {
+        "id": 24,
+        "maxHp": 56,
+        "slowUntil": 0,
+        "slowFactor": 1,
+        "flash": 0,
+        "dead": false,
+        "x": 216,
+        "y": 179,
+        "w": 39,
+        "h": 39,
+        "hp": 56,
+        "speed": 0,
+        "kind": "armored",
+        "wave": 3
+      },
+      {
+        "id": 25,
+        "maxHp": 63,
+        "slowUntil": 20,
+        "slowFactor": 0.38,
+        "flash": 0,
+        "dead": false,
+        "x": 266,
+        "y": 179,
+        "w": 39,
+        "h": 39,
+        "hp": 63,
+        "speed": 0,
+        "kind": "normal",
+        "wave": 3
+      },
+      {
+        "id": 26,
+        "maxHp": 70,
+        "slowUntil": 0,
+        "slowFactor": 1,
+        "flash": 0,
+        "dead": false,
+        "x": 316,
+        "y": 179,
+        "w": 39,
+        "h": 39,
+        "hp": 70,
+        "speed": 0,
+        "kind": "normal",
+        "wave": 3
+      },
+      {
+        "id": 27,
+        "maxHp": 77,
+        "slowUntil": 0,
+        "slowFactor": 1,
+        "flash": 0,
+        "dead": false,
+        "x": 366,
+        "y": 179,
+        "w": 39,
+        "h": 39,
+        "hp": 77,
+        "speed": 0,
+        "kind": "volatile",
+        "wave": 3
+      },
+      {
+        "id": 28,
+        "maxHp": 84,
+        "slowUntil": 0,
+        "slowFactor": 1,
+        "flash": 0,
+        "dead": false,
+        "x": 66,
+        "y": 234,
+        "w": 39,
+        "h": 39,
+        "hp": 84,
+        "speed": 0,
+        "kind": "normal",
+        "wave": 3
+      },
+      {
+        "id": 29,
+        "maxHp": 91,
+        "slowUntil": 0,
+        "slowFactor": 1,
+        "flash": 0,
+        "dead": false,
+        "x": 116,
+        "y": 234,
+        "w": 39,
+        "h": 39,
+        "hp": 91,
+        "speed": 0,
+        "kind": "armored",
+        "wave": 3
+      },
+      {
+        "id": 30,
+        "maxHp": 98,
+        "slowUntil": 0,
+        "slowFactor": 1,
+        "flash": 0,
+        "dead": false,
+        "x": 166,
+        "y": 234,
+        "w": 39,
+        "h": 39,
+        "hp": 98,
+        "speed": 0,
+        "kind": "normal",
+        "wave": 3
+      },
+      {
+        "id": 31,
+        "maxHp": 105,
+        "slowUntil": 0,
+        "slowFactor": 1,
+        "flash": 0,
+        "dead": false,
+        "x": 216,
+        "y": 234,
+        "w": 39,
+        "h": 39,
+        "hp": 105,
+        "speed": 0,
+        "kind": "normal",
+        "wave": 3
+      },
+      {
+        "id": 32,
+        "maxHp": 112,
+        "slowUntil": 0,
+        "slowFactor": 1,
+        "flash": 0,
+        "dead": false,
+        "x": 266,
+        "y": 234,
+        "w": 39,
+        "h": 39,
+        "hp": 112,
+        "speed": 0,
+        "kind": "volatile",
+        "wave": 3
+      },
+      {
+        "id": 33,
+        "maxHp": 119,
+        "slowUntil": 0,
+        "slowFactor": 1,
+        "flash": 0,
+        "dead": false,
+        "x": 316,
+        "y": 234,
+        "w": 39,
+        "h": 39,
+        "hp": 119,
+        "speed": 0,
+        "kind": "normal",
+        "wave": 3
+      },
+      {
+        "id": 34,
+        "maxHp": 126,
+        "slowUntil": 0,
+        "slowFactor": 1,
+        "flash": 0,
+        "dead": false,
+        "x": 366,
+        "y": 234,
+        "w": 39,
+        "h": 39,
+        "hp": 126,
+        "speed": 0,
+        "kind": "armored",
+        "wave": 3
+      },
+      {
+        "id": 35,
+        "maxHp": 133,
+        "slowUntil": 0,
+        "slowFactor": 1,
+        "flash": 0,
+        "dead": false,
+        "x": 66,
+        "y": 289,
+        "w": 39,
+        "h": 39,
+        "hp": 133,
+        "speed": 0,
+        "kind": "normal",
+        "wave": 3
+      },
+      {
+        "id": 36,
+        "maxHp": 140,
+        "slowUntil": 0,
+        "slowFactor": 1,
+        "flash": 0,
+        "dead": false,
+        "x": 116,
+        "y": 289,
+        "w": 39,
+        "h": 39,
+        "hp": 140,
+        "speed": 0,
+        "kind": "normal",
+        "wave": 3
+      },
+      {
+        "id": 37,
+        "maxHp": 147,
+        "slowUntil": 0,
+        "slowFactor": 1,
+        "flash": 0,
+        "dead": false,
+        "x": 166,
+        "y": 289,
+        "w": 39,
+        "h": 39,
+        "hp": 147,
+        "speed": 0,
+        "kind": "volatile",
+        "wave": 3
+      },
+      {
+        "id": 38,
+        "maxHp": 154,
+        "slowUntil": 0,
+        "slowFactor": 1,
+        "flash": 0,
+        "dead": false,
+        "x": 216,
+        "y": 289,
+        "w": 39,
+        "h": 39,
+        "hp": 154,
+        "speed": 0,
+        "kind": "normal",
+        "wave": 3
+      }
+    ],
+    "projectiles": [
+      {
+        "id": 39,
+        "x": 91,
+        "y": 365,
+        "px": 91,
+        "py": 365,
+        "vx": 224.66180777553765,
+        "vy": -577.8642332996803,
+        "type": "pulse",
+        "pips": 1,
+        "stats": {
+          "effect": "pulse",
+          "damage": 13,
+          "volley": 13,
+          "count": 1,
+          "reload": 0.66,
+          "bounces": 11,
+          "color": "#72EAC8",
+          "blastRadius": 0,
+          "splashFactor": 0,
+          "chainCount": 1,
+          "chainRange": 0,
+          "chainFactor": 0,
+          "slowFactor": 1,
+          "slowSeconds": 0.1,
+          "childCount": 2,
+          "childFactor": 0,
+          "wallBoost": 0,
+          "maxBoost": 1
+        },
+        "life": 5.2,
+        "bounces": 11,
+        "child": false,
+        "splitDone": false,
+        "wallPower": 1,
+        "lastEnemy": 0,
+        "surge": false,
+        "dead": false,
+        "trail": [
+          {
+            "x": 79.76690961122311,
+            "y": 393.893211664984
+          },
+          {
+            "x": 81.63909134268593,
+            "y": 389.0776763874867
+          },
+          {
+            "x": 83.51127307414875,
+            "y": 384.26214110998933
+          },
+          {
+            "x": 85.38345480561156,
+            "y": 379.446605832492
+          },
+          {
+            "x": 87.25563653707437,
+            "y": 374.63107055499466
+          },
+          {
+            "x": 89.12781826853718,
+            "y": 369.81553527749736
+          },
+          {
+            "x": 91,
+            "y": 365
+          }
+        ]
+      },
+      {
+        "id": 40,
+        "x": 134,
+        "y": 406,
+        "px": 134,
+        "py": 406,
+        "vx": 123.6588270184953,
+        "vy": -607.5429980671408,
+        "type": "blast",
+        "pips": 2,
+        "stats": {
+          "effect": "blast",
+          "damage": 11.22,
+          "volley": 22.44,
+          "count": 2,
+          "reload": 0.9632000000000001,
+          "bounces": 11,
+          "color": "#FFAD76",
+          "blastRadius": 48,
+          "splashFactor": 0.65,
+          "chainCount": 1,
+          "chainRange": 0,
+          "chainFactor": 0,
+          "slowFactor": 1,
+          "slowSeconds": 0.2,
+          "childCount": 2,
+          "childFactor": 0,
+          "wallBoost": 0,
+          "maxBoost": 1
+        },
+        "life": 5.2,
+        "bounces": 11,
+        "child": false,
+        "splitDone": false,
+        "wallPower": 1,
+        "lastEnemy": 0,
+        "surge": true,
+        "dead": false,
+        "trail": [
+          {
+            "x": 127.81705864907524,
+            "y": 436.37714990335706
+          },
+          {
+            "x": 128.84754887422937,
+            "y": 431.3142915861309
+          },
+          {
+            "x": 129.8780390993835,
+            "y": 426.2514332689047
+          },
+          {
+            "x": 130.90852932453762,
+            "y": 421.1885749516785
+          },
+          {
+            "x": 131.93901954969175,
+            "y": 416.1257166344524
+          },
+          {
+            "x": 132.96950977484587,
+            "y": 411.0628583172262
+          },
+          {
+            "x": 134,
+            "y": 406
+          }
+        ]
+      },
+      {
+        "id": 41,
+        "x": 177,
+        "y": 365,
+        "px": 177,
+        "py": 365,
+        "vx": 19.090704631128997,
+        "vy": -619.706014975397,
+        "type": "arc",
+        "pips": 3,
+        "stats": {
+          "effect": "arc",
+          "damage": 14.133333333333335,
+          "volley": 42.400000000000006,
+          "count": 3,
+          "reload": 1.1088,
+          "bounces": 11,
+          "color": "#CBA7FF",
+          "blastRadius": 0,
+          "splashFactor": 0,
+          "chainCount": 2,
+          "chainRange": 87,
+          "chainFactor": 0.62,
+          "slowFactor": 1,
+          "slowSeconds": 0.30000000000000004,
+          "childCount": 3,
+          "childFactor": 0,
+          "wallBoost": 0,
+          "maxBoost": 1
+        },
+        "life": 5.2,
+        "bounces": 11,
+        "child": false,
+        "splitDone": false,
+        "wallPower": 1,
+        "lastEnemy": 0,
+        "surge": false,
+        "dead": false,
+        "trail": [
+          {
+            "x": 176.04546476844354,
+            "y": 395.9853007487699
+          },
+          {
+            "x": 176.20455397370296,
+            "y": 390.8210839573082
+          },
+          {
+            "x": 176.36364317896238,
+            "y": 385.65686716584656
+          },
+          {
+            "x": 176.52273238422177,
+            "y": 380.49265037438494
+          },
+          {
+            "x": 176.6818215894812,
+            "y": 375.3284335829233
+          },
+          {
+            "x": 176.84091079474058,
+            "y": 370.1642167914616
+          },
+          {
+            "x": 177,
+            "y": 365
+          }
+        ]
+      },
+      {
+        "id": 42,
+        "x": 220,
+        "y": 406,
+        "px": 220,
+        "py": 406,
+        "vx": -86.02781167047408,
+        "vy": -614.002618576818,
+        "type": "frost",
+        "pips": 1,
+        "stats": {
+          "effect": "frost",
+          "damage": 12,
+          "volley": 12,
+          "count": 1,
+          "reload": 0.82,
+          "bounces": 11,
+          "color": "#87D6FF",
+          "blastRadius": 0,
+          "splashFactor": 0,
+          "chainCount": 1,
+          "chainRange": 0,
+          "chainFactor": 0,
+          "slowFactor": 0.48,
+          "slowSeconds": 1.9000000000000001,
+          "childCount": 2,
+          "childFactor": 0,
+          "wallBoost": 0,
+          "maxBoost": 1
+        },
+        "life": 5.2,
+        "bounces": 11,
+        "child": false,
+        "splitDone": false,
+        "wallPower": 1,
+        "lastEnemy": 0,
+        "surge": false,
+        "dead": false,
+        "trail": [
+          {
+            "x": 224.3013905835237,
+            "y": 436.7001309288409
+          },
+          {
+            "x": 223.58449215293643,
+            "y": 431.58344244070076
+          },
+          {
+            "x": 222.86759372234914,
+            "y": 426.4667539525606
+          },
+          {
+            "x": 222.15069529176185,
+            "y": 421.3500654644204
+          },
+          {
+            "x": 221.43379686117456,
+            "y": 416.2333769762803
+          },
+          {
+            "x": 220.7168984305873,
+            "y": 411.11668848814014
+          },
+          {
+            "x": 220,
+            "y": 406
+          }
+        ]
+      },
+      {
+        "id": 43,
+        "x": 263,
+        "y": 365,
+        "px": 263,
+        "py": 365,
+        "vx": -188.66610605709658,
+        "vy": -590.5972404483891,
+        "type": "split",
+        "pips": 2,
+        "stats": {
+          "effect": "split",
+          "damage": 10.2,
+          "volley": 20.4,
+          "count": 2,
+          "reload": 1.0080000000000002,
+          "bounces": 11,
+          "color": "#F8DE87",
+          "blastRadius": 0,
+          "splashFactor": 0,
+          "chainCount": 1,
+          "chainRange": 0,
+          "chainFactor": 0,
+          "slowFactor": 1,
+          "slowSeconds": 0.2,
+          "childCount": 2,
+          "childFactor": 0.36,
+          "wallBoost": 0,
+          "maxBoost": 1
+        },
+        "life": 5.2,
+        "bounces": 11,
+        "child": false,
+        "splitDone": false,
+        "wallPower": 1,
+        "lastEnemy": 0,
+        "surge": false,
+        "dead": false,
+        "trail": [
+          {
+            "x": 272.4333053028548,
+            "y": 394.5298620224195
+          },
+          {
+            "x": 270.86108775237904,
+            "y": 389.6082183520162
+          },
+          {
+            "x": 269.2888702019032,
+            "y": 384.68657468161297
+          },
+          {
+            "x": 267.7166526514274,
+            "y": 379.76493101120974
+          },
+          {
+            "x": 266.1444351009516,
+            "y": 374.8432873408065
+          },
+          {
+            "x": 264.5722175504758,
+            "y": 369.9216436704032
+          },
+          {
+            "x": 263,
+            "y": 365
+          }
+        ]
+      },
+      {
+        "id": 44,
+        "x": 306,
+        "y": 406,
+        "px": 306,
+        "py": 406,
+        "vx": -285.8650686535619,
+        "vy": -550.1646685526928,
+        "type": "bank",
+        "pips": 3,
+        "stats": {
+          "effect": "bank",
+          "damage": 18.373333333333335,
+          "volley": 55.120000000000005,
+          "count": 3,
+          "reload": 0.9576,
+          "bounces": 11,
+          "color": "#FF97B8",
+          "blastRadius": 0,
+          "splashFactor": 0,
+          "chainCount": 2,
+          "chainRange": 0,
+          "chainFactor": 0,
+          "slowFactor": 1,
+          "slowSeconds": 0.30000000000000004,
+          "childCount": 3,
+          "childFactor": 0,
+          "wallBoost": 0.3,
+          "maxBoost": 2.8
+        },
+        "life": 5.2,
+        "bounces": 11,
+        "child": false,
+        "splitDone": false,
+        "wallPower": 1.35,
+        "lastEnemy": 0,
+        "surge": false,
+        "dead": false,
+        "trail": [
+          {
+            "x": 320.2932534326781,
+            "y": 433.50823342763465
+          },
+          {
+            "x": 317.91104452723175,
+            "y": 428.9235278563622
+          },
+          {
+            "x": 315.5288356217854,
+            "y": 424.33882228508975
+          },
+          {
+            "x": 313.14662671633903,
+            "y": 419.7541167138173
+          },
+          {
+            "x": 310.7644178108927,
+            "y": 415.1694111425449
+          },
+          {
+            "x": 308.38220890544636,
+            "y": 410.5847055712724
+          },
+          {
+            "x": 306,
+            "y": 406
+          }
+        ]
+      }
+    ],
+    "pendingShots": [],
+    "damageQueue": [],
+    "upgrades": {},
+    "offers": [],
+    "awaitingUpgrade": false,
+    "over": false,
+    "totalDamage": 0,
+    "manualVolleys": 0,
+    "escaped": 0
+  },
+  "effects": [
+    {
+      "type": "hit",
+      "x": 166,
+      "y": 220,
+      "amount": 51.2,
+      "color": "#72EAC8"
+    },
+    {
+      "type": "kill",
+      "x": 216,
+      "y": 300,
+      "w": 39,
+      "color": "#FFAD76",
+      "reward": 4,
+      "combo": 6,
+      "kind": "volatile"
+    },
+    {
+      "type": "explosion",
+      "x": 216,
+      "y": 300,
+      "radius": 78,
+      "color": "#FFAD76",
+      "volatile": true
+    },
+    {
+      "type": "arc",
+      "x": 116,
+      "y": 240,
+      "tx": 216,
+      "ty": 292,
+      "color": "#CBA7FF"
+    },
+    {
+      "type": "wall",
+      "x": 401,
+      "y": 262,
+      "color": "#FF97B8",
+      "boost": true
+    },
+    {
+      "type": "split",
+      "x": 166,
+      "y": 333,
+      "color": "#F8DE87",
+      "count": 3
+    },
+    {
+      "type": "conduit",
+      "slot": 2,
+      "color": "#87D6FF",
+      "surge": true
+    },
+    {
+      "type": "merge",
+      "a": 0,
+      "b": 1,
+      "oldType": "pulse",
+      "die": {
+        "id": 900,
+        "type": "blast",
+        "pips": 3,
+        "cooldown": 1,
+        "flash": 0
+      }
+    },
+    {
+      "type": "launch",
+      "x": 216,
+      "y": 530,
+      "color": "#FFAD76",
+      "surge": true
+    },
+    {
+      "type": "breach",
+      "x": 365,
+      "y": 512,
+      "lost": 1
+    }
+  ]
+}

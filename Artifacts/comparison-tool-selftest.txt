@@ -1,0 +1,12 @@
+TOOL SELF-TEST ONLY: ORIGINAL IMAGES COMPARED WITH THEMSELVES. NOT A NATIVE GODOT COMPARISON.
+
+menu         mean RGB error=0.0000; changed >8=0.000%
+deck         mean RGB error=0.0000; changed >8=0.000%
+battle_aim   mean RGB error=0.0000; changed >8=0.000%
+upgrade      mean RGB error=0.0000; changed >8=0.000%
+pause        mean RGB error=0.0000; changed >8=0.000%
+dice_info    mean RGB error=0.0000; changed >8=0.000%
+help         mean RGB error=0.0000; changed >8=0.000%
+game_over    mean RGB error=0.0000; changed >8=0.000%
+effects      mean RGB error=0.0000; changed >8=0.000%
+Generated comparison artifacts; this does NOT automatically declare visual parity.

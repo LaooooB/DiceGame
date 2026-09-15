@@ -1,0 +1,15 @@
+{
+  "generatedFrom": "Original DiceGame-project.zip JavaScript implementation, NOT the C# port",
+  "simulationCases": 17,
+  "checkpoints": 179,
+  "statProfiles": 72,
+  "audioProfiles": 84,
+  "totalAudioSamples": 670677,
+  "effectCases": 2,
+  "sourceFiles": {
+    "math.js": "24a17aff71e1a8e3e8af05fd405306408a621c0d0bd99b68147f7e62aafb932c",
+    "simulation.js": "3cabfcc0a8ad9e5c06358e497307bd79c07f0b0bcad7cb849fe56ad85d66f2c7",
+    "renderer.js": "dd2cafd3e772274216ef5001051d83c62e099b0c5feb943c00018c6e87e1ee9d",
+    "audio.js": "4e5fbec0dca173a3fa19cd0f9aeb9f69870429e4be2a7b0cdc667daa97af8f90"
+  }
+}

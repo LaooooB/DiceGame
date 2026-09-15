@@ -1,0 +1,1 @@
+These 9 images were rendered by the ORIGINAL JavaScript/Chromium implementation at fixed states. They are NOT Godot runtime evidence. Compare against Artifacts/Native after running the native capture harness.

@@ -1,0 +1,73 @@
+{
+  "kind": "lexical_scan_only_not_compilation",
+  "files": [
+    {
+      "file": "Scripts/App/GameApp.cs",
+      "lexical_error_tokens": []
+    },
+    {
+      "file": "Scripts/App/GameRoot.cs",
+      "lexical_error_tokens": []
+    },
+    {
+      "file": "Scripts/App/UiLayout.cs",
+      "lexical_error_tokens": []
+    },
+    {
+      "file": "Scripts/Core/GameData.cs",
+      "lexical_error_tokens": []
+    },
+    {
+      "file": "Scripts/Core/MathEx.cs",
+      "lexical_error_tokens": []
+    },
+    {
+      "file": "Scripts/Core/Model.cs",
+      "lexical_error_tokens": []
+    },
+    {
+      "file": "Scripts/Core/SaveCodec.cs",
+      "lexical_error_tokens": []
+    },
+    {
+      "file": "Scripts/Core/Simulation.cs",
+      "lexical_error_tokens": []
+    },
+    {
+      "file": "Scripts/Platform/DesktopStorage.cs",
+      "lexical_error_tokens": []
+    },
+    {
+      "file": "Scripts/Presentation/DesktopChrome.cs",
+      "lexical_error_tokens": []
+    },
+    {
+      "file": "Scripts/Presentation/EffectSystem.cs",
+      "lexical_error_tokens": []
+    },
+    {
+      "file": "Scripts/Presentation/NativeAudio.cs",
+      "lexical_error_tokens": []
+    },
+    {
+      "file": "Scripts/Presentation/NativeCanvas.cs",
+      "lexical_error_tokens": []
+    },
+    {
+      "file": "Scripts/Presentation/NativeRenderer.cs",
+      "lexical_error_tokens": []
+    },
+    {
+      "file": "Scripts/Presentation/PaintLayer.cs",
+      "lexical_error_tokens": []
+    },
+    {
+      "file": "Scripts/Presentation/SoundSynth.cs",
+      "lexical_error_tokens": []
+    },
+    {
+      "file": "Tests/Program.cs",
+      "lexical_error_tokens": []
+    }
+  ]
+}

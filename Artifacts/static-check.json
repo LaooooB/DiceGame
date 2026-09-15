@@ -1,0 +1,253 @@
+{
+  "kind": "package_integrity_only",
+  "not_a_compiler_or_runtime_test": true,
+  "passed": 49,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "JSON Data/game.json",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "JSON Data/dice.json",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "JSON Data/upgrades.json",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "JSON Assets/Reference/manifest.json",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "JSON Tests/Fixtures/fixture_manifest.json",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Godot SDK pinned to 4.6.0",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Both projects target .NET 8",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Tests excluded from game compilation",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "1080p default viewport",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Eight finite three-phase regions",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Native UI scene templates",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Campaign independent test project",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Main scene exists",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Main C# entry exists",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Mouse-only platform switches",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Desktop-only export preset",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Test and tool files excluded from exports",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Non-runtime folders ignored by Godot",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "No duplicate texture multiplication in round mask",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Background image size",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Icon atlas size",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Dice atlas 22",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Dice atlas 41",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Dice atlas 46",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Dice atlas 49",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Dice atlas 53",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Dice atlas 60",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Dice atlas 64",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Dice atlas 92",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Dice atlas 125",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Glow atlas 72EAC8",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Glow atlas FFAD76",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Glow atlas CBA7FF",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Glow atlas 87D6FF",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Glow atlas F8DE87",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Glow atlas FF97B8",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Original source hash math.js",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Original source hash simulation.js",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Original source hash renderer.js",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Original source hash audio.js",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Art source hash",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "17 reference cases / 179 checkpoints",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "72 stat profiles",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "84 audio profiles / 670677 samples",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "All reference audio samples finite",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Nine original reference screenshots",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "No font files redistributed",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "No placeholder implementation exceptions",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "No JavaScript engine or embedded browser dependency",
+      "status": "passed",
+      "detail": ""
+    }
+  ]
+}

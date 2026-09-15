@@ -1,0 +1,20 @@
+{
+  "authority": "The DiceGame-project.zip attached in this conversation; no live repository was read or modified for this migration.",
+  "original_archive_sha256": "d778d6a1b000c7e1562b19590cbf174c53814fde79426e10ccca27b3ef94cadd",
+  "native_runtime": "Godot 4.6 stable Mono/.NET; C# targeting net8.0",
+  "native_compilation_executed": false,
+  "native_visual_validation_executed": false,
+  "data_files": {
+    "dice.json": "df151eb2daf85a5b743323597331c3a5f4fee611b0b877e59e5efaef7df594a3",
+    "game.json": "b87d683c5679ba5ac5358db15c0d6ff3bb5be48d092ce343903e5eb4bcf6cf9d",
+    "upgrades.json": "ee7f2c431d7a51db59e78f6fa77e51e97d0dba75565e15e130d3ea89e2ac2151"
+  },
+  "original_source_files": {
+    "renderer.js": "dd2cafd3e772274216ef5001051d83c62e099b0c5feb943c00018c6e87e1ee9d",
+    "audio.js": "4e5fbec0dca173a3fa19cd0f9aeb9f69870429e4be2a7b0cdc667daa97af8f90",
+    "math.js": "24a17aff71e1a8e3e8af05fd405306408a621c0d0bd99b68147f7e62aafb932c",
+    "config.generated.js": "11109fb5a1b52f40d8fe0036a48d96a9dfc35c7d8e4fddd1ceb253875c967f3b",
+    "app.js": "c2449792ea30bb403cc612708a19fbe478c6802a4edaf26805bebf4b69209425",
+    "simulation.js": "3cabfcc0a8ad9e5c06358e497307bd79c07f0b0bcad7cb849fe56ad85d66f2c7"
+  }
+}

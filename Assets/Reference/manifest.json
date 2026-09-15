@@ -1,0 +1,50 @@
+{
+  "source": "Original DiceGame/src/renderer.js",
+  "source_sha256": "dd2cafd3e772274216ef5001051d83c62e099b0c5feb943c00018c6e87e1ee9d",
+  "dice_sizes": [
+    22,
+    41,
+    46,
+    49,
+    53,
+    60,
+    64,
+    92,
+    125
+  ],
+  "dice_type_rows": [
+    "pulse",
+    "blast",
+    "arc",
+    "frost",
+    "split",
+    "bank"
+  ],
+  "dice_columns": "pips 1 through 6",
+  "atlas_scale": 3,
+  "padding": 8,
+  "icon_base_size": 24,
+  "icon_cell_size": 32,
+  "icons": [
+    "arc",
+    "energy",
+    "blast",
+    "frost",
+    "split",
+    "bank",
+    "pulse",
+    "shield",
+    "pause",
+    "play",
+    "sound",
+    "muted",
+    "close",
+    "back",
+    "check",
+    "plus",
+    "aim",
+    "merge",
+    "reload",
+    "info"
+  ]
+}

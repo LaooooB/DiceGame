@@ -1,0 +1,896 @@
+{
+  "version": 1,
+  "contentNote": "区域名称、敌群参数、解锁奖励与建筑成长均为可替换的贯通测试内容，不代表最终内容设计。流程与内容目录分离。",
+  "initialDice": [
+    "pulse",
+    "blast"
+  ],
+  "initialMechanics": [],
+  "initialBlueprints": [
+    "workshop",
+    "supply_depot"
+  ],
+  "initialResources": {
+    "coins": 160,
+    "wood": 48,
+    "stone": 24,
+    "supplies": 5
+  },
+  "resources": [
+    {
+      "id": "coins",
+      "name": "金币"
+    },
+    {
+      "id": "wood",
+      "name": "木材"
+    },
+    {
+      "id": "stone",
+      "name": "石料"
+    },
+    {
+      "id": "supplies",
+      "name": "补给"
+    }
+  ],
+  "mechanics": [
+    {
+      "id": "endless",
+      "name": "无尽延伸",
+      "description": "区域胜利结算后，可保留本局阵地继续无尽；后续只结算新增战利品。"
+    },
+    {
+      "id": "auto_dispatch",
+      "name": "自动派遣",
+      "description": "在城镇主动开启后，自动消耗补给弹射采集与建设；离开城镇或补给耗尽即停止。"
+    },
+    {
+      "id": "next_cycle",
+      "name": "深层远征",
+      "description": "满足最终区域的不同主骰通关要求后开启下一轮区域挑战；建筑、骰子、资源永久保留。"
+    }
+  ],
+  "regions": [
+    {
+      "id": "region_01",
+      "name": "边境回廊",
+      "description": "基础敌群，适合试验新骰子与出战顺序。",
+      "color": "#72EAC8",
+      "requirements": [],
+      "phases": [
+        {
+          "name": "入口",
+          "bossName": "前哨守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 0.8
+        },
+        {
+          "name": "深处",
+          "bossName": "区域守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 1
+        },
+        {
+          "name": "核心",
+          "bossName": "核心守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 1.5
+        }
+      ],
+      "enemies": {
+        "formation": "mixed",
+        "healthMultiplier": 1,
+        "speedMultiplier": 1,
+        "difficultyWaveScale": 0.42,
+        "armoredChance": 0.14,
+        "volatileChance": 0.2,
+        "bossEscorts": 7
+      },
+      "victoryReward": {
+        "resources": {
+          "coins": 100,
+          "wood": 12,
+          "stone": 10,
+          "supplies": 3
+        }
+      },
+      "firstClearReward": {
+        "resources": {
+          "coins": 80,
+          "supplies": 2
+        },
+        "blueprints": [
+          "arc_workshop"
+        ]
+      },
+      "blueprintPool": [
+        "arc_workshop",
+        "workshop"
+      ],
+      "waveSeconds": 18,
+      "upgradeEvery": 3,
+      "coinsPerKill": 2,
+      "woodPerWave": 2,
+      "stonePerBoss": 6,
+      "suppliesPerBoss": 1,
+      "suppliesOnReturn": 2
+    },
+    {
+      "id": "region_02",
+      "name": "林间遗迹",
+      "description": "交错排列与较多易爆敌人，连锁击杀更有效。",
+      "color": "#9ACF83",
+      "requirements": [
+        {
+          "region": "region_01",
+          "distinctDice": 1,
+          "gears": 1
+        }
+      ],
+      "phases": [
+        {
+          "name": "入口",
+          "bossName": "前哨守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 0.8
+        },
+        {
+          "name": "深处",
+          "bossName": "区域守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 1
+        },
+        {
+          "name": "核心",
+          "bossName": "核心守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 1.5
+        }
+      ],
+      "enemies": {
+        "formation": "stagger",
+        "healthMultiplier": 1.12,
+        "speedMultiplier": 1,
+        "difficultyWaveScale": 0.42,
+        "armoredChance": 0.12,
+        "volatileChance": 0.28,
+        "bossEscorts": 7
+      },
+      "victoryReward": {
+        "resources": {
+          "coins": 125,
+          "wood": 12,
+          "stone": 10,
+          "supplies": 3
+        }
+      },
+      "firstClearReward": {
+        "resources": {
+          "coins": 100,
+          "supplies": 2
+        },
+        "blueprints": [
+          "frost_workshop"
+        ]
+      },
+      "blueprintPool": [
+        "frost_workshop",
+        "dispatch_station"
+      ],
+      "waveSeconds": 18,
+      "upgradeEvery": 3,
+      "coinsPerKill": 2,
+      "woodPerWave": 2,
+      "stonePerBoss": 6,
+      "suppliesPerBoss": 1,
+      "suppliesOnReturn": 2
+    },
+    {
+      "id": "region_03",
+      "name": "晶簇矿道",
+      "description": "敌群向中路聚集，装甲敌人的比例提高。",
+      "color": "#CBA7FF",
+      "requirements": [
+        {
+          "region": "region_02",
+          "distinctDice": 2,
+          "gears": 3
+        }
+      ],
+      "phases": [
+        {
+          "name": "入口",
+          "bossName": "前哨守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 0.8
+        },
+        {
+          "name": "深处",
+          "bossName": "区域守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 1
+        },
+        {
+          "name": "核心",
+          "bossName": "核心守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 1.5
+        }
+      ],
+      "enemies": {
+        "formation": "center",
+        "healthMultiplier": 1.25,
+        "speedMultiplier": 1.04,
+        "difficultyWaveScale": 0.42,
+        "armoredChance": 0.22,
+        "volatileChance": 0.16,
+        "bossEscorts": 7
+      },
+      "victoryReward": {
+        "resources": {
+          "coins": 150,
+          "wood": 12,
+          "stone": 10,
+          "supplies": 3
+        }
+      },
+      "firstClearReward": {
+        "resources": {
+          "coins": 120,
+          "supplies": 2
+        },
+        "blueprints": [
+          "split_workshop"
+        ]
+      },
+      "blueprintPool": [
+        "split_workshop",
+        "endless_lift"
+      ],
+      "waveSeconds": 18,
+      "upgradeEvery": 3,
+      "coinsPerKill": 2,
+      "woodPerWave": 2,
+      "stonePerBoss": 6,
+      "suppliesPerBoss": 1,
+      "suppliesOnReturn": 2
+    },
+    {
+      "id": "region_04",
+      "name": "寒流裂隙",
+      "description": "固定纵向通道，敌人的推进速度更快。",
+      "color": "#87D6FF",
+      "requirements": [
+        {
+          "region": "region_03",
+          "distinctDice": 3,
+          "gears": 6
+        }
+      ],
+      "phases": [
+        {
+          "name": "入口",
+          "bossName": "前哨守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 0.8
+        },
+        {
+          "name": "深处",
+          "bossName": "区域守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 1
+        },
+        {
+          "name": "核心",
+          "bossName": "核心守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 1.5
+        }
+      ],
+      "enemies": {
+        "formation": "lanes",
+        "healthMultiplier": 1.35,
+        "speedMultiplier": 1.1,
+        "difficultyWaveScale": 0.42,
+        "armoredChance": 0.16,
+        "volatileChance": 0.2,
+        "bossEscorts": 8
+      },
+      "victoryReward": {
+        "resources": {
+          "coins": 175,
+          "wood": 12,
+          "stone": 10,
+          "supplies": 3
+        }
+      },
+      "firstClearReward": {
+        "resources": {
+          "coins": 140,
+          "supplies": 2
+        },
+        "blueprints": [
+          "bank_workshop"
+        ]
+      },
+      "blueprintPool": [
+        "bank_workshop",
+        "reload_workshop"
+      ],
+      "waveSeconds": 18,
+      "upgradeEvery": 3,
+      "coinsPerKill": 2,
+      "woodPerWave": 2,
+      "stonePerBoss": 6,
+      "suppliesPerBoss": 1,
+      "suppliesOnReturn": 2
+    },
+    {
+      "id": "region_05",
+      "name": "分岔工场",
+      "description": "两翼优先布阵，爆破敌人带来连锁机会。",
+      "color": "#F8DE87",
+      "requirements": [
+        {
+          "region": "region_04",
+          "distinctDice": 3,
+          "gears": 9
+        }
+      ],
+      "phases": [
+        {
+          "name": "入口",
+          "bossName": "前哨守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 0.8
+        },
+        {
+          "name": "深处",
+          "bossName": "区域守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 1
+        },
+        {
+          "name": "核心",
+          "bossName": "核心守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 1.5
+        }
+      ],
+      "enemies": {
+        "formation": "flanks",
+        "healthMultiplier": 1.5,
+        "speedMultiplier": 1.08,
+        "difficultyWaveScale": 0.42,
+        "armoredChance": 0.1,
+        "volatileChance": 0.32,
+        "bossEscorts": 8
+      },
+      "victoryReward": {
+        "resources": {
+          "coins": 200,
+          "wood": 12,
+          "stone": 10,
+          "supplies": 3
+        }
+      },
+      "firstClearReward": {
+        "resources": {
+          "coins": 160,
+          "supplies": 2
+        },
+        "blueprints": [
+          "energy_well"
+        ]
+      },
+      "blueprintPool": [
+        "energy_well"
+      ],
+      "waveSeconds": 18,
+      "upgradeEvery": 3,
+      "coinsPerKill": 2,
+      "woodPerWave": 2,
+      "stonePerBoss": 6,
+      "suppliesPerBoss": 1,
+      "suppliesOnReturn": 2
+    },
+    {
+      "id": "region_06",
+      "name": "镜面庭院",
+      "description": "左右镜像排列，需要更注意反弹角度。",
+      "color": "#FF97B8",
+      "requirements": [
+        {
+          "region": "region_05",
+          "distinctDice": 4,
+          "gears": 13
+        }
+      ],
+      "phases": [
+        {
+          "name": "入口",
+          "bossName": "前哨守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 0.8
+        },
+        {
+          "name": "深处",
+          "bossName": "区域守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 1
+        },
+        {
+          "name": "核心",
+          "bossName": "核心守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 1.5
+        }
+      ],
+      "enemies": {
+        "formation": "mirror",
+        "healthMultiplier": 1.65,
+        "speedMultiplier": 1.12,
+        "difficultyWaveScale": 0.42,
+        "armoredChance": 0.2,
+        "volatileChance": 0.2,
+        "bossEscorts": 8
+      },
+      "victoryReward": {
+        "resources": {
+          "coins": 225,
+          "wood": 12,
+          "stone": 10,
+          "supplies": 3
+        }
+      },
+      "firstClearReward": {
+        "resources": {
+          "coins": 180,
+          "supplies": 2
+        },
+        "blueprints": [
+          "supply_depot"
+        ]
+      },
+      "blueprintPool": [
+        "supply_depot"
+      ],
+      "waveSeconds": 18,
+      "upgradeEvery": 3,
+      "coinsPerKill": 2,
+      "woodPerWave": 2,
+      "stonePerBoss": 6,
+      "suppliesPerBoss": 1,
+      "suppliesOnReturn": 2
+    },
+    {
+      "id": "region_07",
+      "name": "重墙要塞",
+      "description": "装甲棋盘阵，考验集中火力与控场能力。",
+      "color": "#FFAD76",
+      "requirements": [
+        {
+          "region": "region_06",
+          "distinctDice": 4,
+          "gears": 17
+        }
+      ],
+      "phases": [
+        {
+          "name": "入口",
+          "bossName": "前哨守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 0.8
+        },
+        {
+          "name": "深处",
+          "bossName": "区域守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 1
+        },
+        {
+          "name": "核心",
+          "bossName": "核心守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 1.5
+        }
+      ],
+      "enemies": {
+        "formation": "checker",
+        "healthMultiplier": 1.8,
+        "speedMultiplier": 1.08,
+        "difficultyWaveScale": 0.42,
+        "armoredChance": 0.34,
+        "volatileChance": 0.12,
+        "bossEscorts": 9
+      },
+      "victoryReward": {
+        "resources": {
+          "coins": 250,
+          "wood": 12,
+          "stone": 10,
+          "supplies": 3
+        }
+      },
+      "firstClearReward": {
+        "resources": {
+          "coins": 200,
+          "supplies": 2
+        },
+        "blueprints": [
+          "reload_workshop"
+        ]
+      },
+      "blueprintPool": [
+        "reload_workshop",
+        "energy_well"
+      ],
+      "waveSeconds": 18,
+      "upgradeEvery": 3,
+      "coinsPerKill": 2,
+      "woodPerWave": 2,
+      "stonePerBoss": 6,
+      "suppliesPerBoss": 1,
+      "suppliesOnReturn": 2
+    },
+    {
+      "id": "region_08",
+      "name": "深层核心",
+      "description": "密集混合阵与强化头目，检验整套阵地。",
+      "color": "#D8B8FF",
+      "requirements": [
+        {
+          "region": "region_07",
+          "distinctDice": 5,
+          "gears": 22
+        }
+      ],
+      "phases": [
+        {
+          "name": "入口",
+          "bossName": "前哨守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 0.8
+        },
+        {
+          "name": "深处",
+          "bossName": "区域守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 1
+        },
+        {
+          "name": "核心",
+          "bossName": "核心守卫",
+          "waves": 12,
+          "bossHealthMultiplier": 1.5
+        }
+      ],
+      "enemies": {
+        "formation": "dense",
+        "healthMultiplier": 2,
+        "speedMultiplier": 1.14,
+        "difficultyWaveScale": 0.42,
+        "armoredChance": 0.26,
+        "volatileChance": 0.24,
+        "bossEscorts": 9
+      },
+      "victoryReward": {
+        "resources": {
+          "coins": 275,
+          "wood": 12,
+          "stone": 10,
+          "supplies": 3
+        }
+      },
+      "firstClearReward": {
+        "resources": {
+          "coins": 220,
+          "supplies": 2
+        },
+        "blueprints": [
+          "deep_lift"
+        ]
+      },
+      "blueprintPool": [
+        "deep_lift"
+      ],
+      "waveSeconds": 18,
+      "upgradeEvery": 3,
+      "coinsPerKill": 2,
+      "woodPerWave": 2,
+      "stonePerBoss": 6,
+      "suppliesPerBoss": 1,
+      "suppliesOnReturn": 2
+    }
+  ],
+  "buildings": [
+    {
+      "id": "workshop",
+      "name": "弹芯工坊",
+      "description": "建设后提升新远征的弹丸威力。具体成长由配置决定。",
+      "levels": [
+        {
+          "cost": {
+            "coins": 60,
+            "wood": 12
+          },
+          "work": 3,
+          "reward": {
+            "bonuses": {
+              "damagePercent": 0.05
+            }
+          }
+        },
+        {
+          "cost": {
+            "coins": 140,
+            "wood": 24,
+            "stone": 10
+          },
+          "work": 5,
+          "reward": {
+            "bonuses": {
+              "damagePercent": 0.05
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "supply_depot",
+      "name": "补给仓库",
+      "description": "新远征获得额外起始能量。不会改变已经开始的战斗。",
+      "levels": [
+        {
+          "cost": {
+            "coins": 50,
+            "wood": 10,
+            "stone": 4
+          },
+          "work": 3,
+          "reward": {
+            "bonuses": {
+              "startEnergy": 12
+            }
+          }
+        },
+        {
+          "cost": {
+            "coins": 120,
+            "wood": 20,
+            "stone": 8
+          },
+          "work": 4,
+          "reward": {
+            "bonuses": {
+              "startEnergy": 12
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "arc_workshop",
+      "name": "雷电工坊",
+      "description": "建成解锁雷电骰子：用连锁攻击处理分散敌人。",
+      "levels": [
+        {
+          "cost": {
+            "coins": 70,
+            "wood": 12,
+            "stone": 6
+          },
+          "work": 3,
+          "reward": {
+            "dice": [
+              "arc"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "frost_workshop",
+      "name": "冰霜工坊",
+      "description": "建成解锁冰霜骰子：降低敌人的推进速度。",
+      "levels": [
+        {
+          "cost": {
+            "coins": 110,
+            "wood": 16,
+            "stone": 10
+          },
+          "work": 3,
+          "reward": {
+            "dice": [
+              "frost"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "split_workshop",
+      "name": "分裂工坊",
+      "description": "建成解锁分裂骰子：命中后产生更多弹丸。",
+      "levels": [
+        {
+          "cost": {
+            "coins": 160,
+            "wood": 20,
+            "stone": 14
+          },
+          "work": 4,
+          "reward": {
+            "dice": [
+              "split"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "bank_workshop",
+      "name": "折射工坊",
+      "description": "建成解锁回弹骰子：为撞墙反弹路线提供新的价值。",
+      "levels": [
+        {
+          "cost": {
+            "coins": 200,
+            "wood": 24,
+            "stone": 18
+          },
+          "work": 4,
+          "reward": {
+            "dice": [
+              "bank"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "dispatch_station",
+      "name": "派遣站",
+      "description": "建成后可开启城镇自动派遣；手动瞄准采集一直可用。",
+      "levels": [
+        {
+          "cost": {
+            "coins": 100,
+            "wood": 18,
+            "stone": 8
+          },
+          "work": 3,
+          "reward": {
+            "mechanics": [
+              "auto_dispatch"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "endless_lift",
+      "name": "延伸升降梯",
+      "description": "建成后，区域胜利可以选择继续无尽，或带着奖励回城。",
+      "levels": [
+        {
+          "cost": {
+            "coins": 140,
+            "wood": 20,
+            "stone": 12
+          },
+          "work": 4,
+          "reward": {
+            "mechanics": [
+              "endless"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "reload_workshop",
+      "name": "装填工坊",
+      "description": "略微缩短新远征的装填时间；不改变合成规则。",
+      "levels": [
+        {
+          "cost": {
+            "coins": 180,
+            "wood": 25,
+            "stone": 15
+          },
+          "work": 4,
+          "reward": {
+            "bonuses": {
+              "reloadPercent": 0.04
+            }
+          }
+        },
+        {
+          "cost": {
+            "coins": 300,
+            "wood": 32,
+            "stone": 22
+          },
+          "work": 5,
+          "reward": {
+            "bonuses": {
+              "reloadPercent": 0.04
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "energy_well",
+      "name": "能量井",
+      "description": "提升新远征的自然能量恢复。",
+      "levels": [
+        {
+          "cost": {
+            "coins": 220,
+            "wood": 30,
+            "stone": 20
+          },
+          "work": 4,
+          "reward": {
+            "bonuses": {
+              "passiveEnergy": 0.15
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "deep_lift",
+      "name": "深潜装置",
+      "description": "建成后可按最终区域通关要求进入下一轮更深的区域。",
+      "levels": [
+        {
+          "cost": {
+            "coins": 400,
+            "wood": 40,
+            "stone": 32
+          },
+          "work": 5,
+          "reward": {
+            "mechanics": [
+              "next_cycle"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "town": {
+    "columns": 8,
+    "rows": 4,
+    "woodTiles": [
+      0,
+      7,
+      16,
+      31
+    ],
+    "stoneTiles": [
+      3,
+      12,
+      24,
+      28
+    ],
+    "resourcePerHit": 2,
+    "maxHits": 20,
+    "workPerHit": 1,
+    "dispatchSeconds": 10
+  },
+  "nextCycleRequirements": [
+    {
+      "region": "region_08",
+      "distinctDice": 2,
+      "mechanic": "next_cycle"
+    }
+  ],
+  "cycleHealthMultiplier": 1.3,
+  "cycleRewardMultiplier": 1.15
+}

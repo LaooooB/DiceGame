@@ -1,0 +1,116 @@
+[
+  {
+    "id": "power",
+    "name": "高能弹芯",
+    "tag": "全体 · 伤害",
+    "description": "所有骰子的弹丸伤害提高 18%。",
+    "color": "#72EAC8",
+    "icon": "pulse",
+    "max": 8
+  },
+  {
+    "id": "reload",
+    "name": "极速装填",
+    "tag": "全体 · 频率",
+    "description": "所有骰子的装填时间缩短 8%。",
+    "color": "#72EAC8",
+    "icon": "reload",
+    "max": 6
+  },
+  {
+    "id": "bounce",
+    "name": "镜面力场",
+    "tag": "全体 · 弹射",
+    "description": "弹丸的弹射上限增加 2 次。",
+    "color": "#FF97B8",
+    "icon": "bank",
+    "max": 5
+  },
+  {
+    "id": "surge",
+    "name": "合成过载",
+    "tag": "合成 · 齐射",
+    "description": "合成齐射的额外伤害提高 35%。",
+    "color": "#F8DE87",
+    "icon": "merge",
+    "max": 5
+  },
+  {
+    "id": "income",
+    "name": "能量回流",
+    "tag": "经济 · 召唤",
+    "description": "每次击破敌人额外获得 1 能量。",
+    "color": "#F8DE87",
+    "icon": "energy",
+    "max": 4
+  },
+  {
+    "id": "repair",
+    "name": "紧急修复",
+    "tag": "防线 · 恢复",
+    "description": "立即恢复 4 点防线生命。",
+    "color": "#87D6FF",
+    "icon": "shield",
+    "max": 99
+  },
+  {
+    "id": "blast",
+    "name": "爆破核心",
+    "tag": "爆破 · 范围",
+    "description": "爆炸范围扩大 20%，溅射伤害提高 15%。",
+    "color": "#FFAD76",
+    "icon": "blast",
+    "requires": "blast",
+    "max": 5
+  },
+  {
+    "id": "arc",
+    "name": "跳跃电容",
+    "tag": "雷电 · 连锁",
+    "description": "雷电多跳跃 1 个目标，最多额外 3 个。",
+    "color": "#CBA7FF",
+    "icon": "arc",
+    "requires": "arc",
+    "max": 3
+  },
+  {
+    "id": "frost",
+    "name": "极寒结晶",
+    "tag": "冰霜 · 控场",
+    "description": "减速多持续 0.6 秒，冰霜伤害提高 10%。",
+    "color": "#87D6FF",
+    "icon": "frost",
+    "requires": "frost",
+    "max": 4
+  },
+  {
+    "id": "split",
+    "name": "增殖棱镜",
+    "tag": "分裂 · 子弹",
+    "description": "分裂子弹的伤害提高 25%。",
+    "color": "#F8DE87",
+    "icon": "split",
+    "requires": "split",
+    "max": 4
+  },
+  {
+    "id": "bank",
+    "name": "折射回路",
+    "tag": "回弹 · 撞墙",
+    "description": "每次撞墙的增伤额外提高 15 个百分点。",
+    "color": "#FF97B8",
+    "icon": "bank",
+    "requires": "bank",
+    "max": 4
+  },
+  {
+    "id": "pulse",
+    "name": "脉冲涡轮",
+    "tag": "速射 · 火力",
+    "description": "速射骰子伤害提高 20%。",
+    "color": "#72EAC8",
+    "icon": "pulse",
+    "requires": "pulse",
+    "max": 5
+  }
+]

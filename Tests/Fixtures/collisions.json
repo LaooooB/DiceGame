@@ -1,0 +1,172 @@
+[
+  {
+    "x": 120,
+    "y": 260,
+    "dx": 0,
+    "dy": -80,
+    "box": {
+      "left": 100,
+      "right": 139,
+      "top": 200,
+      "bottom": 239
+    },
+    "expected": {
+      "t": 0.2625,
+      "nx": 0,
+      "ny": 1,
+      "penetration": 0
+    }
+  },
+  {
+    "x": 80,
+    "y": 220,
+    "dx": 80,
+    "dy": 0,
+    "box": {
+      "left": 100,
+      "right": 139,
+      "top": 200,
+      "bottom": 239
+    },
+    "expected": {
+      "t": 0.25,
+      "nx": -1,
+      "ny": 0,
+      "penetration": 0
+    }
+  },
+  {
+    "x": 150,
+    "y": 220,
+    "dx": -80,
+    "dy": 0,
+    "box": {
+      "left": 100,
+      "right": 139,
+      "top": 200,
+      "bottom": 239
+    },
+    "expected": {
+      "t": 0.1375,
+      "nx": 1,
+      "ny": 0,
+      "penetration": 0
+    }
+  },
+  {
+    "x": 120,
+    "y": 190,
+    "dx": 0,
+    "dy": 80,
+    "box": {
+      "left": 100,
+      "right": 139,
+      "top": 200,
+      "bottom": 239
+    },
+    "expected": {
+      "t": 0.125,
+      "nx": 0,
+      "ny": -1,
+      "penetration": 0
+    }
+  },
+  {
+    "x": 100,
+    "y": 200,
+    "dx": 30,
+    "dy": 30,
+    "box": {
+      "left": 100,
+      "right": 139,
+      "top": 200,
+      "bottom": 239
+    },
+    "expected": {
+      "t": 0,
+      "nx": 0,
+      "ny": -1,
+      "penetration": 0
+    }
+  },
+  {
+    "x": 110,
+    "y": 210,
+    "dx": 0,
+    "dy": 0,
+    "box": {
+      "left": 100,
+      "right": 139,
+      "top": 200,
+      "bottom": 239
+    },
+    "expected": {
+      "t": 0,
+      "nx": -1,
+      "ny": 0,
+      "penetration": 10
+    }
+  },
+  {
+    "x": 20,
+    "y": 20,
+    "dx": 0,
+    "dy": 500,
+    "box": {
+      "left": 100,
+      "right": 139,
+      "top": 200,
+      "bottom": 239
+    },
+    "expected": null
+  },
+  {
+    "x": 20,
+    "y": 20,
+    "dx": 200,
+    "dy": 400,
+    "box": {
+      "left": 100,
+      "right": 139,
+      "top": 200,
+      "bottom": 239
+    },
+    "expected": {
+      "t": 0.45,
+      "nx": 0,
+      "ny": -1,
+      "penetration": 0
+    }
+  },
+  {
+    "x": 139,
+    "y": 239,
+    "dx": 10,
+    "dy": 10,
+    "box": {
+      "left": 100,
+      "right": 139,
+      "top": 200,
+      "bottom": 239
+    },
+    "expected": null
+  },
+  {
+    "x": 120,
+    "y": 220,
+    "dx": -80,
+    "dy": 0,
+    "box": {
+      "left": 100,
+      "right": 139,
+      "top": 200,
+      "bottom": 239
+    },
+    "expected": {
+      "t": 0,
+      "nx": 1,
+      "ny": 0,
+      "penetration": 19
+    }
+  }
+]
