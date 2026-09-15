@@ -2,6 +2,11 @@ using Godot;
 
 namespace DiceGame.UI;
 
+public static class UxMotion
+{
+    public static bool Reduced { get; set; }
+}
+
 /// <summary>Small, non-blocking feedback for scene-authored buttons.</summary>
 public partial class AnimatedButton : Button
 {
@@ -24,7 +29,7 @@ public partial class AnimatedButton : Button
     private void Animate(float scale, float alpha)
     {
         if (_motion is not null && _motion.IsValid()) _motion.Kill();
-        if (UiKit.ReduceMotion)
+        if (UxMotion.Reduced)
         {
             Scale = Vector2.One;
             Modulate = new Color(1, 1, 1, alpha);
