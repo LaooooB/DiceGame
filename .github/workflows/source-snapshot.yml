@@ -1,0 +1,26 @@
+name: Source snapshot
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: source-snapshot
+          path: |
+            Data/
+            Scenes/
+            Scripts/
+            Tests/
+            Tools/
+            Shaders/
+            .github/workflows/verify.yml
+            project.godot
+            DiceGame.csproj
+            export_presets.cfg
+          retention-days: 1
