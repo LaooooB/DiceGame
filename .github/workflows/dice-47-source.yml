@@ -1,0 +1,23 @@
+name: Dice 47 reproducible source snapshot
+on:
+  push:
+    branches: [work/dice-47-mythic-20260915]
+    paths: [.github/workflows/dice-47-source.yml]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 56aa65e02e04c8d75f3d63c86ccada7353f942c5
+      - name: Archive exact expansion baseline
+        run: git archive --format=zip --output=/tmp/DiceGame-base.zip HEAD
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dice-47-baseline
+          path: /tmp/DiceGame-base.zip
+          retention-days: 1
+          compression-level: 0
