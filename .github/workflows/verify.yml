@@ -24,6 +24,8 @@ jobs:
         run: dotnet run --project Tests/Skills/Skills.Tests.csproj --configuration Release
       - name: Dice roster, rarity and content regression
         run: dotnet run --project Tests/Content/Content.Tests.csproj --configuration Release
+      - name: Twenty-five new dice, one hundred branches and mythic transaction regression
+        run: dotnet run --project Tests/Expansion/Expansion.Tests.csproj --configuration Release
       - name: Build native game
         run: dotnet build DiceGame.csproj --configuration Debug
       - name: Import and launch pinned Godot
@@ -60,6 +62,7 @@ jobs:
             Artifacts/skills-stress.json
             Artifacts/content-test-results.json
             Artifacts/content-stress.json
+            Artifacts/expansion-test-results.json
             /tmp/godot-smoke.log
             /tmp/godot-content.log
             Artifacts/ContentScreenshots/
