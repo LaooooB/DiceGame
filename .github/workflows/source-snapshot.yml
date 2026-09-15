@@ -18,8 +18,22 @@ jobs:
         run: |
           set -euo pipefail
           : > /tmp/ui-refactor.patch.bz2
-          for f in .github/ui-refactor-*.b64; do base64 -d "$f" >> /tmp/ui-refactor.patch.bz2; done
+          for f in \
+            .github/ui-refactor-000.b64 \
+            .github/ui-refactor-001.b64 \
+            .github/ui-refactor-002.b64 \
+            .github/ui-refactor-003.b64 \
+            .github/ui-refactor-z006.b64 \
+            .github/ui-refactor-z007.b64 \
+            .github/ui-refactor-z008.b64 \
+            .github/ui-refactor-z009.b64 \
+            .github/ui-refactor-z010.b64 \
+            .github/ui-refactor-z011.b64; do
+            base64 -d "$f" >> /tmp/ui-refactor.patch.bz2
+          done
+          echo 'd476b3ca66c86be373de1a5f77b17450ad080b19b100b56996c0aec21753004e  /tmp/ui-refactor.patch' > /tmp/ui-refactor.sha256
           bzip2 -dc /tmp/ui-refactor.patch.bz2 > /tmp/ui-refactor.patch
+          sha256sum -c /tmp/ui-refactor.sha256
           git apply --check /tmp/ui-refactor.patch
           git apply /tmp/ui-refactor.patch
           rm .github/ui-refactor-*.b64 .github/ui-refactor-ready
