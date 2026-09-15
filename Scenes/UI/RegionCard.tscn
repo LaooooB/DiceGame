@@ -1,0 +1,68 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/UI/GameButton.tscn" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="Panel"]
+bg_color = Color(0.0471, 0.0863, 0.1255, 0.97)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2118, 0.3137, 0.3882, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0, 0, 0.32)
+shadow_size = 6
+
+[node name="RegionCard" type="PanelContainer"]
+custom_minimum_size = Vector2(380, 260)
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="Name" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "区域"
+
+[node name="Meta" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5608, 0.6392, 0.698, 1)
+theme_override_font_sizes/font_size = 16
+text = "阶段"
+
+[node name="Progress" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4471, 0.9176, 0.7843, 1)
+theme_override_font_sizes/font_size = 17
+text = "进度"
+
+[node name="Reward" type="Label" parent="Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.9725, 0.8706, 0.5294, 1)
+theme_override_font_sizes/font_size = 16
+autowrap_mode = 2
+text = "奖励"
+
+[node name="Lock" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5608, 0.6392, 0.698, 1)
+theme_override_font_sizes/font_size = 15
+autowrap_mode = 2
+
+[node name="Action" parent="Margin/Content" instance=ExtResource("1")]
+layout_mode = 2
+text = "选择"
